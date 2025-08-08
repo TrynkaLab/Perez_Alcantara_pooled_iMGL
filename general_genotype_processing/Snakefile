@@ -1,0 +1,497 @@
+#!/usr/bin/env python3
+# Snakefile for processing the merged genotype vcf for all donors
+# snakemake is in snakemake v 7.30.2
+# processing genotypes for deconvolution and prediction of variant effects
+import os
+import numpy as np
+
+POOL=["pool_14"]
+CHR = [i for i in np.arange(1,23,1)] + ["X"]
+WES, = glob_wildcards("../../data/WES/linked_files/exomeseq/{wes}")
+WES2, = glob_wildcards("../../data/WES/VEP/{wes2}.vep.vcf.gz") # should fix this by putting renamed vcfs in different dir, otherwise
+# creates recursion naming problems
+
+rule all:
+    input:
+        #csq_formatted="../../data/consequence_calling/csq.out.formatted.txt",
+        vep_del_dirty=expand("../../data/consequence_calling/missense_dirty.{chr}.txt",chr=CHR),
+        vep_mis_dirty=expand("../../data/WES/VEP/missense_dirty.{wes2}.txt",wes2=WES2)
+
+rule pool_donor_names:
+    input:
+        metadata="../../data/sampleMetadata.txt",
+        donor_ids="../../data/donor_id_match.txt"
+    output:
+        donor_pools="../../data/{pool}/{pool}_donorNames.txt"
+    message: "Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_pool_donor_ids.%J.%I",
+        error="-e ../../errors/error_pool_donor_ids.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        """
+
+rule subset_donors_vcf:
+    input:
+        donor_pools="../../data/{pool}/{pool}_donorNames.txt",
+        all_hipsci_vcf="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz",
+        index="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz.tbi"
+    output:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz",
+        index="../../data/{pool}/{pool}.genotype.vcf.gz.csi"
+    message: "Subsetting donors present in the metadata file."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_subset_donors_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        # Subset donors
+        bcftools view -S {input.donor_pools} {input.all_hipsci_vcfs} --threads 32 -Oz -o {output.genotype}
+        bcftools index {output.genotype}
+
+        """
+
+rule exonfilter_genotype_file:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz"
+    output:
+        filtered="../../data/{pool}/{pool}.genotype.exonfiltered.vcf.gz"
+    message: "Subsetting genotypes to exonic positions."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log_exonfilter_genotype_file.%J.%I",
+        error="-e ../../errors/error_exonfilter_genotype_file.%J.%I",
+        bind_dir="/lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/{pool}"
+    shell:
+        """
+        set +o pipefail;
+
+        echo "Remove chr"
+        # remove chr to first column
+        # create conversion file beforehand
+        # https://www.biostars.org/p/98582/#176041
+        bcftools annotate --rename-chrs ../../data/{wildcards.pool}/rm_chr.txt {input.genotype} > ../../data/{wildcards.pool}/temp_nochr.vcf
+        ~/bin/bcftools-1.18/bcftools sort --max-mem 40G --temp-dir ../../data/ --write-index -Oz -o ../../data/{wildcards.pool}/temp_nochr_sorted_presubset.vcf.gz ../../data/{wildcards.pool}/temp_nochr.vcf
+
+        echo "Subset to exon"
+        singularity exec --bind {params.bind_dir}/ \
+        /software/teamtrynka/Demuxafy.sif vcftools \
+        --gzvcf {params.bind_dir}/temp_nochr_sorted_presubset.vcf.gz \
+        --max-alleles 2 \
+        --remove-indels \
+        --bed {params.bind_dir}/genotypes/hg38exonsUCSC.bed \
+        --recode \
+        --recode-INFO-all \
+        --out {params.bind_dir}/{wildcards.pool}.genotype.exonfiltered.nochr
+
+        # add chr to first column
+        # create conversion file beforehand
+        # https://www.biostars.org/p/98582/#176041
+        bcftools annotate --rename-chrs ../../data/{wildcards.pool}/add_chr.txt \
+        -Oz -o ../../data/{wildcards.pool}/{wildcards.pool}.genotype.exonfiltered.vcf.gz \
+        ../../data/{wildcards.pool}/{wildcards.pool}.genotype.exonfiltered.nochr.recode.vcf
+        bcftools index -f {params.bind_dir}/{wildcards.pool}.genotype.exonfiltered.vcf.gz
+        """
+
+rule subset_variants:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.exonfiltered.vcf.gz"
+    output:
+        genotype="../../data/{pool}/{pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf.gz"
+    message: "Subsetting to variants that have non-identical genotypes across donors. Do conda activate otar2065 first. Run with snakemake --jobs 3 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M160000 -R'span[hosts=1] select[mem>160000] rusage[mem=160000]'",
+        jobname= "-o ../../logs/log_{pool}_subset_variants.%J.%I",
+        error="-e ../../errors/error_{pool}_subset_variants.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo "Subsetting to variants that have non-identical genotypes across donors"
+        Rscript 0.Retain_non-identical_variants.R {input.genotype} \
+        ../../data/{wildcards.pool}/{wildcards.pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf.gz
+        # Decompressing and re-compressing in right format
+        gunzip -d ../../data/{wildcards.pool}/{wildcards.pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf.gz
+        bgzip -f ../../data/{wildcards.pool}/{wildcards.pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf
+        echo "Generating index file"
+        bcftools index {output.genotype}
+        """
+### VEP and csq from the imputed genotype file
+rule consequence_calling_bcftools:
+    input:
+        all_hipsci_vcf="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz",
+        index="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz.tbi",
+        reference="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa",
+        gff3="/lustre/scratch123/hgi/teams/trynka/resources/ensembl_gff3/Homo_sapiens.GRCh38.112.gff3.gz"
+    output:
+        csq_formatted="../../data/consequence_calling/csq.out.formatted.txt"
+    message: "Doing consequence calling (missense etc) with bcftools for all donors."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_consequence_calling_bcftools.%J.%I",
+        error="-e ../../errors/error_consequence_calling_bcftools.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # calling
+        #https://samtools.github.io/bcftools/howtos/csq-calling.html
+        bcftools csq -f {input.reference} -g {input.gff3} {input.all_hipsci_vcf} -Oz -o ../../data/consequence_calling/csq.out.vcf.gz
+        echo -e 'CHROM\tPOS\tREF\tALT\tID\tGene\tSYMBOL\tConsequence\tPolyPhen\tSIFT\tCADD_PHRED'  > {output.csq_formatted}
+        bcftools +split-vep ../../data/consequence_calling/csq.out.vcf.gz -f '%CHROM\t%POS\t%REF\t%ALT\t%ID\t%Gene\t%Consequence\t%PolyPhen\t%SIFT\t%CADD_PHRED' --duplicate -s worst:missense+ >> {output.csq_formatted}
+
+        """
+rule split_chr_vep_clinvar:
+    input:
+        all_hipsci_vcf="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz",
+        index="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.with_X.vcf.gz.tbi"
+    output:
+        output_vcfs="../../data/imputed_from_kaur/split/microglia_samples.GRCh38.filtered.with_X.1.vcf.gz"
+    message: "Splitting chr for VEP."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_split_chr_vep_clinvar.%J.%I",
+        error="-e ../../errors/error_split_chr_vep_clinvar.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        bcftools index -s {input.all_hipsci_vcf} | cut -f 1 | while read C; do bcftools view -O z -o ../../data/imputed_from_kaur/split/microglia_samples.GRCh38.filtered.with_X.${{C}}.vcf.gz {input.all_hipsci_vcf} "${{C}}" ; done 
+        """
+
+rule consequence_calling_vep_clinvar:
+    input:
+        all_hipsci_vcf="../../data/imputed_from_kaur/split/microglia_samples.GRCh38.filtered.with_X.{chr}.vcf.gz"
+    output:
+        vep="../../data/consequence_calling/microglia_samples.GRCh38.filtered.with_X.{chr}.vep.vcf.gz"
+    message: "Doing consequence calling (missense etc) with VEP for all donors. Using HGI script."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_consequence_calling_vep_clinvar.%J.%I",
+        error="-e ../../errors/error_consequence_calling_vep_clinvar.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+	/lustre/scratch125/humgen/resources/ensembl/vep/run_vep_111.0_clinvar.sh {input.all_hipsci_vcf}
+	mv ../../data/imputed_from_kaur/split/microglia_samples.GRCh38.filtered.with_X.{chr}.vep.vcf.gz ../../data/consequence_calling/
+    bcftools index {output.vep}
+        """
+
+rule subset_to_missense:
+    input:
+        vep="../../data/consequence_calling/microglia_samples.GRCh38.filtered.with_X.{chr}.vep.vcf.gz"
+    output:
+        vep_mis_dirty="../../data/consequence_calling/missense_dirty.{chr}.txt"
+    message: "Subset to missense+ consequences (will need more cleaning)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_subset_to_del.%J.%I",
+        error="-e ../../errors/error_subset_to_del.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo -e 'CHROM\tPOS\tREF\tALT\tID\tGene\tSYMBOL\tConsequence\tPolyPhen\tSIFT\tCADD_PHRED' > {output.vep_mis_dirty}
+        bcftools +split-vep {input.vep} -f '%CHROM\t%POS\t%REF\t%ALT\t%ID\t%Gene\t%SYMBOL\t%Consequence\t%PolyPhen\t%SIFT\t%CADD_PHRED' --duplicate -s worst:missense+ >> {output.vep_mis_dirty}
+        """
+
+### VEP from whole exome sequencing
+
+rule list_wes_hipsci:
+    input:
+        all_lines_names="../../data/all_pools/all_hipsci_ipmar_donors_donorNames.txt"
+    output:
+        found="../../data/WES/linked_files/found.txt",
+        not_found="../../data/WES/linked_files/not_found.txt"
+    message: "List all the WES files from HipSci. If not found at high coverage check lower coverage."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M2000 -R'span[hosts=1] select[mem>2000] rusage[mem=2000]'",
+        jobname= "-o ../../logs/log_list_wes_hipsci.%J.%I",
+        error="-e ../../errors/error_list_wes_hipsci.%J.%I",
+        deep_wes_dir="../../data/WES/linked_files/deep_exomeseq",
+        wes_dir="../../data/WES/linked_files/exomeseq"
+    shell:
+        """
+        set +o pipefail;
+# starts from symbolic links of all files in ../../data/WES/linked_files/deep_exomeseq and ../../data/WES/linked_files/exomeseq
+mkdir -p {params.deep_wes_dir} {params.wes_dir}
+cp --symbolic-link /lustre/scratch123/hgi/projects/hipsci/releases/data/exomeseq/mpileup_vcf/*/*/* {params.wes_dir}
+cp --symbolic-link /lustre/scratch123/hgi/projects/hipsci/releases/data/deep_exomeseq/mpileup_vcf/*/*/* {params.deep_wes_dir}
+# Input file with character vectors
+input_file={input.all_lines_names}
+# Directories to search files in
+search_dir_a={params.deep_wes_dir}
+search_dir_b={params.wes_dir}
+# Output files for found and not found
+found_file={output.found}
+not_found_file={output.not_found}
+# Empty the output files before use
+> "$found_file"
+> "$not_found_file"
+# Read each line (pattern) from the input file
+while IFS= read -r pattern; do
+    # Trim leading/trailing whitespace from pattern (if necessary)
+    pattern=$(echo "$pattern" | xargs)
+    # Search in folder A for partial matches
+    matches=$(ls "$search_dir_a"/*"$pattern"*.vcf.gz )
+    # If no matches in folder A, search in folder B
+    if [[ -z "$matches" ]]; then
+        matches=$(ls "$search_dir_b"/*"$pattern"*.vcf.gz )
+    fi
+    # If matches are found, write absolute paths to found.txt, otherwise write pattern to not_found.txt
+    if [[ -n "$matches" ]]; then
+        echo "$matches" >> "$found_file"
+    else
+        echo "$pattern" >> "$not_found_file"
+    fi
+done < "$input_file"
+
+# remove missing files #######################
+temp_folder_files=$(mktemp)
+# Extract just the basenames of files in the folder and store in the temp file
+for file in "$search_dir_a"/*.vcf.gz; do
+     echo "$file"
+done > "$temp_folder_files"
+for file in "$search_dir_b"/*.vcf.gz; do
+     echo "$file"
+done >> "$temp_folder_files"
+# Find files that are in the folder but not in the list and remove them
+grep -Fxv -f $found_file $temp_folder_files > to_rm.txt
+for f in $(cat to_rm.txt) ; do 
+  rm "$f"
+done
+# Clean up temporary file
+rm "$temp_folder_files" to_rm.txt
+        """
+
+rule QC_wes:
+    input:
+        found="../../data/WES/linked_files/found.txt",
+        wes="../../data/WES/linked_files/exomeseq/{wes}"
+    output:
+        wes_qc="../../data/WES/QCd/{wes}"
+    message: "QC WES for VEP."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 8",
+        threads_num=8,
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_QC_wes.%J.%I",
+        error="-e ../../errors/error_QC_wes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # only PASS quality variants
+        bcftools view -f 'PASS' {input.wes} --threads {params.threads_num} -Oz -o {output.wes_qc}
+        """
+# rename files
+
+rule rename_wes:
+    input:
+        wes_qc=expand("../../data/WES/QCd/{wes}",wes=WES)
+    output:
+        wes_renamed="../../data/WES/VEP/kolf_2.vcf.gz"
+    message: "renaming WES files."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M1000 -R'span[hosts=1] select[mem>1000] rusage[mem=1000]'",
+        jobname= "-o ../../logs/log_rename_wes.%J.%I",
+        error="-e ../../errors/error_rename_wes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        items=$(ls ../../data/WES/QCd)
+        mkdir -p ../../data/WES/VEP 
+        for item in $items; do
+        stripped_name="${{item#*-}}"
+        stripped_name="${{stripped_name%%.wes*}}"
+        mv $item ../../data/WES/VEP/"$stripped_name".vcf.gz
+        bcftools index -f ../../data/WES/VEP/"$stripped_name".vcf.gz
+        done
+
+        """
+
+rule consequence_calling_vep_WES:
+    input:
+        wes_renamed="../../data/WES/VEP/{wes2}.vcf.gz"
+    output:
+        vep="../../data/WES/VEP/{wes2}.vep.vcf.gz"
+    message: "Doing consequence calling (missense etc) with VEP for all donors. Using HGI script."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 8",
+        threads_num=8,
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",        
+        jobname= "-o ../../logs/log_consequence_calling_vep_WES.%J.%I",
+        error="-e ../../errors/error_consequence_calling_vep_WES.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # pre-load singularity with: module load cellgen/singularity
+	      bash run_vep_111.GRCh37.sh {input.wes_renamed}
+          bcftools index {output.vep}
+        """
+
+rule subset_to_missense_WES:
+    input:
+        vep="../../data/WES/VEP/{wes2}.vep.vcf.gz"
+    output:
+        vep_mis_dirty="../../data/WES/VEP/missense_dirty.{wes2}.txt"
+    message: "Subset to missense+ consequences (will need more cleaning)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+        jobname= "-o ../../logs/log_subset_to_missense_WES.%J.%I",
+        error="-e ../../errors/error_subset_to_missense_WES.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo -e 'CHROM\tPOS\tREF\tALT\tID\tGene\tSYMBOL\tConsequence\tPolyPhen\tSIFT\tCADD_PHRED' > {output.vep_mis_dirty}
+        bcftools +split-vep {input.vep} -f '%CHROM\t%POS\t%REF\t%ALT\t%ID\t%Gene\t%SYMBOL\t%Consequence\t%PolyPhen\t%SIFT\t%CADD_PHRED' --duplicate -s worst:missense+ >> {output.vep_mis_dirty}
+        """
+
+     # Rscript to write missense variants of interest: clean_VEP_file
+    # then subset VCFs to these variants
+     
+rule intersect_and_merge:
+    input:
+        vep_wes=expand("../../data/WES/VEP/{wes2}.vep.vcf.gz",wes2=WES2),
+        vep_imputed=expand("../../data/consequence_calling/microglia_samples.GRCh38.filtered.with_X.{chr}.vep.vcf.gz",chr=CHR),
+        wes_positions="../../data/WES/VEP/wes_deleterious_missense_VEP_positions.tsv",
+        imputed_positions="../../data/consequence_calling/imputed_genotype_deleterious_missense_VEP_positions.tsv"
+    output:
+        vep_mis_clean_wes_hg19="../../data/WES/VEP/missense_clean_GRCh37.vcf.gz",
+        vep_mis_clean_imputed="../../data/consequence_calling/missense_clean.vcf.gz"
+    message: "Intersect VCF files with missense positions and merge/concat VCFs."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M20000 -R'span[hosts=1] select[mem>20000] rusage[mem=20000]'",
+        jobname= "-o ../../logs/log_intersect_and_merge.%J.%I",
+        error="-e ../../errors/error_intersect_and_merge.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # subset to positions
+	      for file in {input.vep_wes}; do
+	      base=$(basename "$file")
+	      echo "working on $base"
+        bcftools view -R {input.wes_positions} -Oz -o "../../data/WES/VEP/temp_$base" $file 
+        done
+        
+        for file in {input.vep_imputed}; do
+        base=$(basename "$file")
+        echo "working on $base"
+        bcftools view -R {input.imputed_positions} -Oz -o "../../data/consequence_calling/temp_$base" $file
+        done
+        # merge
+        
+        bcftools merge --missing-to-ref --write-index ../../data/WES/VEP/temp_*vcf.gz -Oz -o {output.vep_mis_clean_wes_hg19}
+        bcftools concat --write-index ../../data/consequence_calling/temp_*vcf.gz -Oz -o {output.vep_mis_clean_imputed}
+        """
+
+rule liftover_hg19_hg38:
+    input:
+        vep_mis_clean_wes_hg19="../../data/WES/VEP/missense_clean_GRCh37.vcf.gz"
+    output:
+        vep_mis_clean_wes_GRCh38="../../data/WES/VEP/missense_clean_GRCh38.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38).Use with snakemake --use-envmodules for picard"
+    envmodules:
+        "cellgen/picard/3.0.0"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+        jobname= "-o log_liftover_hg19_hg38.%J.%I",
+        error="-e error_liftover_hg19_hg38.%J.%I",
+	chain="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chain/hg19ToHg38.over.chain",
+	fasta="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.fa.gz",
+	dict="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.dict",
+	recoding="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chromosome_mappings_hg19_to_b37/GRCh37_UCSC2ensembl_b37tohg19.txt"
+    shell:
+        """
+        set +o pipefail;
+	#echo "Creating dictionary..."
+	#picard CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+	echo "Changing vcf from bg37 to hg19"
+	bcftools annotate --rename-chrs {params.recoding} -o temp_chrChange.vcf {input.vcf}
+
+    echo "Lifting over..."
+	picard LiftoverVcf \
+	I=temp_chrChange.vcf \
+	O=temp_liftedOver.vcf \
+	CHAIN={params.chain} \
+	REJECT=rejected_variants.vcf \
+	R={params.fasta} \
+	MAX_RECORDS_IN_RAM=100000
+
+
+    echo "Generating index file"
+    bcftools view -Oz -o {output.genotype} temp_liftedOver.vcf
+    bcftools index {output.genotype}
+    rm temp*
+        """
+# subset again to missense to extract final set of VEP calls for analysis
+
+
+rule subset_to_missense_WES_GRCh38:
+    input:
+        vep_mis_clean_wes_GRCh38="../../data/WES/VEP/missense_clean_GRCh38.vcf.gz"
+    output:
+        vep_mis_clean_final="../../data/WES/VEP/missense_clean_GRCh38.txt"
+    message: "Subset to missense+ consequences for final analysis."
+    envmodules:
+        "HGI/softpack/groups/otar2065/otar2065_9/26"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+        jobname= "-o ../../logs/log_subset_to_missense_WES_GRCh38.%J.%I",
+        error="-e ../../errors/error_subset_to_missense_WES_GRCh38.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo -e 'CHROM\tPOS\tREF\tALT\tID\tGene\tSYMBOL\tConsequence\tPolyPhen\tSIFT\tCADD_PHRED' > {output.vep_mis_clean_final}
+        bcftools +split-vep {input.vep_mis_clean_wes_GRCh38} -f '%CHROM\t%POS\t%REF\t%ALT\t%ID\t%Gene\t%SYMBOL\t%Consequence\t%PolyPhen\t%SIFT\t%CADD_PHRED' --duplicate -s worst:missense+ >> {output.vep_mis_clean_final}
+        """

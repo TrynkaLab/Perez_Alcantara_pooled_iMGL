@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+# Snakefile for migration assay WGS processing: merged bams.
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+
+SAMPLE,= glob_wildcards("../../../data/bams/{sample}_merged.bam")
+# How to run everything without having to run the first rule only? Converting sampleA/A2/B to sample by regex. How?
+
+rule all:
+	input:
+		bai=expand("../../../data/bams/{sample}_merged.bam.bai",sample=SAMPLE),
+		coverage_samtools=expand("../../../data/depth/{sample}_merged_coverage_samtools.txt",sample=SAMPLE),
+		bam_readcount=expand("../../../data/bam-readcount/{sample}_bam-readcount.txt.gz",sample=SAMPLE),
+		b_estimate=expand("../../../data/b/{sample}_b_estimate.csv",sample=SAMPLE),
+		genotype_minor_allele_dosage=expand("../../../data/genotypes/{sample}_genotype_minor_allele_dosage.csv", sample=SAMPLE),
+		variants_retained=expand("../../../data/genotypes/{sample}_Nvariants_retained_reduced_genotype.txt",sample=SAMPLE),
+		w_estimate=expand("../../../data/w/{sample}_w_estimate.txt",sample=SAMPLE)
+
+rule merge_bam:
+	input:
+		bam="../../../data/bams/P4_176T.bam",
+		bai="../../../data/bams/P4_176T.bam.bai"
+	output:
+		bam="../../../data/bams/P4_176_merged.bam"
+	message: "Merging bams."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M20000 -R'span[hosts=1] select[mem>20000] rusage[mem=20000]'",
+		jobname= "-o ../../../logs/log_merge_bam.%J.%I",
+		error="-e ../../../errors/error_merge_bam.%J.%I"
+	shell:
+	 	"""
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_135_merged.bam ../../../data/bams/P3_135T.bam ../../../data/bams/P3_135B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_136_merged.bam ../../../data/bams/P3_136T.bam ../../../data/bams/P3_136B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_137_merged.bam ../../../data/bams/P3_137T.bam ../../../data/bams/P3_137B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_138_merged.bam ../../../data/bams/P3_138T.bam ../../../data/bams/P3_138B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_139_merged.bam ../../../data/bams/P3_139T.bam ../../../data/bams/P3_139B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_140_merged.bam ../../../data/bams/P3_140T.bam ../../../data/bams/P3_140B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_144_merged.bam ../../../data/bams/P3_144T.bam ../../../data/bams/P3_144B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_145_merged.bam ../../../data/bams/P3_145T.bam ../../../data/bams/P3_145B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_146_merged.bam ../../../data/bams/P3_146T.bam ../../../data/bams/P3_146B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_147_merged.bam ../../../data/bams/P3_147T.bam ../../../data/bams/P3_147B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_148_merged.bam ../../../data/bams/P3_148T.bam ../../../data/bams/P3_148B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_149_merged.bam ../../../data/bams/P3_149T.bam ../../../data/bams/P3_149B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_150_merged.bam ../../../data/bams/P3_150T.bam ../../../data/bams/P3_150B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_151_merged.bam ../../../data/bams/P3_151T.bam ../../../data/bams/P3_151B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P3_152_merged.bam ../../../data/bams/P3_152T.bam ../../../data/bams/P3_152B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_159_merged.bam ../../../data/bams/P4_159T.bam ../../../data/bams/P4_159B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_160_merged.bam ../../../data/bams/P4_160T.bam ../../../data/bams/P4_160B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_161_merged.bam ../../../data/bams/P4_161T.bam ../../../data/bams/P4_161B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_162_merged.bam ../../../data/bams/P4_162T.bam ../../../data/bams/P4_162B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_163_merged.bam ../../../data/bams/P4_163T.bam ../../../data/bams/P4_163B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_164_merged.bam ../../../data/bams/P4_164T.bam ../../../data/bams/P4_164B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_168_merged.bam ../../../data/bams/P4_168T.bam ../../../data/bams/P4_168B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_169_merged.bam ../../../data/bams/P4_169T.bam ../../../data/bams/P4_169B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_170_merged.bam ../../../data/bams/P4_170T.bam ../../../data/bams/P4_170B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_171_merged.bam ../../../data/bams/P4_171T.bam ../../../data/bams/P4_171B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_172_merged.bam ../../../data/bams/P4_172T.bam ../../../data/bams/P4_172B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_173_merged.bam ../../../data/bams/P4_173T.bam ../../../data/bams/P4_173B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_174_merged.bam ../../../data/bams/P4_174T.bam ../../../data/bams/P4_174B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_175_merged.bam ../../../data/bams/P4_175T.bam ../../../data/bams/P4_175B.bam
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools merge -@ 32 -o ../../../data/bams/P4_176_merged.bam ../../../data/bams/P4_176T.bam ../../../data/bams/P4_176B.bam
+
+		"""
+
+rule index_bam:
+	input:
+		bam="../../../data/bams/{sample}_merged.bam"
+	output:
+		bai="../../../data/bams/{sample}_merged.bam.bai"
+	message: "Indexing bams."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M20000 -R'span[hosts=1] select[mem>20000] rusage[mem=20000]'",
+		jobname= "-o ../../../logs/log_index_merged_bam.{sample}.%J.%I",
+		error="-e ../../../errors/error_index_merged_bam.{sample}.%J.%I"
+	shell:
+	 	"""
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools index -@ 32 {input.bam} {output.bai}
+
+		"""
+
+rule get_coverage:
+	input:
+		bam="../../../data/bams/{sample}_merged.bam",
+		bai="../../../data/bams/{sample}_merged.bam.bai"
+	output:
+		coverage="../../../data/depth/{sample}_merged_coverage.txt",
+		coverage_samtools="../../../data/depth/{sample}_merged_coverage_samtools.txt"
+	message: "Calculating depth and coverage from crams."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+		jobname= "-o ../../../logs/log_merged_get_coverage.{sample}.%J.%I",
+		error="-e ../../../errors/error_merged_get_coverage.{sample}.%J.%I",
+	shell:
+		"""
+		depth=$(/software/teamtrynka/conda/trynka-base/bin/samtools depth -a {input.bam}  |  awk '{{sum+=$3}} END {{ print sum/NR}}' )
+		echo $depth > {output.coverage}
+		/software/sciops/pkgg/samtools/1.14.0/bin/samtools coverage -d 0 -o {output.coverage_samtools} {input.bam}
+		"""
+
+rule get_region_list:
+	input:
+		genotype_pool3="../../../data/genotype/pool_3.merged.genotype.nonIdentical.hg38.vcf.gz",
+		genotype_pool4="../../../data/genotype/pool_4.merged.genotype.nonIdentical.hg38.vcf.gz"
+	output:
+		region_list_pool3="../../../data/genotype/pool_3.merged.genotype.hg38.nonIdentical.txt",
+		region_list_pool4="../../../data/genotype/pool_4.merged.genotype.hg38.nonIdentical.txt"
+	message: "Getting region list for bam-readcount."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 2",
+		memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+		jobname= "-o ../../../logs/log_get_region_list.%J.%I",
+		error="-e ../../../errors/error_get_region_list.%J.%I"
+	shell:
+	 	"""
+		/software/R-4.1.0/bin/Rscript ../1.Create_region_list_bam-readcount.R {input.genotype_pool3} {output.region_list_pool3}
+		/software/R-4.1.0/bin/Rscript ../1.Create_region_list_bam-readcount.R {input.genotype_pool4} {output.region_list_pool4}
+		"""
+
+
+rule count_alleles:
+	input:
+		region_list_pool3="../../../data/genotype/pool_3.merged.genotype.hg38.nonIdentical.txt",
+		region_list_pool4="../../../data/genotype/pool_4.merged.genotype.hg38.nonIdentical.txt",
+		bam="../../../data/bams/{sample}_merged.bam",
+		bai="../../../data/bams/{sample}_merged.bam.bai"
+	output:
+		bam_readcount="../../../data/bam-readcount/{sample}_bam-readcount.txt.gz"
+	message: "Counting alleles with bam-readcount."
+	params:
+		group="-G teamtrynka",
+		queue="-q long",
+		threads="-n 6",
+		memory="-M15000 -R'span[hosts=1] select[mem>15000] rusage[mem=15000]'",
+		jobname= "-o ../../../logs/log_count_alleles.{sample}.%J.%I",
+		error="-e ../../../errors/error_count_alleles.{sample}.%J.%I",
+		depth="1000000000",
+		read_quality="30",
+		reference="/lustre/scratch117/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa"
+	run:
+		if "P3" in wildcards.sample:
+			shell("	/software/teamtrynka/bam-readcount/bin/bam-readcount -w 1 \
+					-d {params.depth} -q {params.read_quality} -f {params.reference} \
+					-l {input.region_list_pool3} {input.bam} | gzip > {output.bam_readcount}")
+		else:
+			shell("/software/teamtrynka/bam-readcount/bin/bam-readcount -w 1 \
+					-d {params.depth} -q {params.read_quality} -f {params.reference} \
+					-l {input.region_list_pool4} {input.bam} | gzip > {output.bam_readcount}")
+
+rule calculate_b_estimate_MAD:
+	input:
+		bam_readcount="../../../data/bam-readcount/{sample}_bam-readcount.txt.gz",
+		genotype_pool3="../../../data/genotype/pool_3.merged.genotype.nonIdentical.hg38.vcf.gz",
+		genotype_pool4="../../../data/genotype/pool_4.merged.genotype.nonIdentical.hg38.vcf.gz"
+	output:
+		b_estimate="../../../data/b/{sample}_b_estimate.csv",
+		genotype_minor_allele_dosage="../../../data/genotypes/{sample}_genotype_minor_allele_dosage.csv",
+		variants_retained="../../../data/genotypes/{sample}_Nvariants_retained_reduced_genotype.txt"
+	message: "Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage."
+	params:
+		group="-G teamtrynka",
+		queue="-q long",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../../logs/log_calculate_b_estimate.{sample}.%J.%I",
+		error="-e ../../../errors/error_calculate_b_estimate.{sample}.%J.%I"
+	run:
+		if "P3" in wildcards.sample:
+			shell("/software/R-4.1.0/bin/Rscript ../2.Bam-readcount_to_MAF_estimate.R \
+			{input.bam_readcount} {input.genotype_pool3} \
+			{output.b_estimate} {output.genotype_minor_allele_dosage} {output.variants_retained}")
+		else:
+			shell("/software/R-4.1.0/bin/Rscript ../2.Bam-readcount_to_MAF_estimate.R \
+			{input.bam_readcount} {input.genotype_pool4} \
+			{output.b_estimate} {output.genotype_minor_allele_dosage} {output.variants_retained}")
+
+rule estimate_weights:
+	input:
+		b_estimate="../../../data/b/{sample}_b_estimate.csv",
+		genotype_minor_allele_dosage="../../../data/genotypes/{sample}_genotype_minor_allele_dosage.csv"
+	output:
+		w_estimate="../../../data/w/{sample}_w_estimate.txt"
+	message: "Estimate proportion (weights) of donors."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../../logs/log_merged_estimate_weights.{sample}.%J.%I",
+		error="-e ../../../errors/error_merged_estimate_weights.{sample}.%J.%I"
+	shell:
+	 	"""
+		/software/R-4.1.0/bin/Rscript ../3.estimate_weights.R \
+		{input.b_estimate} {input.genotype_minor_allele_dosage} \
+		{output.w_estimate}
+		"""
+

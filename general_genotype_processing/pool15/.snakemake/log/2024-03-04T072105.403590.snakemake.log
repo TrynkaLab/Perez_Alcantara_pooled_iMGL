@@ -1,0 +1,50 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	exonfilter_genotype_file
+	1	pool_donor_names
+	1	subset_donors_vcf
+	1	subset_variants
+	5
+
+[Mon Mar  4 07:21:05 2024]
+Job 4: Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 2 -M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]' -o ../../logs/log_pool_donor_ids.%J.%I -e ../../errors/error_pool_donor_ids.%J.%I [comma]
+
+Submitted job 4 with external jobid 'Job <49186150> is submitted to queue <normal>.'.
+[Mon Mar  4 07:21:15 2024]
+Finished job 4.
+1 of 5 steps (20%) done
+
+[Mon Mar  4 07:21:15 2024]
+Job 3: Subsetting donors present in the metadata file.
+
+Submitted job 3 with external jobid 'Job <49186151> is submitted to queue <normal>.'.
+[Mon Mar  4 07:30:16 2024]
+Finished job 3.
+2 of 5 steps (40%) done
+
+[Mon Mar  4 07:30:16 2024]
+Job 2: Subsetting genotypes to exonic positions.
+
+Submitted job 2 with external jobid 'Job <49186164> is submitted to queue <normal>.'.
+[Mon Mar  4 07:30:26 2024]
+Error in rule exonfilter_genotype_file:
+    jobid: 2
+    output: ../../data/pool_15/pool_15.genotype.exonfiltered.vcf.gz
+    shell:
+        
+        echo "Subset to exon"
+        singularity exec --bind /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_15/         /software/teamtrynka/Demuxafy.sif vcftools         --gzvcf /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_15/pool_15.genotype.vcf.gz         --max-alleles 2         --remove-indels         --bed /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_15/genotypes/hg38exonsUCSC.bed         --recode         --recode-INFO-all         --out /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_15/pool_15.genotype.exonfiltered.vcf
+
+        /software/teamtrynka/conda/trynka-base/bin/bgzip -f /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_15/pool_15.genotype.exonfiltered.vcf
+        
+        (exited with non-zero exit code)
+    cluster_jobid: Job <49186164> is submitted to queue <normal>.
+
+Error executing rule exonfilter_genotype_file on cluster (jobid: 2, external: Job <49186164> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/.snakemake/tmp.8hnzsbfo/snakejob.exonfilter_genotype_file.2.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/.snakemake/log/2024-03-04T072105.403590.snakemake.log

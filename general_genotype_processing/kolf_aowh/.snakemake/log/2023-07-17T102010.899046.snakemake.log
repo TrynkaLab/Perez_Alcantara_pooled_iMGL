@@ -1,0 +1,129 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	concat_and_sort_genotype_vcf
+	1	liftover_hg19_hg38
+	1	pool_donor_ids
+	22	subset_donors_vcf
+	26
+
+[Mon Jul 17 10:20:11 2023]
+Job 2: Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 2 -M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]' -o ../../logs/log_pool_donor_ids.%J.%I -e ../../errors/error_pool_donor_ids.%J.%I [comma]
+
+Submitted job 2 with external jobid 'Job <28145269> is submitted to queue <normal>.'.
+[Mon Jul 17 10:20:21 2023]
+Finished job 2.
+1 of 26 steps (4%) done
+
+[Mon Jul 17 10:20:21 2023]
+Job 21: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_19_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_19_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 21 with external jobid 'Job <28145270> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:21 2023]
+Job 19: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_17_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_17_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 19 with external jobid 'Job <28145271> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:21 2023]
+Job 24: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_22_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_22_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 24 with external jobid 'Job <28145272> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:21 2023]
+Job 10: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_8_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_8_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 10 with external jobid 'Job <28145274> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:22 2023]
+Job 17: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_15_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_15_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 17 with external jobid 'Job <28145275> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:22 2023]
+Job 18: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_16_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_16_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 18 with external jobid 'Job <28145276> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:22 2023]
+Job 9: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_7_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_7_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 9 with external jobid 'Job <28145277> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:22 2023]
+Job 20: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_18_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_18_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 20 with external jobid 'Job <28145278> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:23 2023]
+Job 4: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_2_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_2_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 4 with external jobid 'Job <28145279> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:23 2023]
+Job 23: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_21_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_21_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 23 with external jobid 'Job <28145280> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:23 2023]
+Job 8: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_6_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_6_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 8 with external jobid 'Job <28145281> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:23 2023]
+Job 12: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_10_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_10_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 12 with external jobid 'Job <28145282> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:24 2023]
+Job 16: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_14_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_14_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 16 with external jobid 'Job <28145283> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:24 2023]
+Job 14: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_12_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_12_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 14 with external jobid 'Job <28145284> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:24 2023]
+Job 7: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_5_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_5_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 7 with external jobid 'Job <28145285> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:24 2023]
+Job 15: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_13_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_13_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 15 with external jobid 'Job <28145286> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:25 2023]
+Job 11: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_9_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_9_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 11 with external jobid 'Job <28145287> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:25 2023]
+Job 3: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_1_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_1_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 3 with external jobid 'Job <28145288> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:25 2023]
+Job 22: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_20_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_20_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 22 with external jobid 'Job <28145289> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:25 2023]
+Job 13: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_11_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_11_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 13 with external jobid 'Job <28145290> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:26 2023]
+Job 6: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_4_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_4_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 6 with external jobid 'Job <28145291> is submitted to queue <normal>.'.
+
+[Mon Jul 17 10:20:26 2023]
+Job 5: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_kolf_aowh_3_subset_donors_vcf.%J.%I -e ../../errors/error_kolf_aowh_3_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 5 with external jobid 'Job <28145293> is submitted to queue <normal>.'.

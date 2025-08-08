@@ -1,0 +1,34 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        3
+count_alleles                   3
+estimate_weights                3
+total                          10
+
+Select jobs to execute...
+
+[Sun Nov 10 22:56:37 2024]
+Job 18: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D0_iPSC_220923_bam-readcount.txt.gz
+
+Submitted job 18 with external jobid 'Job <910808> is submitted to queue <normal>.'.
+
+[Sun Nov 10 22:56:37 2024]
+Job 11: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D36_PreMac_031123_bam-readcount.txt.gz
+
+Submitted job 11 with external jobid 'Job <910809> is submitted to queue <normal>.'.
+
+[Sun Nov 10 22:56:38 2024]
+Job 3: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D39_PreMac_101123_bam-readcount.txt.gz
+
+Submitted job 3 with external jobid 'Job <910810> is submitted to queue <normal>.'.
+Terminating processes on user request, this might take some time.
+No --cluster-cancel given. Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

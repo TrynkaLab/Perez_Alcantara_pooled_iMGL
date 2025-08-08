@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+# Snakefile for migration assay GWAS- pools 2 to 17
+# run rename_files.sh first
+# snakemake is in /software/teamtrynka/conda/otar2065/bin/snakemake v 7.30.2
+import os
+import numpy as np
+
+CHUNK, = glob_wildcards("../../../data/genotypes/full_genotype/genotype_minor_allele_dosage_{chunk}.csv")
+#CHUNK = [1]
+PHENOTYPE=["migration"]
+TREATMENT=["untreated","LPS","IFN"]
+GWAS=["GCST90027158","GCST90012877","GCST005531","GCST006979","GCST90027164","ieu-b-7_PD_Nalls_2019"]
+NGENE=[i for i in np.arange(1,18589,1)]
+
+rule all:
+	input:
+		#pqtl_res=expand("../../../data/results/{phenotype}/1.2.proportion_QTL_lm_mean_filtered/prop_QTL_{chunk}.csv",phenotype=PHENOTYPE,chunk=CHUNK),
+		#skat=expand("../../../data/results/{phenotype}/5.2.rare_var_SKAT_WES/{ngene}_IFN_deleterious_SKATO_result.RDS",ngene=NGENE,phenotype=PHENOTYPE)
+		#my_GWAS_subsets=expand('../../../data/results/{phenotype}/3.coloc/subsets_for_coloc/{gwas}/{treatment}_my_GWAS_subsets.rds',treatment=TREATMENT,gwas=GWAS, phenotype=PHENOTYPE)
+		my_GWAS_subsets=expand('../../../data/results/{phenotype}/3.coloc/myeQTL_myGWAS_subsets_for_coloc/{treatment}_my_GWAS_subsets.rds',treatment=TREATMENT,phenotype=PHENOTYPE)
+
+
+rule run_pQTL_avg_line_filtered:
+	input:
+		phenotype_info="../../../data/all_pools_{phenotype}_sample_info.csv",
+	 	donor_prop_changes="../../../data/results/{phenotype}/1.check_line_proportions/line_prop_changes_averages_variances_1pct_filtered.csv",
+	 	genotype_minor_allele_dosage="../../../data/genotypes/full_genotype/genotype_minor_allele_dosage_{chunk}.csv",
+	 	genotype_pc="../../../../OTAR2065_sc_eQTL/data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+	 output:
+	 	pqtl_res="../../../data/results/{phenotype}/1.2.proportion_QTL_lm_mean_filtered/prop_QTL_{chunk}.csv"
+	 envmodules: "HGI/softpack/groups/otar2065/otar2065_9/40"
+	 message: "Run QTL analysis using lm in chunks of variants and treatments - averages per pool and prop filtered."
+	 params:
+	 	group="-G teamtrynka",
+	 	queue="-q normal",
+	 	threads="-n 1",
+	 	memory="-M4000 -R'span[hosts=1] select[mem>4000] rusage[mem=4000]'",
+	 	jobname= "-o ../../logs/log_run_pQTL_avg_line_filtered.{chunk}.%J.%I",
+	 	error="-e ../../errors/error_run_pQTL_avg_line_filtered.{chunk}.%J.%I"
+	 shell:
+	  	"""
+	 	        set +o pipefail;
+	 
+	 		# check how many genotype allele dosage files there are and launch that many jobs
+	 		Rscript 1.2.proportion_QTL_lm_mean_filtered.R \
+	 		{input.phenotype_info} {input.donor_prop_changes} {input.genotype_minor_allele_dosage} \
+	 		{input.genotype_pc} {output.pqtl_res}
+	 
+	 	""" 	
+		
+rule run_SKATO_WES:
+  input:
+    WES_missense_del_gt_path ="../../../../hipsci_genotype_processing/data/WES/VEP/missense_clean_GRCh38.vcf.gz",
+    WES_missense_del_cleaninfo_path ="../../../../hipsci_genotype_processing/data/WES/VEP/missense_clean_GRCh38.txt",
+    line_prop_changes_path = "../../../data/results/{phenotype}/1.check_line_proportions/line_prop_changes_per_well.csv",
+    genotype_pc_path = "../../../../OTAR2065_sc_eQTL/data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.eigenvec",
+    line_info_path="../../../../OTAR2065_differentiation_efficiency/data/donor_metadata_complete_with_imputed_sex.csv",
+    scaled_proliferation_path="../../../../OTAR2065_WGS_iPSC_premac_micro/data/results/1.2.scale_proliferation/line_prop_changes_microglia_premac.csv"
+  output:
+    SKAT_res = "../../../data/results/{phenotype}/5.2.rare_var_SKAT_WES/{ngene}_IFN_deleterious_SKATO_result.RDS"
+  message: "Running SKATO on WES data."
+  envmodules: "HGI/softpack/groups/otar2065/otar2065_9/40"
+  params:
+    group= "-G teamtrynka",
+    queue="-q normal",
+    threads="-n 1",
+    memory="-M7000 -R'span[hosts=1] select[mem>7000] rusage[mem=7000]'",
+    jobname= "-o ../../../logs/log_run_SKATO_WES.{ngene}.%J.%I",
+    error="-e ../../../errors/error_run_SKATO_WES.{ngene}.%J.%I",
+    output_directory = "../../../data/results/{phenotype}/5.2.rare_var_SKAT_WES/"
+  shell:
+        """
+        set +o pipefail;
+        Rscript 5.2.rare_var_SKAT_WES.R {params.output_directory} \
+        {input.WES_missense_del_gt_path} {input.WES_missense_del_cleaninfo_path} \
+        {input.line_prop_changes_path} {input.genotype_pc_path} {input.line_info_path} \
+        {wildcards.ngene} {input.scaled_proliferation_path}
+        """
+
+        
+rule prepare_harmonised_GWAS_for_coloc:
+    input:
+        formatted_nominal_results="../../../data/results/{phenotype}/2.check_association_results/lm_1pct_filtered_deflated/{treatment}/{treatment}_GWAS_GRCh38.tsv.gz",
+        external_GWAS="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/{gwas}/",
+        external_GWAS_lead_signal="../../../../OTAR2065_sc_eQTL/data/results/8.colocalisation_analysis/subsets_for_coloc/{gwas}/GRCh38_loci.txt"
+    output:
+        external_GWAS_subsets='../../../data/results/{phenotype}/3.coloc/subsets_for_coloc/{gwas}/{treatment}_external_GWAS_subsets.rds',
+        my_GWAS_subsets='../../../data/results/{phenotype}/3.coloc/subsets_for_coloc/{gwas}/{treatment}_my_GWAS_subsets.rds'
+    message: "Prepare harmonised GWAS for coloc. OTAR2065_sc_eQTL/8.prepare_lead_GWAS_file_for_coloc.R needs to be run first, where we prepare the set of external GWAS lead signals for colocalisation."
+    params:
+        group= "-G teamtrynka",
+        queue="-q long",
+        threads="-n 1",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../../logs/log.prepare_harmonised_GWAS_for_coloc.%J.%I",
+        error="-e ../../../errors/error.prepare_harmonised_GWAS_for_coloc.%J.%I",
+        distance_threshold=500000,
+        GWAS_folder="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/{gwas}"
+    shell:"""
+     set +o pipefail;
+
+     Rscript 3.1.prepare_harmonised_GWAS_for_coloc.R  {params.GWAS_folder} {input.formatted_nominal_results} {params.distance_threshold}
+        """ 
+rule prepare_eQTL_for_coloc:
+    input:
+        formatted_nominal_results="../../../data/results/{phenotype}/2.check_association_results/lm_1pct_filtered_deflated/{treatment}/{treatment}_GWAS_GRCh38.tsv.gz",
+        eQTL_lead="../../../../OTAR2065_sc_eQTL/data/results/4.Inspect_eQTL_results/tensorQTL_variant_gene.csv"
+    output:
+        external_GWAS_subsets='../../../data/results/{phenotype}/3.coloc/myeQTL_myGWAS_subsets_for_coloc/{treatment}_eQTL_subsets.rds',
+        my_GWAS_subsets='../../../data/results/{phenotype}/3.coloc/myeQTL_myGWAS_subsets_for_coloc/{treatment}_my_GWAS_subsets.rds'
+    message: "Prepare our GWAS and eQTL for coloc."
+    params:
+        group= "-G teamtrynka",
+        queue="-q long",
+        threads="-n 1",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../../logs/log.prepare_eQTL_for_coloc.%J.%I",
+        error="-e ../../../errors/error.prepare_eQTL_for_coloc.%J.%I",
+        distance_threshold=500000,
+        eQTL_nominal_path="../../../../OTAR2065_sc_eQTL/data/results/tensorqtl/best_results/"
+    shell:"""
+     set +o pipefail;
+
+     Rscript 3.1.2.prepare_eQTLs_phenoGWAS_for_coloc.R  {input.formatted_nominal_results} {input.eQTL_lead} {params.eQTL_nominal_path} {params.distance_threshold}
+	"""

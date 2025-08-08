@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+# Snakefile for reprocessing the merged genotype vcf for all donors located in
+#/lustre/scratch123/hgi/projects/hipsci/releases/data/gtarray/releases/merged_files/REL-2018-01
+# per chromosome
+# snakemake v 7.30.2
+import os
+import numpy as np
+
+POOL=["all_pools_no_curn_iukl"]
+CHR = [i for i in np.arange(1,23,1)] + ["X"]
+REF = ["HRC","1K_10K"]
+rule all:
+    input:
+        full_genotype=expand("../../data/{pool}/toimpute.genotyped.vcf.gz",pool=POOL),
+        #concat=expand("../../data/{pool}/{ref}/{ref}_phased_imputed_hg38.vcf.gz",ref=REF,pool=POOL),
+        #vcf=expand("../../data/{pool}/merged_phased_imputed_UK10K_1KG_HRC_hg38_Bellenguez_checked.vcf.gz",pool=POOL)
+
+rule pool_donor_ids:
+    input:
+        metadata="../../data/sampleMetadata.txt",
+        donor_ids="../../data/donor_id_match.txt"
+    output:
+        donor_pools="../../data/{pool}/{pool}_donorIds.txt"
+    message: "Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_pool_donor_ids.%J.%I",
+        error="-e ../../errors/error_pool_donor_ids.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        while read ptn; do grep -w $ptn {input.donor_ids} | awk '{{print $2}}' | tr ';' '\n'; done < $detectedDonors > ../../data/{wildcards.pool}/{wildcards.pool}_donorIds.txt
+        """
+
+rule subset_donors_vcf:
+    input:
+        donor_pools="../../data/{pool}/{pool}_donorIds.txt",
+        all_hipsci_vcfs="../../data/full_genotype/chr{chromosomes}/hipsci.wec.gtarray.HumanCoreExome.imputed_phased.20180102.genotypes.chr{chromosomes}.vcf.gz"
+    output:
+        genotype="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",
+        index="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz.csi"
+    message: "Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_{chromosomes}_subset_donors_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_{chromosomes}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # Subset donors
+        bcftools view -S {input.donor_pools} {input.all_hipsci_vcfs} --threads 32 -Oz -o {output.genotype}
+        bcftools index {output.genotype}
+
+        """
+
+rule filter_to_highqual:
+    input:
+        genotype="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",
+        index="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz.csi"
+    output:
+        genotype="../../data/{pool}/chr{chromosomes}/{pool}.genotyped.vcf.gz",
+        index="../../data/{pool}/chr{chromosomes}/{pool}.genotyped.vcf.gz.csi"
+    message: "Filtering just to best quality positions."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_{chromosomes}_filter_to_genotyped.%J.%I",
+        error="-e ../../errors/error_{pool}_{chromosomes}_filter_to_genotyped.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # Subset donors
+        bcftools view {input.genotype} | \
+        bcftools filter -i 'INFO/INFO=1' \
+        --threads 2 -Oz -o {output.genotype}
+        bcftools index {output.genotype}
+
+        """
+
+rule concat_and_sort_genotype_vcf:
+    input:
+        genotype=expand("../../data/{{pool}}/chr{chromosomes}/{{pool}}.genotyped.vcf.gz", chromosomes=CHR)
+    output:
+        genotype="../../data/{pool}/concat.genotyped.vcf.gz"
+    message: "Concatenating sample genotype files present in the metadata file needed for next step."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{pool}_concat_and_sort_genotype_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_concat_and_sort_genotype_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        ls ../../data/{wildcards.pool}/chr*/{wildcards.pool}.genotyped.vcf.gz > ../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt
+        echo "Merging VCFs"
+        bcftools concat -a --threads 2 --file-list ../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt \
+        -Oz -o ../../data/{wildcards.pool}/temp.vcf.gz
+
+        echo "Saving VCF header"
+        zcat ../../data/{wildcards.pool}/temp.vcf.gz | awk '/^\#/' > ../../data/{wildcards.pool}/header.txt
+    
+        echo "Sorting"
+        bedtools sort -i ../../data/{wildcards.pool}/temp.vcf.gz > {output.genotype}
+
+        echo "Attaching header"
+        cat {output.genotype} >> ../../data/{wildcards.pool}/header.txt
+        mv ../../data/{wildcards.pool}/header.txt {output.genotype}
+
+        echo "Changing sample names in header"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+
+        bcftools reheader \
+        --samples $detectedDonors -o ../../data/{wildcards.pool}/temp_reheaded.vcf {output.genotype}
+
+        echo "Compressing with bgzip"
+        bgzip ../../data/{wildcards.pool}/temp_reheaded.vcf
+        mv ../../data/{wildcards.pool}/temp_reheaded.vcf.gz {output.genotype}
+
+        echo "Generating index file"
+        bcftools index {output.genotype}
+        #rm ../../data/{wildcards.pool}/temp.vcf.gz
+        """
+
+rule check_af_distribution_fixref:
+    input:
+        genotype="../../data/{pool}/concat.genotyped.vcf.gz"
+    output:
+        dist="../../data/{pool}/concat.af.dist.txt",
+        fixed="../../data/{pool}/fixref.vcf.gz"
+    message: "Checking allele frequency distribution and fixing ref."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{pool}_af_dist_fixref.%J.%I",
+        error="-e ../../errors/error_{pool}_af_dist_fixref.%J.%I",
+        fasta = "../../../resources/GRCh37_for_fixref_before_imputation/human_g1k_v37.fasta.gz",
+        dbSNP = "../../../resources/GRCh37_for_fixref_before_imputation/dbSNP_annotation/All_20180423.vcf.gz",
+        af_annotations="../../../resources/1KGenomes_allele_frequency_annotations_for_afdist/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5c.20130502.sites.vcf.gz"
+    shell:
+        """
+        set +o pipefail;
+        export BCFTOOLS_PLUGINS="/nfs/users/nfs_m/ma23/bin/bcftools-1.18/plugins"
+        # as in here http://samtools.github.io/bcftools/howtos/plugin.af-dist.html
+        bcftools annotate -c INFO/AF -a {params.af_annotations} \
+        {input.genotype} | bcftools +af-dist | grep ^PROB > {output.dist}
+        # as in here: https://github.com/eQTL-Catalogue/genimpute/blob/master/modules/preimpute_QC.nf
+        bcftools +fixref {input.genotype} -- -f {params.fasta} -i {params.dbSNP} | \
+        bcftools norm --check-ref x -f {params.fasta} -Oz -o {output.fixed}
+
+        """
+
+rule filter_HWE:
+    input:
+        genotype="../../data/{pool}/fixref.vcf.gz"
+    output:
+        filtered="../../data/{pool}/toimpute.genotyped.vcf.gz",
+        index="../../data/{pool}/toimpute.genotyped.vcf.gz.csi"
+    message: "Doing HWE filters and others - from eQTL catalogue filters."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{pool}_filter_HWE.%J.%I",
+        error="-e ../../errors/error_{pool}_filter_HWE.%J.%I"
+    shell:
+        """
+        #Add tags
+    bcftools +fill-tags {input.genotype} -Oz -o ../../data/{wildcards.pool}/tagged.vcf.gz
+
+    #Filter rare and non-HWE variants and those with abnormal alleles and duplicates. 
+    bcftools filter -i 'INFO/HWE > 1e-6 & F_MISSING < 0.05 & MAF[0] > 0.01' ../../data/{wildcards.pool}/tagged.vcf.gz |\
+     bcftools filter -e 'REF="N" | REF="I" | REF="D"' |\
+     bcftools filter -e "ALT='.'" |\
+     bcftools norm -d all |\
+     bcftools norm -m+any |\
+     bcftools view -m2 -M2 -Oz -o {output.filtered}
+
+    #Index the output file
+    bcftools index {output.filtered}
+"""
+rule check_af_distribution_again:
+    input:
+        genotype="../../data/{pool}/toimpute.genotyped.vcf.gz",
+        index="../../data/{pool}/toimpute.genotyped.vcf.gz.csi"
+    output:
+        dist="../../data/{pool}/toimpute.genotyped.af.dist.txt"
+    message: "Checking allele frequency distribution again."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{pool}_af_dist_fixref.%J.%I",
+        error="-e ../../errors/error_{pool}_af_dist_fixref.%J.%I",
+        af_annotations="../../../resources/1KGenomes_allele_frequency_annotations_for_afdist/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5c.20130502.sites.vcf.gz"
+    shell:
+        """
+        set +o pipefail;
+        export BCFTOOLS_PLUGINS="/nfs/users/nfs_m/ma23/bin/bcftools-1.18/plugins"
+        # as in here http://samtools.github.io/bcftools/howtos/plugin.af-dist.html
+        bcftools annotate -c INFO/AF -a {params.af_annotations} \
+        {input.genotype} | bcftools +af-dist | grep ^PROB > {output.dist}
+        """
+
+# now impute to HRC and 1K + 10K using the sanger imputation server
+# then:
+
+rule concat_vcf:
+    input:
+        chrom_vcf=expand("../../data/{{pool}}/{{ref}}/{chr}.vcf.gz",chr=CHR)
+    output:
+        vcf="../../data/{pool}/{ref}/{ref}_phased_imputed_GRCh37.vcf.gz",
+        index="../../data/{pool}/{ref}/{ref}_phased_imputed_GRCh37.vcf.gz.csi"
+    message: "Concatenating phased and imputed genotype."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o log_concat_vcf.%J.%I",
+        error="-e error_concat_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        bcftools concat -Oz -o {output.vcf} {input.chrom_vcf}
+        bcftools index {output.vcf}
+        
+        """
+
+rule liftover_hg19_hg38:
+    input:
+        vcf="../../data/{pool}/{ref}/{ref}_phased_imputed_GRCh37.vcf.gz",
+        index="../../data/{pool}/{ref}/{ref}_phased_imputed_GRCh37.vcf.gz.csi"
+    output:
+        genotype="../../data/{pool}/{ref}/{ref}_phased_imputed_hg38.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38).Use with snakemake --use-envmodules for picard"
+    envmodules:
+        "cellgen/picard/3.0.0"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+        jobname= "-o log_liftover_hg19_hg38.%J.%I",
+        error="-e error_liftover_hg19_hg38.%J.%I",
+	chain="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chain/hg19ToHg38.over.chain",
+	fasta="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.fa.gz",
+	dict="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.dict",
+	recoding="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chromosome_mappings_hg19_to_b37/GRCh37_UCSC2ensembl_b37tohg19.txt"
+    shell:
+        """
+        set +o pipefail;
+	#echo "Creating dictionary..."
+	#picard CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+	echo "Changing vcf from bg37 to hg19"
+	bcftools annotate --rename-chrs {params.recoding} -o temp_chrChange.vcf {input.vcf}
+
+    echo "Lifting over..."
+	picard LiftoverVcf \
+	I=temp_chrChange.vcf \
+	O=temp_liftedOver.vcf \
+	CHAIN={params.chain} \
+	REJECT=rejected_variants.vcf \
+	R={params.fasta} \
+	MAX_RECORDS_IN_RAM=100000
+
+
+    echo "Generating index file"
+    bcftools view -Oz -o {output.genotype} temp_liftedOver.vcf
+    bcftools index {output.genotype}
+    rm temp*
+
+        """
+rule subset_excluding_HRC:
+    input:
+        vcf="../../data/{pool}/HRC/HRC_phased_imputed_hg38.vcf.gz",
+        vcf2="../../data/{pool}/1K_10K/1K_10K_phased_imputed_hg38.vcf.gz"
+    output:
+        vcf="../../data/{pool}/merged_phased_imputed_UK10K_1KG_hg38_excluding_HRC.vcf.gz",
+        index="../../data/{pool}/merged_phased_imputed_UK10K_1KG_hg38_excluding_HRC.vcf.gz.csi"
+    message: "Excluding from UK10K the positions present in the file imputed to HRC reference (more accurate)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_subset_excluding_HRC.%J.%I",
+        error="-e ../../errors/error_subset_excluding_HRC.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        bcftools view -T ^{input.vcf} {input.vcf2} --threads 2 -Oz -o {output.vcf}
+        bcftools index {output.vcf}      
+        
+        """
+rule concat_10K_HRC:
+    input:
+        vcf="../../data/{pool}/merged_phased_imputed_UK10K_1KG_hg38_excluding_HRC.vcf.gz",
+        vcf2="../../data/{pool}/HRC/HRC_phased_imputed_hg38.vcf.gz"
+    output:
+        vcf="../../data/{pool}/merged_phased_imputed_UK10K_1KG_HRC_hg38.vcf.gz",
+        index="../../data/{pool}/merged_phased_imputed_UK10K_1KG_HRC_hg38.vcf.gz.csi"
+    message: "Merging (concatenating) two imputed VCFs."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M350000 -R'span[hosts=1] select[mem>350000] rusage[mem=350000]'",
+        jobname= "-o ../../logs/log_concat_10K_HRC.%J.%I",
+        error="-e ../../errors/error_concat_10K_HRC.%J.%I"
+    shell:
+        """
+        set +o pipefail;   
+        
+        echo "Merging VCFs"
+        bcftools concat -a --threads 2 {input.vcf} {input.vcf2} -Oz -o temp.vcf.gz
+    
+        echo "Sorting"
+        bcftools sort --max-mem 100G --temp-dir ../../data/ --write-index -Oz -o {output.vcf} temp.vcf.gz  
+        """
+rule AD_variants_check:
+    input:
+        vcf="../../data/{pool}/merged_phased_imputed_UK10K_1KG_HRC_hg38.vcf.gz",
+        vars="AD_vars_to_check.txt"
+    output:
+        vcf="../../data/{pool}/merged_phased_imputed_UK10K_1KG_HRC_hg38_Bellenguez_checked.vcf.gz"
+    message: "Checking AD variants from Bellenguez."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o log_AD_variants_check.%J.%I",
+        error="-e error_AD_variants_check.%J.%I"
+    shell:
+        """
+        set +o pipefail;   
+        
+        echo "Merging VCFs"
+        bcftools view -R {input.vars} --threads 2 {input.vcf} -Oz -o {output.vcf}
+        bcftools index {output.vcf}   
+        """

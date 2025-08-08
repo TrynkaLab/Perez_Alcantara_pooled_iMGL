@@ -1,0 +1,61 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	10	count_alleles
+	11
+
+[Mon Jul 11 22:34:19 2022]
+Job 76: Counting alleles with bam-readcount.
+
+Submitted job 76 with external jobid 'Job <512862> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:19 2022]
+Job 86: Counting alleles with bam-readcount.
+
+Submitted job 86 with external jobid 'Job <512863> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:19 2022]
+Job 75: Counting alleles with bam-readcount.
+
+Submitted job 75 with external jobid 'Job <512864> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:19 2022]
+Job 71: Counting alleles with bam-readcount.
+
+Submitted job 71 with external jobid 'Job <512865> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 78: Counting alleles with bam-readcount.
+
+Submitted job 78 with external jobid 'Job <512866> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 83: Counting alleles with bam-readcount.
+
+Submitted job 83 with external jobid 'Job <512867> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 89: Counting alleles with bam-readcount.
+
+Submitted job 89 with external jobid 'Job <512868> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 62: Counting alleles with bam-readcount.
+
+Submitted job 62 with external jobid 'Job <512869> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 82: Counting alleles with bam-readcount.
+
+Submitted job 82 with external jobid 'Job <512870> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:34:20 2022]
+Job 90: Counting alleles with bam-readcount.
+
+Submitted job 90 with external jobid 'Job <512871> is submitted to queue <normal>.'.
+Terminating processes on user request, this might take some time.
+Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

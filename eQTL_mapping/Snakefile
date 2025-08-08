@@ -1,0 +1,512 @@
+#!/usr/bin/env python3
+# Snakefile for running eQTL analysis on hiPSCI differentiation data
+
+# snakemake location:  /software/teamtrynka/conda/otar2065/bin/snakemake
+shell("conda config --add envs_dirs /software/hgi/envs/conda/teamtrynka/ma23")
+import os
+import pandas as pd
+
+df = pd.read_csv("/lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/results/8.5.eQTL_MR/TWMR/input/tensorQTL_variant_gene.csv")
+GENE = df["gene_name"].tolist()
+# Listing the conditions (cluster_stage_treatment)
+TREATMENT=["untreated", "IFN", "LPS"]
+#TREATMENT=["untreated","LPS"]
+PHENOTYPE=["phagocytosis","migration"]
+#PHENOTYPE=["phagocytosis"]
+#TREATMENT=["untreated", "LPS"]
+#PC=[5,10,15,20,25,30,35,40,45,50,55,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,95,100,105,110,115,120]
+PC=[63,73,84]
+#CONDITIONS=["Not_proliferating", "Proliferating"]
+CONDITIONS=["Not_proliferating"]
+#PRIMARY_EQTL_EXTERNAL=["macromap_Panousis_2023_IFNG_6","macromap_Panousis_2023_IFNG_24",
+#"macromap_Panousis_2023_sLPS_6","macromap_Panousis_2023_sLPS_24","primary_eQTL_Fujita_2024_ROSMAP","QTD000559"]
+GWAS=["ieu-b-7_PD_Nalls_2019","GCST90012877","GCST90027158","GCST90027164","GCST006979","GCST005531"]
+
+
+rule all:
+	input:
+		#genotype="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.bed",
+		#check="../../data/genotype/plink_genotypes/check_hipsci.log",
+		#plot="../../data/kinship/kinship_histogram.pdf",
+		#eigenvec="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.eigenvec",
+		#no_outliers_pc="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec",
+		#fortensor=expand("../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating.bed.gz",treatment=TREATMENT),
+		#covariate=expand("../../data/for_tensorQTL/{pc}/tensorQTL_metadata_sum_sizefactorsNorm_log2_{treatment}_Not_proliferating.txt",pc=PC,treatment=TREATMENT),
+		#perm=expand('../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL.txt',pc=PC,treatment=TREATMENT,condition=CONDITIONS),
+		#formated=expand('../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL_nominal.txt',pc=PC,treatment=TREATMENT,condition=CONDITIONS),
+		#subset="../../data/genotype/tensor.vcf.gz",
+		#formated_for_coloc=expand('../../data/results/results/8.colocalisation_analysis/subsets_for_coloc/primary_eQTLs/{primary_eqtl_external}/LPS_Not_proliferating_eQTL_subsets.rds',primary_eqtl_external=PRIMARY_EQTL_EXTERNAL),
+		#gwas_for_coloc=expand('../../data/results/8.colocalisation_analysis/subsets_for_coloc/{gwas}/63_untreated_Not_proliferating_eQTL_subsets.rds',gwas=GWAS),
+		#genotype_1kgenomes="../../data/genotype/tmp5.bed",
+		#merged="../../data/genotype/plink_genotypes/all_pools.1kgenomes.genotype.MAF05.bed",
+		#eigenvec_vis="../../data/genotype/plink_genotypes/all_pools.1kgenomes.genotype.MAF05.eigenvec",
+		#twmr_input=expand("../../data/results/8.5.eQTL_MR/TWMR/input/{treatment}/{phenotype}/{gene}_input_matrices.rds",treatment=TREATMENT,phenotype=PHENOTYPE,gene=GENE),
+		twmr=expand('../../data/results/8.5.eQTL_MR/TWMR/output/{treatment}/{phenotype}/{gene}.rds',treatment=TREATMENT,phenotype=PHENOTYPE,gene=GENE),
+		#nominal=expand('../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_tensorQTL_nominal_trans_qtl_pairs.pkl',pc=PC,treatment=TREATMENT)
+
+
+# rule change_line_names_filter_info:
+#     input:
+#         VCF="../../data/genotype/microglia_samples.GRCh38.filtered.with_X.vcf.gz",
+#         names="../../data/genotype/all_hipsci_ipmar_donors_donorNames.txt"
+#     output:
+#         genotype="../../data/genotype/microglia_samples.GRCh38.filtered.renamed.vcf.gz"
+#     message: "Change line names in header. "
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.change_line_names.%J.%I",
+#         error="-e ../../errors/error.change_line_names.%J.%I"
+#     shell:
+#         """
+#         set +o pipefail;
+#         bcftools filter --include 'INFO/R2 >= 0.7' -o ../../data/genotype/temp.vcf {input.VCF}
+#         bcftools reheader --samples {input.names} -o ../../data/genotype/microglia_samples.GRCh38.filtered.renamed.vcf ../../data/genotype/temp.vcf
+#         bgzip ../../data/genotype/microglia_samples.GRCh38.filtered.renamed.vcf
+#         bcftools index {output.genotype}
+#         
+#     """
+# rule plink_genotype_files:
+#     input:
+#         VCF="../../data/genotype/microglia_samples.GRCh38.filtered.renamed.vcf.gz",
+#         genotype_1kgenomes="/lustre/scratch123/hgi/teams/trynka/resources/1000g/1000G/release/20220719/all_hg38_plink.bed"
+#     output:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.bed",
+#         gen_1k="../../data/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bed"
+#     message: "Generating genotype files for tensorQTL. Filter alleles to only include with MAF>0.05.  "
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.plink_genotype_files.%J.%I",
+#         error="-e ../../errors/error.plink_genotype_files.%J.%I"
+#     shell:
+#         """
+#         set +o pipefail;
+#         # Run PLINK
+# 
+#         # explicitly keep biallelic variants just in case
+#         # remove duplicated variants
+#         plink2 --vcf {input.VCF} \
+#         --max-alleles 2 \
+#         --allow-extra-chr --chr 1-22 \
+#         --rm-dup 'force-first' \
+#         --make-bed \
+#         --out ../../data/genotype/tmp2
+# 
+#         # remove variants with MAF below 5%
+#         # remove variants with Hardy-Weinberg equilibrium exact test p-values below 1e-6 =0.000001
+#         # geno: exclude SNPs missing in over 10% of samples
+#         plink2 --bfile ../../data/genotype/tmp2 \
+#         --maf 0.05 \
+#         --hwe 0.000001 \
+#         --geno 0.1 \
+#         --make-bed \
+#         --out ../../data/genotype/tmp3
+# 
+#         # mind = exclude individuals with over 1% missing genotype
+#          plink2 --make-bed \
+#          --mind 0.01 \
+#          --bfile ../../data/genotype/tmp3 \
+#          --out ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05
+# 
+#         # same for 1k genomes file
+#         plink2 --bfile /lustre/scratch123/hgi/teams/trynka/resources/1000g/1000G/release/20220719/all_hg38_plink \
+#         --max-alleles 2 \
+#         --allow-extra-chr --chr 1-22 \
+#         --rm-dup 'force-first' \
+#         --geno 0.1 \
+#         --mind 0.01 \
+#         --maf 0.05 \
+#         --hwe 0.000001 \
+#         --make-bed \
+#         --out ../../data/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked
+# 
+#         #rm ../../data/genotype/tmp.p*
+#         #rm ../../data/genotype/tmp*.b*
+#     """
+# rule check_bed_file:
+#     input:
+#         bed="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.bed",
+#         genotype="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.bim",
+#         genotype_1k="../../data/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim"
+#     output:
+#         check="../../data/genotype/plink_genotypes/check_hipsci.log",
+#         check2="../../data/genotype/plink_genotypes/check_1k.log"
+#     message: "Check chromosomes present in bed file"
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.check_bed_file.%J.%I",
+#         error="-e ../../errors/error.check_bed_file.%J.%I"
+#     shell:
+#         """
+#         set +o pipefail;
+#         # Run PLINK
+#          plink2 --bfile ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05 --write-snplist allow-dups --out ../../data/genotype/plink_genotypes/check_hipsci
+#          plink2 --bfile ../../data/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked --write-snplist allow-dups --out ../../data/genotype/plink_genotypes/check_1k
+# 
+#          cut -f 1 {input.genotype} | sort -u > ../../data/genotype/plink_genotypes/unique_chr.txt
+#         """
+# 
+# rule calculate_genotype_pc:
+#     input:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.bed"
+#     output:
+#         eigenvec="../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.eigenvec"
+#     message: "Calculate principal components from the genotype file."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+#         jobname= "-o ../../logs/log.calculate_genotype_pc.%J.%I",
+#         error="-e ../../errors/error.calculate_genotype_pc.%J.%I",
+#         pc_num=120
+#     shell:
+#         """
+#         set +o pipefail;
+#         # Run PLINK
+# 
+#          # LD pruning to prevent p-value deflation later.
+#          plink2 --bfile ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05 \
+#          --indep-pairwise 500kb 0.2 \
+#          --out ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.LDpruned
+#          # PCA
+#          plink2 --bfile ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05 \
+#          --pca {params.pc_num} --exclude ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05.LDpruned.prune.out \
+#          --out ../../data/genotype/plink_genotypes/all_pools.all_donors.genotype.MAF05
+# 
+#     """
+# 
+# rule remove_clones_ancestry_outliers:
+#     input:
+#         genotype="../../data/genotype/microglia_samples.GRCh38.filtered.renamed.vcf.gz"
+#     output:
+#         genotype="../../data/genotype/microglia_samples.GRCh38.filtered.no_outliers.vcf.gz"
+#     message: "Remove lines that are clones or ancestry outliers"
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.remove_clones_ancestry_outliers.%J.%I",
+#         error="-e ../../errors/error.remove_clones_ancestry_outliers.%J.%I",
+#         donor_blacklist = "^letw_5,lizq_3,zaie_1,romx_2,sebn_4,seru_7,qonc_2,boqx_2,garx_2,sojd_3,yoch_6"
+#     shell:
+#         """
+#         set +o pipefail;
+#         bcftools view -s {params.donor_blacklist} --threads 20 -o {output.genotype} {input.genotype}
+#         bcftools index --threads 20 {output.genotype}
+#         """
+# rule without_outliers_to_plink:
+#     input:
+#         VCF="../../data/genotype/microglia_samples.GRCh38.filtered.no_outliers.vcf.gz"
+#     output:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.bed"
+#     message: "Convert to PLINK after removing outliers."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.without_outliers_to_plink.%J.%I",
+#         error="-e ../../errors/error.without_outliers_to_plink.%J.%I"
+#     shell:
+#         """
+#         set +o pipefail;
+#         # explicitly keep biallelic variants just in case
+#         # remove duplicated variants
+#         plink2 --vcf {input.VCF} \
+#         --max-alleles 2 \
+#         --allow-extra-chr --chr 1-22 \
+#         --rm-dup 'force-first' \
+#         --make-bed \
+#         --out ../../data/genotype/temp2
+# 
+#         # remove variants with MAF below 5%
+#         # remove variants with Hardy-Weinberg equilibrium exact test p-values below 1e-6 =0.000001
+#         # geno: exclude SNPs missing in over 10% of samples
+#         plink2 --bfile ../../data/genotype/temp2 \
+#         --maf 0.05 \
+#         --hwe 0.000001 \
+#         --geno 0.1 \
+#         --make-bed \
+#         --out ../../data/genotype/temp3
+# 
+#         # mind = exclude individuals with over 1% missing genotype
+#          plink2 --make-bed \
+#          --mind 0.01 \
+#          --bfile ../../data/genotype/temp3 \
+#          --out ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05
+# 
+#         """
+# rule without_outliers_pc:
+#     input:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.bed"
+#     output:
+#         eigenvec="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+#     message: "Calculate principal components from the genotype file (no outliers)."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 20",
+#         memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+#         jobname= "-o ../../logs/log.without_outliers_pc.%J.%I",
+#         error="-e ../../errors/error.without_outliers_pc.%J.%I",
+#         pc_num=120
+#     shell:
+#         """
+#         set +o pipefail;
+#         # Run PLINK
+# 
+#          # LD pruning to prevent p-value deflation later.
+#          plink2 --bfile ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05 \
+#          --indep-pairwise 500kb 0.2 \
+#          --out ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.LDpruned
+#          # PCA
+#          plink2 --bfile ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05 \
+#          --pca {params.pc_num} --exclude ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.LDpruned.prune.out \
+#          --out ../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05
+# 
+#     """
+# rule process_seurat_for_eqtl:
+#     input:
+#         seurat="../../../OTAR2065_differentiation_efficiency/data/results/1.QC_v5/{treatment}_filtered_harmony/{treatment}_filtered_harmony.Rds",
+#         fam="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.fam"
+#     output:
+#         fortensor="../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating.bed.gz"
+#     message: "Processing seurat's object for QTL analysis."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 2",
+#         memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+#         jobname= "-o ../../logs/log.process_seurat_for_eqtl.{treatment}.%J.%I",
+#         error="-e ../../errors/error.process_seurat_for_eqtl.{treatment}.%J.%I",
+# 	donor_blacklist = "letw_5,lizq_3,zaie_1,romx_2,sebn_4,seru_7,qonc_2,boqx_2,garx_2,sojd_3,yoch_6"
+#     shell:
+#      """
+#      set +o pipefail;
+#      #needs to run from within here to fix some BPCells error
+#      cd ../../../OTAR2065_differentiation_efficiency/code/otar2065_differentiation_efficiency
+#      pwd
+#      Rscript 2.Filter_seuratv5_for_tensorQTL.R {wildcards.treatment} {params.donor_blacklist}
+#      # check this is naming the clusters correctly
+#      cd ../../../OTAR2065_sc_eQTL/code/otar2065_sc_eqtl
+#      files=(../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{wildcards.treatment}_*.bed)
+#     for file in "${{files[@]}}"; do
+#     echo "$file"
+#      bedtools sort -i $file \
+#      -header | gzip --force > $file.gz
+#     done
+#     """
+# rule process_metadata_for_eqtl:
+#     input:
+#         fortensor="../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating.bed.gz",
+#         eigenvec="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+#     output:
+#         fortensor="../../data/for_tensorQTL/{pc}/tensorQTL_metadata_sum_sizefactorsNorm_log2_{treatment}_Not_proliferating.txt"
+#     message: "Processing seurat's object for QTL analysis."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 2",
+#         memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+#         jobname= "-o ../../logs/log.process_metadata_for_eqtl.{pc}.{treatment}.%J.%I",
+#         error="-e ../../errors/error.process_metadata_for_eqtl.{pc}.{treatment}.%J.%I"
+#     shell:
+#      """
+#      set +o pipefail;
+#      Rscript 2.1.Add_tensorQTL_metadata.R {wildcards.treatment} {wildcards.pc}
+#      """
+# rule run_tensorQTL:
+#     input:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.bed",
+#         phenotype="../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}.bed.gz",
+#         covariate="../../data/for_tensorQTL/{pc}/tensorQTL_metadata_sum_sizefactorsNorm_log2_{treatment}_{condition}.txt",
+#         eigenvec="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+#     output:
+#         perm='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL.txt'
+#     message: "Subset genotype files and run tensorQTL. Adapted from Blagoje. Needs conda env otar2065"
+#     conda:"otar2065"
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 5",
+#         memory="-M15000 -R'span[hosts=1] select[mem>15000] rusage[mem=15000]'",
+#         jobname= "-o ../../logs/log.run_tensorQTL.{pc}.{treatment}.{condition}.%J.%I",
+#         error="-e ../../errors/error.run_tensorQTL.{pc}.{treatment}.{condition}.%J.%I",
+#         plink_files="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05"
+#     script: "3.run_tensorQTL.py"
+# 
+# 
+# rule run_tensorQTL_nominal:
+#     input:
+#         genotype="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.bed",
+#         phenotype="../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}.bed.gz",
+#         covariate="../../data/for_tensorQTL/{pc}/tensorQTL_metadata_sum_sizefactorsNorm_log2_{treatment}_{condition}.txt",
+#         eigenvec="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+#     output:
+#         nominal='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL_nominal.cis_qtl_pairs.22.parquet'
+#     message: "Subset genotype files and run tensorQTL. Adapted from Blagoje. Needs conda env otar2065."
+#     conda:"otar2065"
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 5",
+#         memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+#         jobname= "-o ../../logs/log.run_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I",
+#         error="-e ../../errors/error.run_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I",
+#         plink_files="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05",
+#         nominal="../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL_nominal"
+#     script: "3.run_tensorQTL_nominal.py"
+# 
+# rule format_tensorQTL_nominal:
+#     input:
+#         nominal='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL_nominal.cis_qtl_pairs.22.parquet'
+#     output:
+#         formated='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_{condition}_common_500kb_window_tensorQTL_nominal.txt'
+#     message: "Format nominal tensorqtl results."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 1",
+#         memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+#         jobname= "-o ../../logs/log.format_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I",
+#         error="-e ../../errors/error.format_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I"
+#     script: "3.1.format_tensorQTL_nominal.py"
+# 
+# # insert here an intermediate step that copies each treatment x PC result combination into a final best_results folder
+# rule subset_vcf_tensorvars:
+#     input:
+#         perm=expand('../../data/results/tensorqtl/best_results/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_500kb_window_tensorQTL_nominal.txt',treatment = TREATMENT,pc=PC),
+#         VCF="../../data/genotype/microglia_samples.GRCh38.filtered.no_outliers.vcf.gz"
+#     output:
+#         tensor_VCF="../../data/genotype/tensor.vcf.gz"
+#     message: "Subset VCF to variants tested in tensorQTL for easier visualization of results."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q normal",
+#         threads="-n 2",
+#         memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+#         jobname= "-o ../../logs/log.subset_vcf_tensorvars.%J.%I",
+#         error="-e ../../errors/error.subset_vcf_tensorvars.%J.%I"
+#     shell:
+#      """
+#      set +o pipefail;
+# 
+#      Rscript 3.2.Gather_tensor_tested_positions.R ../../data/genotype/tensorQTL_vars_tested.txt
+#      # subset VCF file
+#      bcftools view -T ../../data/genotype/tensorQTL_vars_tested.txt \
+#      -Oz -o {output.tensor_VCF} {input.VCF}
+#      bcftools index {output.tensor_VCF}
+#     """
+# rule prepare_harmonised_GWAS_for_coloc:
+#     input:
+#         format_nominal_results="../../data/results/4.Inspect_eQTL_results/tensorQTL_variant_gene.csv"
+#     output:
+#         GWAS_subsets='../../data/results/8.colocalisation_analysis/subsets_for_coloc/{gwas}/63_untreated_Not_proliferating_GWAS_subsets.rds',
+#         eQTL_subsets='../../data/results/8.colocalisation_analysis/subsets_for_coloc/{gwas}/63_untreated_Not_proliferating_eQTL_subsets.rds'
+#     message: "Prepare harmonised GWAS for coloc. 4.Process_eQTL_results.R needs to be run first."
+#     params:
+#         group= "-G teamtrynka",
+#         queue="-q long",
+#         threads="-n 1",
+#         memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+#         jobname= "-o ../../logs/log.prepare_harmonised_GWAS_for_coloc.%J.%I",
+#         error="-e ../../errors/error.prepare_harmonised_GWAS_for_coloc.%J.%I",
+#         distance_threshold=500000,
+#         GWAS_folder="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/{gwas}",
+#         eQTL_nominal_path="../../data/results/tensorqtl/best_results/"
+#     shell:"""
+#      set +o pipefail;
+# 
+#      Rscript 8.1.prepare_harmonised_GWAS_for_coloc.R  {params.GWAS_folder} {input.format_nominal_results} {params.eQTL_nominal_path} {params.distance_threshold}
+# 	"""
+
+rule prepare_twmr:
+    input:
+        nominal_eqtl_results="../../data/results/tensorqtl/best_results/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_500kb_window_tensorQTL_nominal.txt",
+        nominal_pheno_gwas_results="../../../OTAR2065_phenotypic_QTLs/data/results/{phenotype}/2.check_association_results/lm_1pct_filtered_deflated/all_res_pqtl_{phenotype}.csv",
+        eqtl_pheno_gwas_coloc_results="../../../OTAR2065_phenotypic_QTLs/data/results/{phenotype}/3.coloc/myeQTL_myGWAS_subsets_for_coloc/{treatment}_eQTL_subsets.rds",
+        topmed_ld="/lustre/scratch125/humgen/resources/TopLD/release_28032022/EUR/SNV/EUR_chr1_no_filter_0.2_1000000_LD.csv.gz",
+        genes="../../data/results/8.5.eQTL_MR/TWMR/input/tensorQTL_variant_gene.csv"
+    output:
+        TWMR_input="../../data/results/8.5.eQTL_MR/TWMR/input/{treatment}/{phenotype}/{gene}_input_matrices.rds"
+    message: "Run TWMR."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log.prepare_twmr..%J.%I",
+        error="-e ../../errors/error.prepare_twmr.%J.%I",
+        output_path="../../data/results/8.5.eQTL_MR/TWMR/input/",
+    shell:"""
+     set +o pipefail;
+
+     Rscript 8.5.TWMR_prepare_data.R  {wildcards.gene} {wildcards.treatment} {wildcards.phenotype} {params.output_path}
+	"""
+	
+
+rule run_twmr:
+    input:
+        TWMR_input="../../data/results/8.5.eQTL_MR/TWMR/input/{treatment}/{phenotype}/{gene}_input_matrices.rds"
+    output:
+        TWMR_output='../../data/results/8.5.eQTL_MR/TWMR/output/{treatment}/{phenotype}/{gene}.rds',
+    message: "Run TWMR."
+    params:
+        group= "-G teamtrynka",
+        queue="-q small",
+        threads="-n 1",
+        memory="-M4000 -R'span[hosts=1] select[mem>4000] rusage[mem=4000]'",
+        jobname= "-o ../../logs/log.run_twmr..%J.%I",
+        error="-e ../../errors/error.run_twmr.%J.%I",
+        output_path="../../data/results/8.5.eQTL_MR/TWMR/output/",
+    shell:"""
+     set +o pipefail;
+
+     Rscript 8.5.2.TWMR.R  {wildcards.gene} {wildcards.treatment} {wildcards.phenotype} {params.output_path}
+	"""
+	
+rule run_tensorQTL_nominal_TWMR:
+    input:
+        genotype="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.bed",
+        phenotype="../../data/for_tensorQTL/expr_sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_TWMR.bed.gz",
+        covariate="../../data/for_tensorQTL/{pc}/tensorQTL_metadata_sum_sizefactorsNorm_log2_{treatment}_Not_proliferating.txt",
+        eigenvec="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05.eigenvec"
+    output:
+        nominal='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_tensorQTL_nominal_trans_qtl_pairs.pkl'
+    message: "Run nominal tensorQTL in extended region (trans)."
+    conda:"otar2065"
+    params:
+        group= "-G teamtrynka",
+        queue="-q long",
+        threads="-n 1",
+        memory="-M60000 -R'span[hosts=1] select[mem>60000] rusage[mem=60000]'",
+        jobname= "-o ../../logs/log.run_tensorQTL_nominal.{pc}.{treatment}.%J.%I",
+        error="-e ../../errors/error.run_tensorQTL_nominal.{pc}.{treatment}.%J.%I",
+        plink_files="../../data/genotype/plink_genotypes/all_pools.no_outliers.genotype.MAF05"
+    script: "3.run_tensorQTL_nominal_trans.py"
+
+rule format_tensorQTL_nominal_TWMR:
+    input:
+        nominal='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_tensorQTL_nominal_trans_qtl_pairs.parquet'
+    output:
+        formated='../../data/results/tensorqtl/{pc}/sum_sizefactorsNorm_log2_scaled_centered_{treatment}_Not_proliferating_common_tensorQTL_nominal_trans.tsv.gz'
+    message: "Format nominal tensorqtl results."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log.format_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I",
+        error="-e ../../errors/error.format_tensorQTL_nominal.{pc}.{treatment}.{condition}.%J.%I"
+    script: "3.1.format_tensorQTL_nominal.py"
+

@@ -1,0 +1,145 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        2
+count_alleles                   2
+cram_to_bam                     2
+estimate_weights                2
+get_region_list                 1
+merge_lanes                     2
+remove_dups_sort_bam            2
+subset_and_index_bam            2
+total                          16
+
+Select jobs to execute...
+
+[Sun Nov 10 11:11:42 2024]
+Job 15: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool2/P2-IV_D0_iPSC_310821_L001.bam, ../../../data/bams/pool2/P2-IV_D0_iPSC_310821_L002.bam
+
+Submitted job 15 with external jobid 'Job <902187> is submitted to queue <normal>.'.
+
+[Sun Nov 10 11:11:42 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool2/pool2_genotype.txt
+
+Submitted job 4 with external jobid 'Job <902188> is submitted to queue <normal>.'.
+
+[Sun Nov 10 11:11:42 2024]
+Job 8: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool2/P2-III_D0_iPSC_300521_L002.bam, ../../../data/bams/pool2/P2-III_D0_iPSC_300521_L001.bam
+
+Submitted job 8 with external jobid 'Job <902189> is submitted to queue <normal>.'.
+[Sun Nov 10 11:15:23 2024]
+Finished job 4.
+1 of 16 steps (6%) done
+[Sun Nov 10 11:35:43 2024]
+Finished job 15.
+2 of 16 steps (12%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:35:43 2024]
+Job 14: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool2/merged_P2-IV_D0_iPSC_310821.bam; Input files updated by another job: ../../../data/bams/pool2/P2-IV_D0_iPSC_310821_L001.bam, ../../../data/bams/pool2/P2-IV_D0_iPSC_310821_L002.bam
+
+Submitted job 14 with external jobid 'Job <902203> is submitted to queue <normal>.'.
+[Sun Nov 10 11:39:34 2024]
+Finished job 8.
+3 of 16 steps (19%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:39:34 2024]
+Job 7: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool2/merged_P2-III_D0_iPSC_300521.bam; Input files updated by another job: ../../../data/bams/pool2/P2-III_D0_iPSC_300521_L002.bam, ../../../data/bams/pool2/P2-III_D0_iPSC_300521_L001.bam
+
+Submitted job 7 with external jobid 'Job <902207> is submitted to queue <normal>.'.
+[Sun Nov 10 11:44:04 2024]
+Finished job 14.
+4 of 16 steps (25%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:44:04 2024]
+Job 13: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool2/P2-IV_D0_iPSC_310821.bam.bai; Input files updated by another job: ../../../data/bams/pool2/merged_P2-IV_D0_iPSC_310821.bam
+
+Submitted job 13 with external jobid 'Job <902448> is submitted to queue <normal>.'.
+[Sun Nov 10 11:46:44 2024]
+Finished job 13.
+5 of 16 steps (31%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:46:44 2024]
+Job 12: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool2/P2-IV_D0_iPSC_310821.bam.bai, ../../../data/bams_nodups/pool2/P2-IV_D0_iPSC_310821.bam; Input files updated by another job: ../../../data/bams/pool2/P2-IV_D0_iPSC_310821.bam.bai
+
+Submitted job 12 with external jobid 'Job <902452> is submitted to queue <normal>.'.
+[Sun Nov 10 11:49:04 2024]
+Finished job 7.
+6 of 16 steps (38%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:49:04 2024]
+Job 6: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool2/P2-III_D0_iPSC_300521.bam.bai; Input files updated by another job: ../../../data/bams/pool2/merged_P2-III_D0_iPSC_300521.bam
+
+Submitted job 6 with external jobid 'Job <902465> is submitted to queue <normal>.'.
+[Sun Nov 10 11:52:04 2024]
+Finished job 6.
+7 of 16 steps (44%) done
+Select jobs to execute...
+
+[Sun Nov 10 11:52:04 2024]
+Job 5: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool2/P2-III_D0_iPSC_300521.bam.bai, ../../../data/bams_nodups/pool2/P2-III_D0_iPSC_300521.bam; Input files updated by another job: ../../../data/bams/pool2/P2-III_D0_iPSC_300521.bam.bai
+
+Submitted job 5 with external jobid 'Job <902480> is submitted to queue <normal>.'.
+[Sun Nov 10 12:22:37 2024]
+Finished job 12.
+8 of 16 steps (50%) done
+Select jobs to execute...
+
+[Sun Nov 10 12:22:37 2024]
+Job 11: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool2/P2-IV_D0_iPSC_310821_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool2/P2-IV_D0_iPSC_310821.bam.bai, ../../../data/bams_nodups/pool2/P2-IV_D0_iPSC_310821.bam, ../../../data/genotypes/pool2/pool2_genotype.txt
+
+Submitted job 11 with external jobid 'Job <902523> is submitted to queue <normal>.'.
+[Sun Nov 10 12:33:37 2024]
+Finished job 5.
+9 of 16 steps (56%) done
+Select jobs to execute...
+
+[Sun Nov 10 12:33:37 2024]
+Job 3: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool2/P2-III_D0_iPSC_300521_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool2/P2-III_D0_iPSC_300521.bam.bai, ../../../data/bams_nodups/pool2/P2-III_D0_iPSC_300521.bam, ../../../data/genotypes/pool2/pool2_genotype.txt
+
+Submitted job 3 with external jobid 'Job <902771> is submitted to queue <normal>.'.
+[Sun Nov 10 20:50:22 2024]
+Finished job 3.
+10 of 16 steps (62%) done
+Select jobs to execute...
+
+[Sun Nov 10 20:50:22 2024]
+Job 2: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/b/pool2/P2-III_D0_iPSC_300521_b_estimate.csv, ../../../data/genotypes/pool2/P2-III_D0_iPSC_300521_genotype_minor_allele_dosage.csv; Input files updated by another job: ../../../data/bam-readcount/pool2/P2-III_D0_iPSC_300521_bam-readcount.txt.gz
+
+Submitted job 2 with external jobid 'Job <910507> is submitted to queue <normal>.'.
+[Sun Nov 10 21:17:36 2024]
+Finished job 2.
+11 of 16 steps (69%) done
+Select jobs to execute...
+
+[Sun Nov 10 21:17:36 2024]
+Job 1: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool2/P2-III_D0_iPSC_300521_w_estimate.txt; Input files updated by another job: ../../../data/b/pool2/P2-III_D0_iPSC_300521_b_estimate.csv, ../../../data/genotypes/pool2/P2-III_D0_iPSC_300521_genotype_minor_allele_dosage.csv
+
+Submitted job 1 with external jobid 'Job <910654> is submitted to queue <normal>.'.
+[Sun Nov 10 21:18:47 2024]
+Finished job 1.
+12 of 16 steps (75%) done
+Terminating processes on user request, this might take some time.
+No --cluster-cancel given. Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

@@ -1,0 +1,3 @@
+WildcardError in line 20 of /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/Snakefile:
+No values given for wildcard 'pool'.
+  File "/lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/Snakefile", line 20, in <module>

@@ -1,0 +1,1 @@
+./rstudio_bsub.sh -g teamtrynka -m 64000 -c 16 -d /lustre/scratch123/hgi/projects/otar2065/OTAR2065_differentiation_efficiency/code/otar2065_differentiation_efficiency

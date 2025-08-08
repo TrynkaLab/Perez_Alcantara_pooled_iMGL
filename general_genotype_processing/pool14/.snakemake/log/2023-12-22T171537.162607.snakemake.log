@@ -1,0 +1,12 @@
+Building DAG of jobs...
+AmbiguousRuleException:
+Rules merge_hipsci_ipmar and subset_donors_vcf_ipmar are ambiguous for the file ../../data/pool_14/pool_14.merged.genotype.hg38.vcf.gz.
+Consider starting rule output with a unique prefix, constrain your wildcards, or use the ruleorder directive.
+Wildcards:
+	merge_hipsci_ipmar: pool=pool_14
+	subset_donors_vcf_ipmar: ipmar=pool_14.merged,pool=pool_14
+Expected input files:
+	merge_hipsci_ipmar: ../../data/pool_14/pool_14_hipsci.genotype.hg38.vcf.gz ../../data/pool_14/pool_14_ipmar.genotype.hg38.vcf.gz
+	subset_donors_vcf_ipmar: ../../data/pool_14/pool_14.merged_donorNames.txt /lustre/scratch123/hgi/projects/otar2065/resources/IPMAR_genotypes/ipmar_merged_phased_imputed_hg38.vcf.gzExpected output files:
+	merge_hipsci_ipmar: ../../data/pool_14/pool_14.merged.genotype.hg38.vcf.gz
+	subset_donors_vcf_ipmar: ../../data/pool_14/pool_14.merged.genotype.hg38.vcf.gz ../../data/pool_14/pool_14.merged.genotype.hg38.vcf.gz.csi

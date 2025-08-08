@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in line 131 of /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/Snakefile:
+Missing input files for rule count_alleles:
+../../../data/bams/P3_147.bam
+../../../data/bams/P3_147.bam.bai

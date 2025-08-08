@@ -1,0 +1,42 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	exonfilter_genotype_file
+	1	pool_donor_names
+	1	subset_donors_vcf
+	1	subset_variants
+	5
+
+[Sun Mar  3 15:45:41 2024]
+Job 4: Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 2 -M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]' -o ../../logs/log_pool_donor_ids.%J.%I -e ../../errors/error_pool_donor_ids.%J.%I [comma]
+
+Submitted job 4 with external jobid 'Job <49128373> is submitted to queue <normal>.'.
+[Sun Mar  3 15:46:21 2024]
+Finished job 4.
+1 of 5 steps (20%) done
+
+[Sun Mar  3 15:46:21 2024]
+Job 3: Subsetting donors present in the metadata file.
+
+Submitted job 3 with external jobid 'Job <49128469> is submitted to queue <normal>.'.
+[Sun Mar  3 15:47:41 2024]
+Error in rule subset_donors_vcf:
+    jobid: 3
+    output: ../../data/pool_14/pool_14.genotype.vcf.gz, ../../data/pool_14/pool_14.genotype.vcf.gz.csi
+    shell:
+        
+        # Subset donors
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -S ../../data/pool_14/pool_14_donorNames.txt ../../data/all_pools_no_curn_iukl/hipsci_ipmar_imputed_UK10K_1KG_HRC.MAF01.highqual.hg38.vcf.gz --threads 32 -Oz -o ../../data/pool_14/pool_14.genotype.vcf.gz
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index ../../data/pool_14/pool_14.genotype.vcf.gz
+
+        
+        (exited with non-zero exit code)
+    cluster_jobid: Job <49128469> is submitted to queue <normal>.
+
+Error executing rule subset_donors_vcf on cluster (jobid: 3, external: Job <49128469> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/tmp.ol9sirls/snakejob.subset_donors_vcf.3.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/log/2024-03-03T154541.534949.snakemake.log

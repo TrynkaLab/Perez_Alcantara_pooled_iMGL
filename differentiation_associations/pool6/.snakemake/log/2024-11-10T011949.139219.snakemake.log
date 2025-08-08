@@ -1,0 +1,86 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        5
+count_alleles                   5
+cram_to_bam                     5
+estimate_weights                5
+get_region_list                 1
+merge_lanes                     5
+remove_dups_sort_bam            5
+subset_and_index_bam            5
+total                          37
+
+Select jobs to execute...
+
+[Sun Nov 10 01:19:49 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool6/pool6_genotype.txt
+
+Submitted job 4 with external jobid 'Job <890506> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:19:50 2024]
+Job 15: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L002.bam
+
+Submitted job 15 with external jobid 'Job <890508> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:19:50 2024]
+Job 22: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L002.bam
+
+Submitted job 22 with external jobid 'Job <890510> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:19:50 2024]
+Job 36: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_D39_PreMac_130522_L001.bam, ../../../data/bams/pool6/P6_D39_PreMac_130522_L002.bam
+
+Submitted job 36 with external jobid 'Job <890512> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:19:50 2024]
+Job 8: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L002.bam, ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L001.bam
+
+Submitted job 8 with external jobid 'Job <890514> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:19:50 2024]
+Job 29: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_D50_PreMac_240522_L002.bam, ../../../data/bams/pool6/P6_D50_PreMac_240522_L001.bam
+
+Submitted job 29 with external jobid 'Job <890516> is submitted to queue <normal>.'.
+[Sun Nov 10 01:20:49 2024]
+Error in rule get_region_list:
+    jobid: 4
+    input: ../../../data/genotypes/pool6/pool6.merged.genotype.nonIdentical.hg38.vcf.gz
+    output: ../../../data/genotypes/pool6/pool6_genotype.txt
+    shell:
+        
+		set +o pipefail;
+		Rscript 1.Create_region_list_bam-readcount.R ../../../data/genotypes/pool6/pool6.merged.genotype.nonIdentical.hg38.vcf.gz ../../../data/genotypes/pool6/pool6_genotype.txt
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890506> is submitted to queue <normal>.
+
+Error executing rule get_region_list on cluster (jobid: 4, external: Job <890506> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.bo_houw2/snakejob.get_region_list.4.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:36:52 2024]
+Finished job 36.
+1 of 37 steps (3%) done
+[Sun Nov 10 01:42:41 2024]
+Finished job 29.
+2 of 37 steps (5%) done
+[Sun Nov 10 01:43:11 2024]
+Finished job 8.
+3 of 37 steps (8%) done
+[Sun Nov 10 01:43:31 2024]
+Finished job 22.
+4 of 37 steps (11%) done
+[Sun Nov 10 01:47:21 2024]
+Finished job 15.
+5 of 37 steps (14%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-11-10T011949.139219.snakemake.log

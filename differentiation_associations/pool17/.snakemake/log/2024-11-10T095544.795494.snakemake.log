@@ -1,0 +1,196 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        4
+count_alleles                   4
+estimate_weights                4
+get_region_list                 1
+merge_lanes                     4
+remove_dups_sort_bam            4
+subset_and_index_bam            4
+total                          26
+
+Select jobs to execute...
+
+[Sun Nov 10 09:55:45 2024]
+Job 14: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool17/merged_P17_D36_PreMac_031123.bam
+
+Submitted job 14 with external jobid 'Job <901781> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:55:46 2024]
+Job 21: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool17/merged_P17_D0_iPSC_220923.bam
+
+Submitted job 21 with external jobid 'Job <901782> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:55:46 2024]
+Job 7: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool17/merged_P17_D39_PreMac_101123.bam
+
+Submitted job 7 with external jobid 'Job <901783> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:55:46 2024]
+Job 28: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool17/merged_P17_D46_PreMac_131123.bam
+
+Submitted job 28 with external jobid 'Job <901784> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:55:46 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool17/pool17_genotype.txt
+
+Submitted job 4 with external jobid 'Job <901785> is submitted to queue <normal>.'.
+[Sun Nov 10 10:02:56 2024]
+Finished job 7.
+1 of 26 steps (4%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:02:56 2024]
+Job 6: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool17/P17_D39_PreMac_101123.bam.bai; Input files updated by another job: ../../../data/bams/pool17/merged_P17_D39_PreMac_101123.bam
+
+Submitted job 6 with external jobid 'Job <901814> is submitted to queue <normal>.'.
+[Sun Nov 10 10:04:06 2024]
+Finished job 21.
+2 of 26 steps (8%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:04:06 2024]
+Job 20: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool17/P17_D0_iPSC_220923.bam.bai; Input files updated by another job: ../../../data/bams/pool17/merged_P17_D0_iPSC_220923.bam
+
+Submitted job 20 with external jobid 'Job <901818> is submitted to queue <normal>.'.
+[Sun Nov 10 10:04:26 2024]
+Finished job 4.
+3 of 26 steps (12%) done
+[Sun Nov 10 10:04:36 2024]
+Finished job 14.
+4 of 26 steps (15%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:04:36 2024]
+Job 13: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool17/P17_D36_PreMac_031123.bam.bai; Input files updated by another job: ../../../data/bams/pool17/merged_P17_D36_PreMac_031123.bam
+
+Submitted job 13 with external jobid 'Job <901821> is submitted to queue <normal>.'.
+[Sun Nov 10 10:07:36 2024]
+Finished job 28.
+5 of 26 steps (19%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:07:36 2024]
+Job 27: Indexing bams.
+Reason: Missing output files: ../../../data/bams/pool17/P17_D46_PreMac_131123.bam.bai; Input files updated by another job: ../../../data/bams/pool17/merged_P17_D46_PreMac_131123.bam
+
+Submitted job 27 with external jobid 'Job <901834> is submitted to queue <normal>.'.
+[Sun Nov 10 10:11:57 2024]
+Finished job 6.
+6 of 26 steps (23%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:11:57 2024]
+Job 5: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool17/P17_D39_PreMac_101123.bam.bai, ../../../data/bams_nodups/pool17/P17_D39_PreMac_101123.bam; Input files updated by another job: ../../../data/bams/pool17/P17_D39_PreMac_101123.bam.bai
+
+Submitted job 5 with external jobid 'Job <901842> is submitted to queue <normal>.'.
+[Sun Nov 10 10:14:17 2024]
+Finished job 20.
+7 of 26 steps (27%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:14:17 2024]
+Job 19: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool17/P17_D0_iPSC_220923.bam.bai, ../../../data/bams_nodups/pool17/P17_D0_iPSC_220923.bam; Input files updated by another job: ../../../data/bams/pool17/P17_D0_iPSC_220923.bam.bai
+
+Submitted job 19 with external jobid 'Job <901847> is submitted to queue <normal>.'.
+[Sun Nov 10 10:15:47 2024]
+Finished job 13.
+8 of 26 steps (31%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:15:47 2024]
+Job 12: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool17/P17_D36_PreMac_031123.bam, ../../../data/bams_nodups/pool17/P17_D36_PreMac_031123.bam.bai; Input files updated by another job: ../../../data/bams/pool17/P17_D36_PreMac_031123.bam.bai
+
+Submitted job 12 with external jobid 'Job <901851> is submitted to queue <normal>.'.
+[Sun Nov 10 10:20:47 2024]
+Finished job 27.
+9 of 26 steps (35%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:20:47 2024]
+Job 26: Remove duplicates with picard, and sort.
+Reason: Missing output files: ../../../data/bams_nodups/pool17/P17_D46_PreMac_131123.bam.bai, ../../../data/bams_nodups/pool17/P17_D46_PreMac_131123.bam; Input files updated by another job: ../../../data/bams/pool17/P17_D46_PreMac_131123.bam.bai
+
+Submitted job 26 with external jobid 'Job <901863> is submitted to queue <normal>.'.
+[Sun Nov 10 10:38:19 2024]
+Finished job 5.
+10 of 26 steps (38%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:38:19 2024]
+Job 3: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D39_PreMac_101123_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool17/P17_D39_PreMac_101123.bam.bai, ../../../data/genotypes/pool17/pool17_genotype.txt, ../../../data/bams_nodups/pool17/P17_D39_PreMac_101123.bam
+
+Submitted job 3 with external jobid 'Job <901876> is submitted to queue <normal>.'.
+[Sun Nov 10 10:46:49 2024]
+Finished job 19.
+11 of 26 steps (42%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:46:49 2024]
+Job 18: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D0_iPSC_220923_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool17/P17_D0_iPSC_220923.bam.bai, ../../../data/genotypes/pool17/pool17_genotype.txt, ../../../data/bams_nodups/pool17/P17_D0_iPSC_220923.bam
+
+Submitted job 18 with external jobid 'Job <902122> is submitted to queue <normal>.'.
+[Sun Nov 10 10:48:19 2024]
+Finished job 12.
+12 of 26 steps (46%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:48:19 2024]
+Job 11: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D36_PreMac_031123_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool17/P17_D36_PreMac_031123.bam, ../../../data/genotypes/pool17/pool17_genotype.txt, ../../../data/bams_nodups/pool17/P17_D36_PreMac_031123.bam.bai
+
+Submitted job 11 with external jobid 'Job <902126> is submitted to queue <normal>.'.
+[Sun Nov 10 10:59:40 2024]
+Finished job 26.
+13 of 26 steps (50%) done
+Select jobs to execute...
+
+[Sun Nov 10 10:59:40 2024]
+Job 25: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool17/P17_D46_PreMac_131123_bam-readcount.txt.gz; Input files updated by another job: ../../../data/bams_nodups/pool17/P17_D46_PreMac_131123.bam.bai, ../../../data/bams_nodups/pool17/P17_D46_PreMac_131123.bam, ../../../data/genotypes/pool17/pool17_genotype.txt
+
+Submitted job 25 with external jobid 'Job <902166> is submitted to queue <normal>.'.
+[Sun Nov 10 21:15:47 2024]
+Finished job 25.
+14 of 26 steps (54%) done
+Select jobs to execute...
+
+[Sun Nov 10 21:15:47 2024]
+Job 24: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/b/pool17/P17_D46_PreMac_131123_b_estimate.csv, ../../../data/genotypes/pool17/P17_D46_PreMac_131123_genotype_minor_allele_dosage.csv; Input files updated by another job: ../../../data/bam-readcount/pool17/P17_D46_PreMac_131123_bam-readcount.txt.gz
+
+Submitted job 24 with external jobid 'Job <910650> is submitted to queue <normal>.'.
+[Sun Nov 10 22:01:45 2024]
+Finished job 24.
+15 of 26 steps (58%) done
+Select jobs to execute...
+
+[Sun Nov 10 22:01:45 2024]
+Job 23: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool17/P17_D46_PreMac_131123_w_estimate.txt; Input files updated by another job: ../../../data/b/pool17/P17_D46_PreMac_131123_b_estimate.csv, ../../../data/genotypes/pool17/P17_D46_PreMac_131123_genotype_minor_allele_dosage.csv
+
+Submitted job 23 with external jobid 'Job <910737> is submitted to queue <normal>.'.
+[Sun Nov 10 22:03:55 2024]
+Finished job 23.
+16 of 26 steps (62%) done
+Terminating processes on user request, this might take some time.
+No --cluster-cancel given. Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

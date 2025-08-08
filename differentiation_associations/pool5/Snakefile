@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+# Snakefile for WGS pools
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+
+POOL=["pool5"]
+# change pool as new data comes from sequencing
+SAMPLE,= glob_wildcards("../../../data/crams/pool5/{sample}_L001.cram")
+
+rule all:
+	input:
+		#bai=expand("../../../data/bams/{pool}/{sample}.bam.bai",pool=POOL,sample=SAMPLE),
+		#bai_dedup=expand("../../../data/bams_nodups/{pool}/{sample}.bam.bai",pool=POOL,sample=SAMPLE),
+		w_estimate=expand("../../../data/w/{pool}/{sample}_w_estimate.txt",pool=POOL,sample=SAMPLE)
+
+rule cram_to_bam:
+	input:
+		cram_l1="../../../data/crams/{pool}/{sample}_L001.cram",
+		cram_l2="../../../data/crams/{pool}/{sample}_L002.cram"
+	output:
+		bam_l1="../../../data/bams/{pool}/{sample}_L001.bam",
+		bam_l2="../../../data/bams/{pool}/{sample}_L002.bam"
+	message: "Cram to bam."
+	envmodules:"HGI/softpack/groups/trynka/popgen/1.0"
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+		jobname= "-o ../../../logs/log_cram_to_bam.{sample}.%J.%I",
+		error="-e ../../../errors/error_cram_to_bam.{sample}.%J.%I",
+		reference="/lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa"
+	shell:
+	 	"""
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T {params.reference} -o {output.bam_l1} {input.cram_l1}
+		samtools view -bh -q 40 -T {params.reference} -o {output.bam_l2} {input.cram_l2}
+
+		"""
+rule merge_lanes:
+    input:
+        bam_l1="../../../data/bams/{pool}/{sample}_L001.bam",
+        bam_l2="../../../data/bams/{pool}/{sample}_L002.bam"
+    output:
+        bam="../../../data/bams/{pool}/merged_{sample}.bam"
+    message: "Merging lanes."
+    envmodules:"HGI/softpack/groups/trynka/popgen/1.0"
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../../logs/log_merge_lanes.{sample}.%J.%I",
+        error="-e ../../../errors/error_merge_lanes.{sample}.%J.%I",
+        samtools_threads=16
+    shell:
+        """
+        set +o pipefail;
+
+        samtools merge -f \
+        --threads {params.samtools_threads} \
+        ../../../data/bams/{wildcards.pool}/{wildcards.sample}_tmp.bam {input.bam_l1} {input.bam_l2}
+
+        samtools sort \
+        --threads {params.samtools_threads} \
+        -o {output.bam} ../../../data/bams/{wildcards.pool}/{wildcards.sample}_tmp.bam
+
+        rm ../../../data/bams/{wildcards.pool}/{wildcards.sample}_tmp.bam
+
+        """
+rule subset_and_index_bam:
+	input: rules.merge_lanes.output
+	output:
+		bai="../../../data/bams/{pool}/{sample}.bam.bai"
+	message: "Indexing bams."
+	envmodules:"HGI/softpack/groups/trynka/popgen/1.0"
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M20000 -R'span[hosts=1] select[mem>20000] rusage[mem=20000]'",
+		jobname= "-o ../../../logs/log_subset_and_index_bam.{sample}.%J.%I",
+		error="-e ../../../errors/error_subset_and_index_bam.{sample}.%J.%I"
+	shell:
+	 	"""
+		set +o pipefail;
+	samtools index -@ 32 ../../../data/bams/{wildcards.pool}/merged_{wildcards.sample}.bam
+        samtools view -@ 32 \
+        -b ../../../data/bams/{wildcards.pool}/merged_{wildcards.sample}.bam chr{{1..22}} chrX > ../../../data/bams/{wildcards.pool}/{wildcards.sample}.bam
+		samtools index -@ 32 ../../../data/bams/{wildcards.pool}/{wildcards.sample}.bam {output.bai}
+
+		"""
+
+rule remove_dups_sort_bam:
+    input: rules.subset_and_index_bam.output
+    output:
+        bam="../../../data/bams_nodups/{pool}/{sample}.bam",
+        bai="../../../data/bams_nodups/{pool}/{sample}.bam.bai"
+    message: "Remove duplicates with picard, and sort."
+    envmodules:"HGI/softpack/groups/trynka/popgen/1.0"
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 64",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../../logs/log_remove_dups_sort_bam.{sample}.%J.%I",
+        error="-e ../../../errors/error_remove_dups_sort_bam.{sample}.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        picard MarkDuplicates \
+        I=../../../data/bams/{wildcards.pool}/{wildcards.sample}.bam \
+        O=../../../data/bams_nodups/{wildcards.pool}/{wildcards.sample}_nodups_unsorted.bam \
+        M=../../../data/bams/{wildcards.pool}/{wildcards.sample}_marked_dup_metrics.txt \
+        REMOVE_DUPLICATES=true
+
+        samtools sort -@ 64 -o {output.bam} ../../../data/bams_nodups/{wildcards.pool}/{wildcards.sample}_nodups_unsorted.bam
+        rm ../../../data/bams_nodups/{wildcards.pool}/{wildcards.sample}_nodups_unsorted.bam
+	samtools index -@ 64 {output.bam} {output.bai}
+
+		"""
+
+rule get_coverage:
+	input:rules.remove_dups_sort_bam.output
+	output:
+		coverage="../../../data/depth/{pool}/nodups/{sample}_coverage.txt",
+		coverage_samtools="../../../data/depth/{pool}/nodups/{sample}_coverage_samtools.txt"
+	message: "Calculating depth and coverage from crams."
+        envmodules:"HGI/softpack/groups/trynka/popgen/1.0"
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+		jobname= "-o ../../../logs/log_get_coverage.{sample}.%J.%I",
+		error="-e ../../../errors/error_get_coverage.{sample}.%J.%I"
+	shell:
+		"""
+        set +o pipefail;
+
+		mkdir -p ../../../data/depth
+		depth=$(samtools depth -a "../../../data/bams/{wildcards.pool}/nodups/{wildcards.sample}.bam"  |  awk '{{sum+=$3}} END {{ print sum/NR}}' )
+		echo $depth > {output.coverage}
+		samtools coverage -d 0 -o {output.coverage_samtools} {input.bam}
+		"""
+
+rule get_region_list:
+	input:
+		genotype_pool="../../../data/genotypes/{pool}/{pool}.merged.genotype.nonIdentical.hg38.vcf.gz"
+	output:
+		region_list_pool="../../../data/genotypes/{pool}/{pool}_genotype.txt",
+	message: "Getting region list for bam-readcount."
+	envmodules:"HGI/softpack/groups/otar2065/otar2065_9/33"
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 2",
+		memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+		jobname= "-o ../../../logs/log_get_region_list.%J.%I",
+		error="-e ../../../errors/error_get_region_list.%J.%I"
+	shell:
+	 	"""
+		set +o pipefail;
+		Rscript 1.Create_region_list_bam-readcount.R {input.genotype_pool} {output.region_list_pool}
+		"""
+
+rule count_alleles:
+	input:
+		region_list_pool="../../../data/genotypes/{pool}/{pool}_genotype.txt",
+		bam="../../../data/bams_nodups/{pool}/{sample}.bam",
+		bai="../../../data/bams_nodups/{pool}/{sample}.bam.bai"
+	output:
+		bam_readcount="../../../data/bam-readcount/{pool}/{sample}_bam-readcount.txt.gz"
+	message: "Counting alleles with bam-readcount."
+	envmodules:"HGI/softpack/groups/otar2065/otar2065_9/33"
+	params:
+		group="-G teamtrynka",
+		queue="-q long",
+		threads="-n 6",
+		memory="-M60000 -R'span[hosts=1] select[mem>60000] rusage[mem=60000]'",
+		jobname= "-o ../../../logs/log_count_alleles.{sample}.%J.%I",
+		error="-e ../../../errors/error_count_alleles.{sample}.%J.%I",
+		depth="1000000000",
+		read_quality="30",
+		reference="/lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa"
+	shell:
+		"""
+		set +o pipefail;
+		bam-readcount -w 1 \
+		-d {params.depth} -q {params.read_quality} -f {params.reference} \
+		-l {input.region_list_pool} {input.bam} > ../../../data/bam-readcount/{wildcards.pool}/{wildcards.sample}_bam-readcount_tmp.txt
+
+		# filter to remove positions that have 0 coverage
+		awk -F'\t' 'NR == 1 || $4 != 0' ../../../data/bam-readcount/{wildcards.pool}/{wildcards.sample}_bam-readcount_tmp.txt > ../../../data/bam-readcount/{wildcards.pool}/{wildcards.sample}_bam-readcount.txt
+		gzip ../../../data/bam-readcount/{wildcards.pool}/{wildcards.sample}_bam-readcount.txt
+		rm ../../../data/bam-readcount/{wildcards.pool}/{wildcards.sample}_bam-readcount_tmp.txt
+
+		"""
+
+rule calculate_b_estimate_MAD:
+	input:
+		bam_readcount="../../../data/bam-readcount/{pool}/{sample}_bam-readcount.txt.gz",
+		genotype_pool="../../../data/genotypes/{pool}/{pool}.merged.genotype.nonIdentical.hg38.vcf.gz"
+	output:
+		b_estimate="../../../data/b/{pool}/{sample}_b_estimate.csv",
+		genotype_minor_allele_dosage="../../../data/genotypes/{pool}/{sample}_genotype_minor_allele_dosage.csv",
+		variants_retained="../../../data/genotypes/{pool}/{sample}_Nvariants_retained_reduced_genotype.txt"
+	envmodules:"HGI/softpack/groups/otar2065/otar2065_9/33"
+	message: "Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../../logs/log_calculate_b_estimate.{sample}.%J.%I",
+		error="-e ../../../errors/error_calculate_b_estimate.{sample}.%J.%I"
+	shell:
+		"""
+		set +o pipefail;
+			Rscript 2.Bam-readcount_to_MAF_estimate.R \
+			{input.bam_readcount} {input.genotype_pool} \
+			{output.b_estimate} {output.genotype_minor_allele_dosage} {output.variants_retained}
+		"""
+
+rule estimate_weights:
+	input:
+		b_estimate="../../../data/b/{pool}/{sample}_b_estimate.csv",
+		genotype_minor_allele_dosage="../../../data/genotypes/{pool}/{sample}_genotype_minor_allele_dosage.csv"
+	output:
+		w_estimate="../../../data/w/{pool}/{sample}_w_estimate.txt"
+	message: "Estimate proportion (weights) of donors."
+	envmodules:"HGI/softpack/groups/otar2065/otar2065_9/33"
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../../logs/log_estimate_weights.{sample}.%J.%I",
+		error="-e ../../../errors/error_estimate_weights.{sample}.%J.%I"
+	shell:
+	 	"""
+		set +o pipefail;
+		mkdir -p ../../../data/w
+		Rscript 3.estimate_weights.R \
+		{input.b_estimate} {input.genotype_minor_allele_dosage} \
+		{output.w_estimate}
+		"""
+

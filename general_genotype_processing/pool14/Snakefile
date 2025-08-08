@@ -1,0 +1,114 @@
+#!/usr/bin env python3
+# Snakefile for reprocessing the merged genotype vcf for all donors located in
+#/lustre/scratch123/hgi/projects/hipsci/releases/data/gtarray/releases/merged_files/REL-2018-01
+# per chromosome
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+import numpy as np
+
+POOL=["pool_14"]
+CHR = [i for i in np.arange(1,23,1)] + ["X"]
+
+rule all:
+    input:
+        genotype=expand("../../data/{pool}/{pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf.gz",pool=POOL)
+
+rule pool_donor_names:
+    input:
+        metadata="../../data/sampleMetadata.txt",
+        donor_ids="../../data/donor_id_match.txt"
+    output:
+        donor_pools="../../data/{pool}/{pool}_donorNames.txt"
+    message: "Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_pool_donor_ids.%J.%I",
+        error="-e ../../errors/error_pool_donor_ids.%J.%I"
+    shell:
+        """
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        """
+
+rule subset_donors_vcf:
+    input:
+        donor_pools="../../data/{pool}/{pool}_donorNames.txt",
+        all_hipsci_vcfs="../../data/all_pools_no_curn_iukl/hipsci_ipmar_imputed_UK10K_1KG_HRC.MAF01.highqual.hg38.vcf.gz"
+    output:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz",
+        index="../../data/{pool}/{pool}.genotype.vcf.gz.csi"
+    message: "Subsetting donors present in the metadata file."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_subset_donors_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+        # Subset donors
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -S {input.donor_pools} {input.all_hipsci_vcfs} --threads 32 -Oz -o {output.genotype}
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+
+        """
+
+rule exonfilter_genotype_file:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz"
+    output:
+        filtered="../../data/{pool}/{pool}.genotype.exonfiltered.vcf.gz"
+    message: "Subsetting genotypes to exonic positions."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M4000 -R'span[hosts=1] select[mem>4000] rusage[mem=4000]'",
+        jobname= "-o ../../../logs/log_exonfilter_genotype_file.%J.%I",
+        error="-e ../../../errors/error_exonfilter_genotype_file.%J.%I",
+        bind_dir="/lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/{pool}"
+    shell:
+        """
+        echo "Subset to exon"
+        singularity exec --bind {params.bind_dir}/ \
+        /software/teamtrynka/Demuxafy.sif vcftools \
+        --gzvcf {params.bind_dir}/{wildcards.pool}.genotype.vcf.gz \
+        --max-alleles 2 \
+        --remove-indels \
+        --bed {params.bind_dir}/genotypes/hg38exonsUCSC.bed \
+        --recode \
+        --recode-INFO-all \
+        --out {params.bind_dir}/{wildcards.pool}.genotype.exonfiltered.vcf
+
+        /software/teamtrynka/conda/trynka-base/bin/bgzip {params.bind_dir}/{wildcards.pool}.genotype.exonfiltered.vcf
+        """
+
+rule subset_variants:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.exonfiltered.vcf.gz"
+    output:
+        genotype="../../data/{pool}/{pool}.merged.genotype.exonfiltered.nonIdentical.hg38.vcf.gz"
+    message: "Subsetting to variants that have non-identical genotypes across donors. Do conda activate otar2065 first. Run with snakemake --jobs 3 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M160000 -R'span[hosts=1] select[mem>160000] rusage[mem=160000]'",
+        jobname= "-o ../../logs/log_{pool}_subset_variants_WGS.%J.%I",
+        error="-e ../../errors/error_{pool}_subset_variants_WGS.%J.%I"
+    shell:
+        """
+        echo "Subsetting to variants that have non-identical genotypes across donors"
+        /software/teamtrynka/conda/otar2065/bin/Rscript 0.Retain_non-identical_variants.R {input.genotype} {output.genotype}
+
+        # Decompressing and re-compressing in right format
+        gunzip -d {output.genotype}
+        /software/teamtrynka/conda/trynka-base/bin/bgzip ../../data/{wildcards.pool}/{wildcards.pool}.merged.genotype.nonIdentical.hg38.vcf
+
+        echo "Generating index file"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+        """

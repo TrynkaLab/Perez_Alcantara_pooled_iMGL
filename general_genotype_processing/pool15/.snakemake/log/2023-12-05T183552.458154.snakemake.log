@@ -1,0 +1,220 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	concat_and_sort_genotype_vcf
+	1	liftover_hg19_hg38
+	23	subset_to_high_quality_imputation_hipsci
+	26
+
+[Tue Dec  5 18:35:52 2023]
+Job 8: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 8 with external jobid 'Job <40479907> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:53 2023]
+Job 11: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 11 with external jobid 'Job <40479909> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:53 2023]
+Job 3: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 3 with external jobid 'Job <40479910> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:54 2023]
+Job 6: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 6 with external jobid 'Job <40479911> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:54 2023]
+Job 16: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 16 with external jobid 'Job <40479912> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:54 2023]
+Job 12: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 12 with external jobid 'Job <40479913> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:55 2023]
+Job 15: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 15 with external jobid 'Job <40479916> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:55 2023]
+Job 14: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 14 with external jobid 'Job <40479917> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:56 2023]
+Job 19: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 19 with external jobid 'Job <40479918> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:56 2023]
+Job 5: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 5 with external jobid 'Job <40479919> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:57 2023]
+Job 25: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 25 with external jobid 'Job <40479920> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:57 2023]
+Job 7: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 7 with external jobid 'Job <40479921> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:57 2023]
+Job 20: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 20 with external jobid 'Job <40479923> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:58 2023]
+Job 9: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 9 with external jobid 'Job <40479924> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:58 2023]
+Job 17: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 17 with external jobid 'Job <40479925> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:59 2023]
+Job 21: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 21 with external jobid 'Job <40479926> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:35:59 2023]
+Job 22: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 22 with external jobid 'Job <40479930> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:00 2023]
+Job 23: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 23 with external jobid 'Job <40479931> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:00 2023]
+Job 24: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 24 with external jobid 'Job <40479932> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:00 2023]
+Job 10: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 10 with external jobid 'Job <40479934> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:01 2023]
+Job 4: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 4 with external jobid 'Job <40479935> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:01 2023]
+Job 18: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 18 with external jobid 'Job <40479936> is submitted to queue <normal>.'.
+
+[Tue Dec  5 18:36:02 2023]
+Job 13: Subsetting to variants with high quality imputation scores per chromosome, before merging. 
+
+Submitted job 13 with external jobid 'Job <40479938> is submitted to queue <normal>.'.
+[Tue Dec  5 18:36:02 2023]
+Finished job 11.
+1 of 26 steps (4%) done
+[Tue Dec  5 18:36:02 2023]
+Finished job 16.
+2 of 26 steps (8%) done
+[Tue Dec  5 18:36:02 2023]
+Finished job 15.
+3 of 26 steps (12%) done
+[Tue Dec  5 18:36:14 2023]
+Finished job 13.
+4 of 26 steps (15%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 8.
+5 of 26 steps (19%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 3.
+6 of 26 steps (23%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 6.
+7 of 26 steps (27%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 12.
+8 of 26 steps (31%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 14.
+9 of 26 steps (35%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 19.
+10 of 26 steps (38%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 5.
+11 of 26 steps (42%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 25.
+12 of 26 steps (46%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 7.
+13 of 26 steps (50%) done
+[Tue Dec  5 18:36:15 2023]
+Finished job 20.
+14 of 26 steps (54%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 9.
+15 of 26 steps (58%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 17.
+16 of 26 steps (62%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 21.
+17 of 26 steps (65%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 22.
+18 of 26 steps (69%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 23.
+19 of 26 steps (73%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 24.
+20 of 26 steps (77%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 10.
+21 of 26 steps (81%) done
+[Tue Dec  5 18:36:16 2023]
+Finished job 18.
+22 of 26 steps (85%) done
+[Tue Dec  5 18:36:26 2023]
+Finished job 4.
+23 of 26 steps (88%) done
+
+[Tue Dec  5 18:36:26 2023]
+Job 2: Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_15_concat_and_sort_genotype_vcf.%J.%I -e ../../errors/error_pool_15_concat_and_sort_genotype_vcf.%J.%I [comma]
+
+Submitted job 2 with external jobid 'Job <40479960> is submitted to queue <normal>.'.
+[Tue Dec  5 18:46:17 2023]
+Finished job 2.
+24 of 26 steps (92%) done
+
+[Tue Dec  5 18:46:17 2023]
+Job 1: Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38). Run with snakemake --jobs 1 --cluster [comma] bsub -G teamtrynka -q normal -n 1 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_15_liftover_hg19_hg38.%J.%I -e ../../errors/error_pool_15_liftover_hg19_hg38.%J.%I [comma]
+
+Submitted job 1 with external jobid 'Job <40480393> is submitted to queue <normal>.'.
+[Tue Dec  5 19:01:18 2023]
+Finished job 1.
+25 of 26 steps (96%) done
+
+[Tue Dec  5 19:01:18 2023]
+localrule all:
+    input: ../../data/pool_15/pool_15_hipsci.genotype.hg38.vcf.gz
+    jobid: 0
+
+[Tue Dec  5 19:01:18 2023]
+Finished job 0.
+26 of 26 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/.snakemake/log/2023-12-05T183552.458154.snakemake.log

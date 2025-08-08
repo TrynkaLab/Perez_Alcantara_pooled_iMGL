@@ -1,0 +1,100 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	remove_dups_sort_bam
+	4	subset_and_index_bam
+	9
+
+[Thu Nov 16 11:09:30 2023]
+Job 8: Indexing bams.
+
+Submitted job 8 with external jobid 'Job <38389479> is submitted to queue <normal>.'.
+
+[Thu Nov 16 11:09:30 2023]
+Job 6: Indexing bams.
+
+Submitted job 6 with external jobid 'Job <38389480> is submitted to queue <normal>.'.
+
+[Thu Nov 16 11:09:31 2023]
+Job 5: Indexing bams.
+
+Submitted job 5 with external jobid 'Job <38389481> is submitted to queue <normal>.'.
+
+[Thu Nov 16 11:09:31 2023]
+Job 7: Indexing bams.
+
+Submitted job 7 with external jobid 'Job <38389482> is submitted to queue <normal>.'.
+[Thu Nov 16 11:45:12 2023]
+Error in rule subset_and_index_bam:
+    jobid: 8
+    output: ../../../data/bams/pool11/pool11_day35_preMAC.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/merged_pool11_day35_preMAC.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool11/merged_pool11_day35_preMAC.bam chr{1..22} chrX > ../../../data/bams/pool11/pool11_day35_preMAC_temp.bam
+        mv ../../../data/bams/pool11/pool11_day35_preMAC_temp.bam ../../../data/bams/pool11_day35_preMAC.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/pool11_day35_preMAC.bam ../../../data/bams/pool11/pool11_day35_preMAC.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <38389479> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 8, external: Job <38389479> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/.snakemake/tmp.gzg38bed/snakejob.subset_and_index_bam.8.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Thu Nov 16 11:47:12 2023]
+Error in rule subset_and_index_bam:
+    jobid: 5
+    output: ../../../data/bams/pool11/pool11_day0_iPSC.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/merged_pool11_day0_iPSC.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool11/merged_pool11_day0_iPSC.bam chr{1..22} chrX > ../../../data/bams/pool11/pool11_day0_iPSC_temp.bam
+        mv ../../../data/bams/pool11/pool11_day0_iPSC_temp.bam ../../../data/bams/pool11_day0_iPSC.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/pool11_day0_iPSC.bam ../../../data/bams/pool11/pool11_day0_iPSC.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <38389481> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 5, external: Job <38389481> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/.snakemake/tmp.gzg38bed/snakejob.subset_and_index_bam.5.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Thu Nov 16 11:51:32 2023]
+Error in rule subset_and_index_bam:
+    jobid: 6
+    output: ../../../data/bams/pool11/pool11_day49_preMAC.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/merged_pool11_day49_preMAC.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool11/merged_pool11_day49_preMAC.bam chr{1..22} chrX > ../../../data/bams/pool11/pool11_day49_preMAC_temp.bam
+        mv ../../../data/bams/pool11/pool11_day49_preMAC_temp.bam ../../../data/bams/pool11_day49_preMAC.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/pool11_day49_preMAC.bam ../../../data/bams/pool11/pool11_day49_preMAC.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <38389480> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 6, external: Job <38389480> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/.snakemake/tmp.gzg38bed/snakejob.subset_and_index_bam.6.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Thu Nov 16 11:52:52 2023]
+Error in rule subset_and_index_bam:
+    jobid: 7
+    output: ../../../data/bams/pool11/pool11_day39_preMAC.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/merged_pool11_day39_preMAC.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool11/merged_pool11_day39_preMAC.bam chr{1..22} chrX > ../../../data/bams/pool11/pool11_day39_preMAC_temp.bam
+        mv ../../../data/bams/pool11/pool11_day39_preMAC_temp.bam ../../../data/bams/pool11_day39_preMAC.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool11/pool11_day39_preMAC.bam ../../../data/bams/pool11/pool11_day39_preMAC.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <38389482> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 7, external: Job <38389482> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/.snakemake/tmp.gzg38bed/snakejob.subset_and_index_bam.7.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/.snakemake/log/2023-11-16T110929.754468.snakemake.log

@@ -1,0 +1,153 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        4
+count_alleles                   4
+estimate_weights                4
+get_region_list                 1
+total                          14
+
+Select jobs to execute...
+
+[Sun Nov 10 23:00:09 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool16/pool16_genotype.txt; Code has changed since last execution
+
+Submitted job 4 with external jobid 'Job <910814> is submitted to queue <normal>.'.
+[Sun Nov 10 23:04:39 2024]
+Finished job 4.
+1 of 14 steps (7%) done
+Select jobs to execute...
+
+[Sun Nov 10 23:04:39 2024]
+Job 25: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool16/P16_D39_PreMac_301023_bam-readcount.txt.gz; Input files updated by another job: ../../../data/genotypes/pool16/pool16_genotype.txt
+
+Submitted job 25 with external jobid 'Job <910842> is submitted to queue <long>.'.
+
+[Sun Nov 10 23:04:39 2024]
+Job 18: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool16/P16_D36_PreMac_271023_bam-readcount.txt.gz; Input files updated by another job: ../../../data/genotypes/pool16/pool16_genotype.txt
+
+Submitted job 18 with external jobid 'Job <910843> is submitted to queue <long>.'.
+
+[Sun Nov 10 23:04:40 2024]
+Job 11: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool16/P16_D0_iPSC_150923_bam-readcount.txt.gz; Input files updated by another job: ../../../data/genotypes/pool16/pool16_genotype.txt
+
+Submitted job 11 with external jobid 'Job <910844> is submitted to queue <long>.'.
+
+[Sun Nov 10 23:04:40 2024]
+Job 3: Counting alleles with bam-readcount.
+Reason: Missing output files: ../../../data/bam-readcount/pool16/P16_D46_PreMac_061123_bam-readcount.txt.gz; Input files updated by another job: ../../../data/genotypes/pool16/pool16_genotype.txt
+
+Submitted job 3 with external jobid 'Job <910845> is submitted to queue <long>.'.
+[Mon Nov 11 13:16:39 2024]
+Finished job 18.
+2 of 14 steps (14%) done
+Select jobs to execute...
+
+[Mon Nov 11 13:16:39 2024]
+Job 17: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/genotypes/pool16/P16_D36_PreMac_271023_genotype_minor_allele_dosage.csv, ../../../data/b/pool16/P16_D36_PreMac_271023_b_estimate.csv; Input files updated by another job: ../../../data/bam-readcount/pool16/P16_D36_PreMac_271023_bam-readcount.txt.gz
+
+Submitted job 17 with external jobid 'Job <937594> is submitted to queue <normal>.'.
+[Mon Nov 11 13:42:20 2024]
+Finished job 11.
+3 of 14 steps (21%) done
+Select jobs to execute...
+
+[Mon Nov 11 13:42:20 2024]
+Job 10: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/b/pool16/P16_D0_iPSC_150923_b_estimate.csv, ../../../data/genotypes/pool16/P16_D0_iPSC_150923_genotype_minor_allele_dosage.csv; Input files updated by another job: ../../../data/bam-readcount/pool16/P16_D0_iPSC_150923_bam-readcount.txt.gz
+
+Submitted job 10 with external jobid 'Job <939769> is submitted to queue <normal>.'.
+[Mon Nov 11 13:51:21 2024]
+Finished job 17.
+4 of 14 steps (29%) done
+Select jobs to execute...
+
+[Mon Nov 11 13:51:21 2024]
+Job 16: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool16/P16_D36_PreMac_271023_w_estimate.txt; Input files updated by another job: ../../../data/genotypes/pool16/P16_D36_PreMac_271023_genotype_minor_allele_dosage.csv, ../../../data/b/pool16/P16_D36_PreMac_271023_b_estimate.csv
+
+Submitted job 16 with external jobid 'Job <940980> is submitted to queue <normal>.'.
+[Mon Nov 11 13:52:51 2024]
+Finished job 16.
+5 of 14 steps (36%) done
+[Mon Nov 11 14:20:02 2024]
+Finished job 10.
+6 of 14 steps (43%) done
+Select jobs to execute...
+
+[Mon Nov 11 14:20:02 2024]
+Job 9: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool16/P16_D0_iPSC_150923_w_estimate.txt; Input files updated by another job: ../../../data/b/pool16/P16_D0_iPSC_150923_b_estimate.csv, ../../../data/genotypes/pool16/P16_D0_iPSC_150923_genotype_minor_allele_dosage.csv
+
+Submitted job 9 with external jobid 'Job <946622> is submitted to queue <normal>.'.
+[Mon Nov 11 14:48:04 2024]
+Finished job 9.
+7 of 14 steps (50%) done
+[Mon Nov 11 22:22:51 2024]
+Finished job 25.
+8 of 14 steps (57%) done
+Select jobs to execute...
+
+[Mon Nov 11 22:22:51 2024]
+Job 24: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/b/pool16/P16_D39_PreMac_301023_b_estimate.csv, ../../../data/genotypes/pool16/P16_D39_PreMac_301023_genotype_minor_allele_dosage.csv; Input files updated by another job: ../../../data/bam-readcount/pool16/P16_D39_PreMac_301023_bam-readcount.txt.gz
+
+Submitted job 24 with external jobid 'Job <51428> is submitted to queue <normal>.'.
+[Mon Nov 11 23:01:33 2024]
+Finished job 24.
+9 of 14 steps (64%) done
+Select jobs to execute...
+
+[Mon Nov 11 23:01:33 2024]
+Job 23: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool16/P16_D39_PreMac_301023_w_estimate.txt; Input files updated by another job: ../../../data/genotypes/pool16/P16_D39_PreMac_301023_genotype_minor_allele_dosage.csv, ../../../data/b/pool16/P16_D39_PreMac_301023_b_estimate.csv
+
+Submitted job 23 with external jobid 'Job <57291> is submitted to queue <normal>.'.
+[Mon Nov 11 23:03:23 2024]
+Finished job 23.
+10 of 14 steps (71%) done
+[Mon Nov 11 23:38:55 2024]
+Finished job 3.
+11 of 14 steps (79%) done
+Select jobs to execute...
+
+[Mon Nov 11 23:38:55 2024]
+Job 2: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+Reason: Missing output files: ../../../data/b/pool16/P16_D46_PreMac_061123_b_estimate.csv, ../../../data/genotypes/pool16/P16_D46_PreMac_061123_genotype_minor_allele_dosage.csv; Input files updated by another job: ../../../data/bam-readcount/pool16/P16_D46_PreMac_061123_bam-readcount.txt.gz
+
+Submitted job 2 with external jobid 'Job <62858> is submitted to queue <normal>.'.
+[Tue Nov 12 00:17:27 2024]
+Finished job 2.
+12 of 14 steps (86%) done
+Select jobs to execute...
+
+[Tue Nov 12 00:17:27 2024]
+Job 1: Estimate proportion (weights) of donors.
+Reason: Missing output files: ../../../data/w/pool16/P16_D46_PreMac_061123_w_estimate.txt; Input files updated by another job: ../../../data/b/pool16/P16_D46_PreMac_061123_b_estimate.csv, ../../../data/genotypes/pool16/P16_D46_PreMac_061123_genotype_minor_allele_dosage.csv
+
+Submitted job 1 with external jobid 'Job <69351> is submitted to queue <normal>.'.
+[Tue Nov 12 00:23:07 2024]
+Finished job 1.
+13 of 14 steps (93%) done
+Select jobs to execute...
+
+[Tue Nov 12 00:23:07 2024]
+localrule all:
+    input: ../../../data/w/pool16/P16_D46_PreMac_061123_w_estimate.txt, ../../../data/w/pool16/P16_D0_iPSC_150923_w_estimate.txt, ../../../data/w/pool16/P16_D36_PreMac_271023_w_estimate.txt, ../../../data/w/pool16/P16_D39_PreMac_301023_w_estimate.txt
+    jobid: 0
+    reason: Input files updated by another job: ../../../data/w/pool16/P16_D36_PreMac_271023_w_estimate.txt, ../../../data/w/pool16/P16_D39_PreMac_301023_w_estimate.txt, ../../../data/w/pool16/P16_D46_PreMac_061123_w_estimate.txt, ../../../data/w/pool16/P16_D0_iPSC_150923_w_estimate.txt
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/tmp
+
+[Tue Nov 12 00:23:07 2024]
+Finished job 0.
+14 of 14 steps (100%) done
+Complete log: .snakemake/log/2024-11-10T230006.789409.snakemake.log

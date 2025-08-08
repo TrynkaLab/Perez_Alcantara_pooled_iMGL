@@ -1,0 +1,365 @@
+#!/usr/bin/env python3
+# Snakefile for PRS with PRSice
+# snakemake is in /software/teamtrynka/conda/otar2065/bin/snakemake v 7.30.2
+# starting from eQTL PLINK files and VCF, with HipSci and IPMAR donors after various QC filters
+# and Bellenguez harmonised GWAS file for AD
+import os
+import numpy as np
+
+PRS=["prs_ad_bellenguez"]
+TREAT=["untreated","LPS","IFN"]
+CHR = [i for i in np.arange(1,23,1)]
+
+rule all:
+    input:
+        #donor_pools=expand("../../data/{prs}/donor_ids.txt",prs=PRS),
+        #subset=expand("../../data/{prs}/chr{chromosomes}/highqual.genotype.vcf.gz",prs=PRS,chromosomes=CHR),
+        genotype=expand("../../data/{prs}/for_ld.genotype.bed",prs=PRS),
+	prsice=expand("../../data/{prs}/PRSice/1000G_PRSice_noAPOE_microglia_{treatment}.all_score",prs=PRS,treatment=TREAT)
+
+# remove APOE region from the PLINK file of our used HipSci + IPMAR donors
+rule remove_APOE_region:
+    input:
+        vcf_target="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.vcf.gz"
+    output:
+        plink_target_noAPOE="../../data/{prs}/all_pools.genotype.noAPOE.bed"
+    message: "Concatenating sample genotype files needed for next step."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{prs}_remove_APOE_region.%J.%I",
+        error="-e ../../errors/error_{prs}_remove_APOE_region.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # convert to PLINK format
+        plink2 --vcf {input.vcf_target} --make-bed --out ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered
+
+        # then copy the PLINK files and modify bim file removing the "chr"
+        cd ../../data/prs_ad_bellenguez
+        cp --symbolic-link ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.bed .
+        cp --symbolic-link ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.fam .
+        awk 'BEGIN{{FS=OFS="\t"}} {{sub("chr", "", $2)}} 1' ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.bim > microglia_samples.GRCh38.filtered.bim
+        cd ../../code/prs_ad_bellenguez
+
+        # excluding big chunk of the APOE region as in Leonenko et al., 2021
+        plink2 --bfile ../../data/{wildcards.prs}/microglia_samples.GRCh38.filtered \
+        --exclude range ../../data/{wildcards.prs}/apoe_region_coords.bed \
+        --make-bed \
+        --out ../../data/{wildcards.prs}/all_pools.genotype.noAPOE
+        # double-check with
+        #awk '$1 == 19 && $4 >= 43900000 && $4 <= 46000000' ../../data/{wildcards.prs}/all_pools.genotype.noAPOE.bim 
+        """
+
+rule calculate_PRSice_LD_1000Genomes:
+    input:
+        plink_target_noAPOE="../../data/{prs}/all_pools.genotype.noAPOE.bed",
+        ld_file="../../data/{prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim",
+        gwas="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/GCST90027158/harmonised/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+    output:
+        genotype_1k_LD="../../data/{prs}/PRSice/PRSice_noAPOE_LD_from_1000G.all_score"
+    message: "Calculate PRSice results for the HipSci data with 1000G LD file (as recommended by PRSice authors due to low number of donors)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{prs}_calculate_PRSice_LD_1000Genomes.%J.%I",
+        error="-e ../../errors/error_{prs}_calculate_PRSice_LD_1000Genomes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        # run PRSice without phenotypes
+        Rscript /software/hgi/envs/conda/team217/ma23/PRSice/PRSice.R \
+        --dir /software/hgi/envs/conda/team217/ma23/PRSice \
+        --out ../../data/{wildcards.pool}/PRSice/PRSice_noAPOE_LD_from_1000G \
+        --prsice /software/hgi/envs/conda/team217/ma23/PRSice/bin/PRSice \
+        --base {input.gwas} \
+        --target ../../data/{wildcards.pool}/all_pools.genotype.noAPOE \
+        --binary-target T \
+        --ld ../../data/{wildcards.pool}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+        --thread 1 \
+        --beta --stat hm_beta \
+        --snp hm_variant_id \
+        --chr hm_chrom \
+        --bp hm_pos \
+        --A1 hm_effect_allele\
+        --A2 hm_other_allele\
+        --pvalue p_value \
+        --clump-kb 1000kb \
+        --clump-p 0.100000 \
+        --clump-r2 0.100000 \
+        --score avg \
+       # --extract ../../data/{wildcards.pool}/PRSice/PRSice_noAPOE_LD_from_1000G.valid \
+        --no-regress
+        # will need first run without --extract PRSice.valid, then include it
+        """
+
+rule remove_APOE_region_1000Genomes:
+    input:
+        genotype_1k="/lustre/scratch123/hgi/teams/trynka/resources/1000g/1000G/release/20220422/b38/EUR/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid.vcf.gz"
+    output:
+        genotype_1k_noAPOE="../../data/{prs}/1000G_noAPOE.bim"
+    message: "Remove APOE region from 1000 genomes."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_{prs}_remove_APOE_region_1000Genomes.%J.%I",
+        error="-e ../../errors/error_{prs}_remove_APOE_region_1000Genomes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+         # first convert to PLINK
+
+         plink2 --vcf {input.genotype_1k} \
+        --max-alleles 2 \
+        --allow-extra-chr --chr 1-22 \
+        --make-bed \
+        --out ../../data/{wildcards.prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid
+
+
+        # fix ids - beware last column in bim file is the Major allele
+        cd ../../data/{wildcards.prs}
+        cp --symbolic-link 1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid.bed 1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bed
+        cp --symbolic-link 1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid.fam 1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.fam
+        awk 'BEGIN{{FS=OFS="\t"}} {{ $2 = $1 "_" $4 "_" $6 "_" $5 }}1' 1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid.bim > ../../data/{wildcards.prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim
+        cd ../../code/{wildcards.prs}
+
+        # excluding big chunk of the APOE region as in Leonenko et al., 2021
+           # keep only variants from the Hipsci PLINK file
+        
+        plink2 --bfile ../../data/{wildcards.prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+        --exclude range ../../data/{wildcards.prs}/apoe_region_coords.bed \
+        --extract ../../data/{wildcards.prs}/all_pools.genotype.noAPOE.bim \
+        --make-bed \
+        --out ../../data/{wildcards.prs}/1000G_noAPOE
+        # double-check with
+        #awk '$1 == 19 && $4 >= 43900000 && $4 <= 46000000' ../../data/{wildcards.prs}/1000G_noAPOE.bim
+        """
+       
+
+rule calculate_PRS_PRSice_1000Genomes:
+    input:
+        genotype_1k_noAPOE="../../data/{prs}/1000G_noAPOE.bim",
+        gwas="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/GCST90027158/harmonised/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+    output:
+        prsice="../../data/{prs}/PRSice/1000G_PRSice_noAPOE.all_score"
+    message: "Calculating PRS with PRSice for 1000 Genomes. External LD file not needed as there are many samples."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_calculate_PRS_PRSice_1000Genomes.%J.%I",
+        error="-e ../../errors/error_calculate_PRS_PRSice_1000Genomes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        # run PRSice without phenotypes
+        Rscript /software/hgi/envs/conda/team217/ma23/PRSice/PRSice.R \
+        --dir /software/hgi/envs/conda/team217/ma23/PRSice \
+        --out ../../data/{wildcards.prs}/PRSice/1000G_PRSice_noAPOE \
+        --prsice /software/hgi/envs/conda/team217/ma23/PRSice/bin/PRSice \
+        --base {input.gwas} \
+        --target ../../data/{wildcards.prs}/1000G_noAPOE \
+        --binary-target T \
+        --thread 1 \
+        --beta --stat hm_beta \
+        --snp hm_variant_id \
+        --chr hm_chrom \
+        --bp hm_pos \
+        --A1 hm_effect_allele\
+        --A2 hm_other_allele\
+        --pvalue p_value \
+        --clump-kb 1000kb \
+        --clump-p 0.100000 \
+        --clump-r2 0.100000 \
+        --score avg \
+        --extract ../../data/{wildcards.prs}/PRSice/PRSice_noAPOE_LD_from_1000G.valid \
+        --no-regress
+        # will need first run without --extract PRSice.valid, then include it
+        #I'm using the file from the HipSci run to ensure they have the same number of risk variants
+        """
+
+rule extract_APOE_positions:
+    input:
+        plink_hipsci="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.bim",
+        plink_1000genomes="../../data/{prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim",
+        apoe_snps="../../data/{prs}/APOE_snps.txt"
+    output:
+        apoe_hipsci="../../data/{prs}/hipsci_APOE.vcf",
+        apoe_1000genomes="../../data/{prs}/1000G_APOE.vcf"
+    message: "Extracting APOE genotypes."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_extract_APOE_positions.%J.%I",
+        error="-e ../../errors/error_extract_APOE_positions.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        plink2 --bfile ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered --extract {input.apoe_snps} \
+        --recode vcf --out ../../data/{wildcard.pools}/hipsci_APOE
+        plink2 --bfile ../../data/{wildcard.pools}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+        --extract {input.apoe_snps} \
+        --recode vcf --out ../../data/{wildcard.pools}/1000G_APOE
+        """
+
+rule calculate_PCs:
+    input:
+        plink_hipsci="../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered.bim",
+        plink_1000genomes="../../data/{prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim"
+    output:
+        apoe_hipsci="../../data/{prs}/hipsci_APOE.vcf",
+        apoe_1000genomes="../../data/{prs}/1000G_APOE.vcf"
+    message: "Extracting APOE genotypes."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_extract_APOE_positions.%J.%I",
+        error="-e ../../errors/error_extract_APOE_positions.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+ 
+        plink2 --bfile ../../data/imputed_from_kaur/microglia_samples.GRCh38.filtered \
+         --geno 0.05 \
+         --maf 0.05 \
+         --hwe 0.0001 \
+         --pca 30 \
+         --out ../../data/prs_ad_bellenguez/microglia_samples.GRCh38.filtered
+
+        plink2 --bfile ../../data/prs_ad_bellenguez/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+         --geno 0.05 \
+         --maf 0.05 \
+         --hwe 0.0001 \
+         --pca 30 \
+         --out ../../data/prs_ad_bellenguez/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked
+        """
+     
+### microglia-specific PRS ###
+
+
+rule create_AD_GWAS_regions_from_coloc:
+    input:
+        coloc_results="../../../OTAR2065_sc_eQTL/data/results/8.colocalisation_analysis/coloc_results/all_GWAS_colocalisations.csv",
+        gwas="/lustre/scratch123/hgi/teams/trynka/resources/summary_statistics/public/GCST90027158/harmonised/35379992-GCST90027158-MONDO_0004975.h.tsv.gz"
+    output:
+        gwas_positions="../../../OTAR2065_sc_eQTL/data/results/8.colocalisation_analysis/coloc_results/coloc_positions_for_PRSice/AD_GWAS_coloc_pos_LPS.tsv",
+        gwas_subset=expand("../../data/{prs}/AD_coloc_subset_{treatment}.tsv.gz",prs=PRS,treatment=TREAT)
+    message: "Creating GWAS regions that colocalise with microglia eQTLs (+/-250kb)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M80000 -R'span[hosts=1] select[mem>80000] rusage[mem=80000]'",
+        jobname= "-o ../../logs/log_create_AD_GWAS_regions_from_coloc.%J.%I",
+        error="-e ../../errors/error_create_AD_GWAS_regions_from_coloc.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        Rscript get_coloc_positions.R {input.coloc_results} {output.gwas_positions} {input.gwas}
+        
+        """
+        
+rule calculate_microglia_PRS_PRSice:
+    input:
+        plink_target_noAPOE="../../data/{prs}/all_pools.genotype.noAPOE.bed",
+        ld_file="../../data/{prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim",
+        gwas="../../data/{prs}/AD_coloc_subset_{treatment}.tsv.gz"
+    output:
+        microglia_prsice="../../data/{prs}/PRSice/PRSice_noAPOE_microglia_{treatment}.all_score"
+    message: "Calculating PRS with PRSice."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_calculate_microglia_PRS_PRSice.%J.%I",
+        error="-e ../../errors/error_calculate_microglia_PRS_PRSice.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        # run PRSice without phenotypes
+        # PRSice deals with flipped alleles between GWAS and target automatically
+        Rscript /software/hgi/envs/conda/team217/ma23/PRSice/PRSice.R \
+        --dir /software/hgi/envs/conda/team217/ma23/PRSice \
+        --out ../../data/{wildcards.prs}/PRSice/PRSice_noAPOE_microglia_{wildcards.treatment} \
+        --prsice /software/hgi/envs/conda/team217/ma23/PRSice/bin/PRSice \
+        --base {input.gwas} \
+        --target ../../data/{wildcards.prs}/all_pools.genotype.noAPOE \
+        --binary-target T \
+        --ld ../../data/{wildcards.prs}/1000G_EUR_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+        --thread 1 \
+        --beta --stat hm_beta \
+        --snp hm_variant_id \
+        --chr hm_chrom \
+        --bp hm_pos \
+        --A1 hm_effect_allele\
+        --A2 hm_other_allele\
+        --pvalue p_value \
+        --clump-kb 1000kb \
+        --clump-p 0.100000 \
+        --clump-r2 0.100000 \
+        --score avg \
+        --no-regress \
+        --extract ../../data/{wildcards.prs}/PRSice/PRSice_noAPOE_microglia_{wildcards.treatment}.valid
+        # will need first run without --extract PRSice.valid, then include it
+        """
+
+
+rule calculate_microglia_PRS_PRSice_1000Genomes:
+    input:
+        genotype_1k_noAPOE="../../data/{prs}/1000G_noAPOE.bim",
+        gwas="../../data/{prs}/AD_coloc_subset_{treatment}.tsv.gz"
+    output:
+        prsice="../../data/{prs}/PRSice/1000G_PRSice_noAPOE_microglia_{treatment}.all_score"
+    message: "Calculating PRS with PRSice for 1000 Genomes. External LD file not needed as there are many samples."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_calculate_PRS_PRSice_1000Genomes.%J.%I",
+        error="-e ../../errors/error_calculate_PRS_PRSice_1000Genomes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        # run PRSice without phenotypes
+        Rscript /software/hgi/envs/conda/team217/ma23/PRSice/PRSice.R \
+        --dir /software/hgi/envs/conda/team217/ma23/PRSice \
+        --out ../../data/{wildcards.prs}/PRSice/1000G_PRSice_noAPOE_microglia_{wildcards.treatment} \
+        --prsice /software/hgi/envs/conda/team217/ma23/PRSice/bin/PRSice \
+        --base {input.gwas} \
+        --target ../../data/{wildcards.prs}/1000G_noAPOE \
+        --binary-target T \
+        --thread 1 \
+        --beta --stat hm_beta \
+        --snp hm_variant_id \
+        --chr hm_chrom \
+        --bp hm_pos \
+        --A1 hm_effect_allele\
+        --A2 hm_other_allele\
+        --pvalue p_value \
+        --clump-kb 1000kb \
+        --clump-p 0.100000 \
+        --clump-r2 0.100000 \
+        --score avg \
+        #--extract ../../data/{wildcards.prs}/PRSice/1000G_PRSice_noAPOE_microglia_{wildcards.treatment}.valid \
+        --no-regress
+        # will need first run without --extract PRSice.valid, then include it
+        #I'm using the file from the HipSci run to ensure they have the same number of risk variants
+        """

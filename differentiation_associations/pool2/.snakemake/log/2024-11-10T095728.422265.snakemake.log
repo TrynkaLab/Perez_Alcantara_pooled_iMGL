@@ -1,0 +1,237 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        8
+count_alleles                   8
+estimate_weights                8
+get_region_list                 1
+merge_lanes                     8
+remove_dups_sort_bam            8
+subset_and_index_bam            8
+total                          50
+
+Select jobs to execute...
+
+[Sun Nov 10 09:57:29 2024]
+Job 56: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P5_Mig15_LPS_seeded.bam
+
+Submitted job 56 with external jobid 'Job <901802> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:30 2024]
+Job 35: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P2-IV_D28_PreMac_041021.bam
+
+Submitted job 35 with external jobid 'Job <901803> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:30 2024]
+Job 49: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P5_D50_PreMac_240522.bam
+
+Submitted job 49 with external jobid 'Job <901804> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:30 2024]
+Job 7: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P5_Mig15_IFN_seeded.bam
+
+Submitted job 7 with external jobid 'Job <901805> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:30 2024]
+Job 21: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P5_D42_PreMac_160522.bam
+
+Submitted job 21 with external jobid 'Job <901806> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:30 2024]
+Job 14: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P5_Mig15_UNT_seeded.bam
+
+Submitted job 14 with external jobid 'Job <901807> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:31 2024]
+Job 42: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P2-IV_D84_PreMac_291121.bam
+
+Submitted job 42 with external jobid 'Job <901808> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:31 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool5/pool5_genotype.txt
+
+Submitted job 4 with external jobid 'Job <901809> is submitted to queue <normal>.'.
+
+[Sun Nov 10 09:57:31 2024]
+Job 28: Merging lanes.
+Reason: Missing output files: ../../../data/bams/pool5/merged_P2-IV_D60_PreMac_051121.bam
+
+Submitted job 28 with external jobid 'Job <901810> is submitted to queue <normal>.'.
+[Sun Nov 10 09:57:39 2024]
+Error in rule merge_lanes:
+    jobid: 56
+    input: ../../../data/bams/pool5/P5_Mig15_LPS_seeded_L001.bam, ../../../data/bams/pool5/P5_Mig15_LPS_seeded_L002.bam
+    output: ../../../data/bams/pool5/merged_P5_Mig15_LPS_seeded.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P5_Mig15_LPS_seeded_tmp.bam ../../../data/bams/pool5/P5_Mig15_LPS_seeded_L001.bam ../../../data/bams/pool5/P5_Mig15_LPS_seeded_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P5_Mig15_LPS_seeded.bam ../../../data/bams/pool5/P5_Mig15_LPS_seeded_tmp.bam
+
+        rm ../../../data/bams/pool5/P5_Mig15_LPS_seeded_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901802> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 56, external: Job <901802> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.56.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:39 2024]
+Error in rule merge_lanes:
+    jobid: 49
+    input: ../../../data/bams/pool5/P5_D50_PreMac_240522_L001.bam, ../../../data/bams/pool5/P5_D50_PreMac_240522_L002.bam
+    output: ../../../data/bams/pool5/merged_P5_D50_PreMac_240522.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P5_D50_PreMac_240522_tmp.bam ../../../data/bams/pool5/P5_D50_PreMac_240522_L001.bam ../../../data/bams/pool5/P5_D50_PreMac_240522_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P5_D50_PreMac_240522.bam ../../../data/bams/pool5/P5_D50_PreMac_240522_tmp.bam
+
+        rm ../../../data/bams/pool5/P5_D50_PreMac_240522_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901804> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 49, external: Job <901804> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.49.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:39 2024]
+Error in rule merge_lanes:
+    jobid: 7
+    input: ../../../data/bams/pool5/P5_Mig15_IFN_seeded_L001.bam, ../../../data/bams/pool5/P5_Mig15_IFN_seeded_L002.bam
+    output: ../../../data/bams/pool5/merged_P5_Mig15_IFN_seeded.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P5_Mig15_IFN_seeded_tmp.bam ../../../data/bams/pool5/P5_Mig15_IFN_seeded_L001.bam ../../../data/bams/pool5/P5_Mig15_IFN_seeded_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P5_Mig15_IFN_seeded.bam ../../../data/bams/pool5/P5_Mig15_IFN_seeded_tmp.bam
+
+        rm ../../../data/bams/pool5/P5_Mig15_IFN_seeded_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901805> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 7, external: Job <901805> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.7.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:39 2024]
+Error in rule merge_lanes:
+    jobid: 21
+    input: ../../../data/bams/pool5/P5_D42_PreMac_160522_L001.bam, ../../../data/bams/pool5/P5_D42_PreMac_160522_L002.bam
+    output: ../../../data/bams/pool5/merged_P5_D42_PreMac_160522.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P5_D42_PreMac_160522_tmp.bam ../../../data/bams/pool5/P5_D42_PreMac_160522_L001.bam ../../../data/bams/pool5/P5_D42_PreMac_160522_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P5_D42_PreMac_160522.bam ../../../data/bams/pool5/P5_D42_PreMac_160522_tmp.bam
+
+        rm ../../../data/bams/pool5/P5_D42_PreMac_160522_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901806> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 21, external: Job <901806> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.21.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:39 2024]
+Error in rule merge_lanes:
+    jobid: 14
+    input: ../../../data/bams/pool5/P5_Mig15_UNT_seeded_L001.bam, ../../../data/bams/pool5/P5_Mig15_UNT_seeded_L002.bam
+    output: ../../../data/bams/pool5/merged_P5_Mig15_UNT_seeded.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P5_Mig15_UNT_seeded_tmp.bam ../../../data/bams/pool5/P5_Mig15_UNT_seeded_L001.bam ../../../data/bams/pool5/P5_Mig15_UNT_seeded_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P5_Mig15_UNT_seeded.bam ../../../data/bams/pool5/P5_Mig15_UNT_seeded_tmp.bam
+
+        rm ../../../data/bams/pool5/P5_Mig15_UNT_seeded_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901807> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 14, external: Job <901807> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.14.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:49 2024]
+Error in rule merge_lanes:
+    jobid: 35
+    input: ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_L001.bam, ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_L002.bam
+    output: ../../../data/bams/pool5/merged_P2-IV_D28_PreMac_041021.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_tmp.bam ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_L001.bam ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P2-IV_D28_PreMac_041021.bam ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_tmp.bam
+
+        rm ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901803> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 35, external: Job <901803> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.35.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:49 2024]
+Error in rule merge_lanes:
+    jobid: 42
+    input: ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_L001.bam, ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_L002.bam
+    output: ../../../data/bams/pool5/merged_P2-IV_D84_PreMac_291121.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_tmp.bam ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_L001.bam ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P2-IV_D84_PreMac_291121.bam ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_tmp.bam
+
+        rm ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901808> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 42, external: Job <901808> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.42.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 09:57:49 2024]
+Error in rule merge_lanes:
+    jobid: 28
+    input: ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_L001.bam, ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_L002.bam
+    output: ../../../data/bams/pool5/merged_P2-IV_D60_PreMac_051121.bam
+    shell:
+        
+        set +o pipefail;
+
+        samtools merge         --threads 16         ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_tmp.bam ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_L001.bam ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_L002.bam
+
+        samtools sort         --threads 16         -o ../../../data/bams/pool5/merged_P2-IV_D60_PreMac_051121.bam ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_tmp.bam
+
+        rm ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_tmp.bam
+
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <901810> is submitted to queue <normal>.
+
+Error executing rule merge_lanes on cluster (jobid: 28, external: Job <901810> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.0p3lwu5a/snakejob.merge_lanes.28.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 10:02:10 2024]
+Finished job 4.
+1 of 50 steps (2%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-11-10T095728.422265.snakemake.log

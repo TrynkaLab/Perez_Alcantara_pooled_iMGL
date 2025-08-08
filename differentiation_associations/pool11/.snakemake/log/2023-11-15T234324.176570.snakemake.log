@@ -1,0 +1,15 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	2	merge_lanes
+	4	subset_and_index_bam
+	7
+
+[Wed Nov 15 23:43:24 2023]
+Job 3: Indexing bams.
+
+RuleException in line 71 of /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/Snakefile:
+'Wildcards' object has no attribute 'phenotype'

@@ -1,0 +1,16 @@
+Building DAG of jobs...
+IncompleteFilesException:
+The files below seem to be incomplete. If you are sure that certain files are not incomplete, mark them as complete with
+
+    snakemake --cleanup-metadata <filenames>
+
+To re-generate the files rerun your command with the --rerun-incomplete flag.
+Incomplete files:
+../../../data/bam-readcount/P4_170_bam-readcount.txt.gz
+../../../data/bam-readcount/P3_148_bam-readcount.txt.gz
+../../../data/bam-readcount/P4_169_bam-readcount.txt.gz
+../../../data/bam-readcount/P4_172_bam-readcount.txt.gz
+../../../data/bam-readcount/P4_174_bam-readcount.txt.gz
+../../../data/bam-readcount/P4_171_bam-readcount.txt.gz
+../../../data/bam-readcount/P4_164_bam-readcount.txt.gz
+../../../data/bam-readcount/P3_137_bam-readcount.txt.gz

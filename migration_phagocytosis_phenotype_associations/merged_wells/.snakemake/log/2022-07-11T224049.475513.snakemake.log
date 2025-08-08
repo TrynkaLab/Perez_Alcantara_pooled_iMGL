@@ -1,0 +1,296 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	30	calculate_b_estimate_MAD
+	11	count_alleles
+	30	estimate_weights
+	72
+
+[Mon Jul 11 22:40:49 2022]
+Job 99: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 99 with external jobid 'Job <512917> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:49 2022]
+Job 94: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 94 with external jobid 'Job <512918> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 118: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 118 with external jobid 'Job <512919> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 83: Counting alleles with bam-readcount.
+
+Submitted job 83 with external jobid 'Job <512920> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 75: Counting alleles with bam-readcount.
+
+Submitted job 75 with external jobid 'Job <512921> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 90: Counting alleles with bam-readcount.
+
+Submitted job 90 with external jobid 'Job <512922> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 110: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 110 with external jobid 'Job <512923> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:50 2022]
+Job 82: Counting alleles with bam-readcount.
+
+Submitted job 82 with external jobid 'Job <512924> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:51 2022]
+Job 104: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 104 with external jobid 'Job <512925> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:51 2022]
+Job 91: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 91 with external jobid 'Job <512926> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:51 2022]
+Job 65: Counting alleles with bam-readcount.
+
+Submitted job 65 with external jobid 'Job <512927> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:51 2022]
+Job 96: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 96 with external jobid 'Job <512928> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:51 2022]
+Job 93: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 93 with external jobid 'Job <512929> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 117: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 117 with external jobid 'Job <512930> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 76: Counting alleles with bam-readcount.
+
+Submitted job 76 with external jobid 'Job <512931> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 78: Counting alleles with bam-readcount.
+
+Submitted job 78 with external jobid 'Job <512932> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 114: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 114 with external jobid 'Job <512933> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 71: Counting alleles with bam-readcount.
+
+Submitted job 71 with external jobid 'Job <512934> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 107: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 107 with external jobid 'Job <512935> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:52 2022]
+Job 89: Counting alleles with bam-readcount.
+
+Submitted job 89 with external jobid 'Job <512936> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 86: Counting alleles with bam-readcount.
+
+Submitted job 86 with external jobid 'Job <512937> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 102: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 102 with external jobid 'Job <512938> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 109: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 109 with external jobid 'Job <512939> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 97: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 97 with external jobid 'Job <512940> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 111: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 111 with external jobid 'Job <512941> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:53 2022]
+Job 98: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 98 with external jobid 'Job <512942> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:54 2022]
+Job 115: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 115 with external jobid 'Job <512943> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:55 2022]
+Job 62: Counting alleles with bam-readcount.
+
+Submitted job 62 with external jobid 'Job <512944> is submitted to queue <normal>.'.
+
+[Mon Jul 11 22:40:55 2022]
+Job 103: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 103 with external jobid 'Job <512945> is submitted to queue <long>.'.
+
+[Mon Jul 11 22:40:56 2022]
+Job 100: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 100 with external jobid 'Job <512946> is submitted to queue <long>.'.
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 99
+    output: ../../../data/b/P3_152_b_estimate.csv, ../../../data/genotypes/P3_152_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_152_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512917> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 99, external: Job <512917> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.99.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 94
+    output: ../../../data/b/P3_140_b_estimate.csv, ../../../data/genotypes/P3_140_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_140_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512918> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 94, external: Job <512918> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.94.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 118
+    output: ../../../data/b/P4_160_b_estimate.csv, ../../../data/genotypes/P4_160_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_160_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512919> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 118, external: Job <512919> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.118.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 110
+    output: ../../../data/b/P4_161_b_estimate.csv, ../../../data/genotypes/P4_161_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_161_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512923> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 110, external: Job <512923> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.110.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 104
+    output: ../../../data/b/P4_163_b_estimate.csv, ../../../data/genotypes/P4_163_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_163_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512925> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 104, external: Job <512925> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.104.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:40:59 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 91
+    output: ../../../data/b/P3_147_b_estimate.csv, ../../../data/genotypes/P3_147_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_147_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512926> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 91, external: Job <512926> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.91.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:00 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 96
+    output: ../../../data/b/P3_145_b_estimate.csv, ../../../data/genotypes/P3_145_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_145_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512928> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 96, external: Job <512928> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.96.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:00 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 93
+    output: ../../../data/b/P3_136_b_estimate.csv, ../../../data/genotypes/P3_136_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_136_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512929> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 93, external: Job <512929> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.93.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:00 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 117
+    output: ../../../data/b/P3_151_b_estimate.csv, ../../../data/genotypes/P3_151_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_151_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512930> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 117, external: Job <512930> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.117.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:00 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 114
+    output: ../../../data/b/P3_135_b_estimate.csv, ../../../data/genotypes/P3_135_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_135_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512933> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 114, external: Job <512933> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.114.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:00 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 107
+    output: ../../../data/b/P4_162_b_estimate.csv, ../../../data/genotypes/P4_162_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_162_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512935> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 107, external: Job <512935> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.107.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 102
+    output: ../../../data/b/P4_168_b_estimate.csv, ../../../data/genotypes/P4_168_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_168_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512938> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 102, external: Job <512938> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.102.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 109
+    output: ../../../data/b/P4_173_b_estimate.csv, ../../../data/genotypes/P4_173_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_173_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512939> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 109, external: Job <512939> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.109.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 97
+    output: ../../../data/b/P3_146_b_estimate.csv, ../../../data/genotypes/P3_146_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_146_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512940> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 97, external: Job <512940> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.97.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 111
+    output: ../../../data/b/P3_138_b_estimate.csv, ../../../data/genotypes/P3_138_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_138_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512941> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 111, external: Job <512941> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.111.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 98
+    output: ../../../data/b/P4_176_b_estimate.csv, ../../../data/genotypes/P4_176_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_176_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512942> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 98, external: Job <512942> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.98.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 115
+    output: ../../../data/b/P3_139_b_estimate.csv, ../../../data/genotypes/P3_139_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_139_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512943> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 115, external: Job <512943> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.115.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 103
+    output: ../../../data/b/P3_144_b_estimate.csv, ../../../data/genotypes/P3_144_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_144_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512945> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 103, external: Job <512945> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.103.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Mon Jul 11 22:41:01 2022]
+Error in rule calculate_b_estimate_MAD:
+    jobid: 100
+    output: ../../../data/b/P3_149_b_estimate.csv, ../../../data/genotypes/P3_149_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_149_Nvariants_retained_reduced_genotype.txt
+    cluster_jobid: Job <512946> is submitted to queue <long>.
+
+Error executing rule calculate_b_estimate_MAD on cluster (jobid: 100, external: Job <512946> is submitted to queue <long>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.36a7r7xb/snakejob.calculate_b_estimate_MAD.100.sh). For error details see the cluster log and the log files of the involved rule(s).
+Terminating processes on user request, this might take some time.
+Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

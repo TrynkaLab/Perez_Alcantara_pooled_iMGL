@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 194 of /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool13/Snakefile:
+Missing input files for rule calculate_b_estimate_MAD:
+../../../data/genotypes/pool13/pool13_genotype.vcf.gz

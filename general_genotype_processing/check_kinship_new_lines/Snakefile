@@ -1,0 +1,394 @@
+#!/usr/bin/env python3
+# Snakefile for checking the merged genotype file (old genotype + new donors variant calls from wgs)
+
+# snakemake location:  /software/teamtrynka/conda/otar2065/bin/snakemake
+
+import os
+
+POOL="check_kinship_new_lines"
+
+rule all:
+    input:
+        #wgs_norm=expand("../../data/{pool}/new.genotype_wgs.vcf.gz",pool=POOL),
+        #genotype=expand("../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed",pool=POOL),
+        #fam=expand("../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.recoded.fam",pool=POOL),
+        #kinship=expand("../../data/{pool}/kinship/tocheck.genotype.MAF01.hg38.king",pool=POOL),
+        eigenvec=expand("../../data/{pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05.eigenvec",pool=POOL)
+
+rule prepare_new_vcf:
+    input:
+        wgs="../../data/ungenotyped_donors/deepvariant_nextflow/DV_output.vcf.gz",
+        donors="../../data/{pool}/new_donorNames.txt",
+        ref="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/bgzipped/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz",
+    output:
+        wgs_norm="../../data/{pool}/new.genotype_wgs.vcf.gz"
+    message: "Concatenating sample genotype files present in the metadata file needed for next step."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        MAF=0.01,
+        jobname= "-o ../../logs/log_{pool}_prepare_new_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_prepare_new_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        echo "Indexing"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index -f {input.wgs}
+        echo "Subsetting chromosomes"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view {input.wgs} \
+        --regions 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X --threads 32 \
+        -Oz -o ../../data/{wildcards.pool}/temp_subset.vcf.gz
+        echo "Subsetting to curn_3, aowh_2 and kolf2_1s"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -S {input.donors} ../../data/{wildcards.pool}/temp_subset.vcf.gz \
+        --threads 32 -Oz -o ../../data/{wildcards.pool}/temp2_subset.vcf.gz
+
+        echo "Normalising ref to genome build, split multiallelic to biallelic records. Exclude mismatching REF."
+        /software/teamtrynka/conda/trynka-base/bin/bcftools norm -f {input.ref} \
+        -m -both --check-ref x ../../data/{wildcards.pool}/temp2_subset.vcf.gz -Oz -o ../../data/{wildcards.pool}/temp.new.posnorm.genotype_wgs.vcf.gz
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index -f ../../data/{wildcards.pool}/temp.new.posnorm.genotype_wgs.vcf.gz
+
+        # add chr to first column
+        # create conversion file beforehand
+        # https://www.biostars.org/p/98582/#176041
+        /software/teamtrynka/conda/trynka-base/bin/bcftools annotate --rename-chrs ../../data/{wildcards.pool}/add_chr.txt \
+        ../../data/{wildcards.pool}/temp.new.posnorm.genotype_wgs.vcf.gz > ../../data/{wildcards.pool}/new.genotype_wgs.vcf
+        /software/teamtrynka/conda/trynka-base/bin/bgzip -f ../../data/{wildcards.pool}/new.genotype_wgs.vcf
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index -f {output.wgs_norm}
+        rm ./../../data/{wildcards.pool}/temp*
+        """
+
+rule merge_new_old:
+    input:
+        wgs_norm="../../data/{pool}/new.genotype_wgs.vcf.gz",
+        old_genotype="../../data/all_pools_no_curn_iukl/all_pools_no_curn_iukl.genotype.MAF01.hg38.subsetchr.vcf.gz",
+        ref="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/bgzipped/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
+    output:
+        genotype="../../data/{pool}/tocheck.genotype_wgs.vcf.gz"
+    message: "Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        thred=32,
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        MAF=0.01,
+        jobname= "-o ../../logs/log_{pool}_merge_new_old.%J.%I",
+        error="-e ../../errors/error_{pool}_merge_new_old.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        echo {input.old_genotype} > ../../data/{wildcards.pool}/to_merge.txt
+		echo {input.wgs_norm} >> ../../data/{wildcards.pool}/to_merge.txt
+
+		echo "Merging VCFs"
+		/software/teamtrynka/conda/trynka-base/bin/bcftools merge --file-list ../../data/{wildcards.pool}/to_merge.txt \
+        --threads {params.thred} -Oz -o ../../data/{wildcards.pool}/temp.vcf.gz
+		echo "Ensuring there are no missing genotypes from non-overlapping positions"
+		/software/teamtrynka/conda/trynka-base/bin/bcftools view ../../data/{wildcards.pool}/temp.vcf.gz \
+        | /software/teamtrynka/conda/trynka-base/bin/bcftools filter -e 'GT="./."' \
+        | /software/teamtrynka/conda/trynka-base/bin/bcftools filter -e 'GT="./1"' \
+        | /software/teamtrynka/conda/trynka-base/bin/bcftools filter -e 'GT="1/."' \
+        | /software/teamtrynka/conda/trynka-base/bin/bcftools filter -e 'GT="0/."' \
+        | /software/teamtrynka/conda/trynka-base/bin/bcftools filter -e 'GT="./0"' \
+        --threads {params.thred} -Oz -o ../../data/{wildcards.pool}/temp2.vcf.gz
+
+		/software/teamtrynka/conda/trynka-base/bin/bcftools index -f ../../data/{wildcards.pool}/temp2.vcf.gz
+		echo "Filtering variants in VCF to selected MAF"
+		/software/teamtrynka/conda/trynka-base/bin/bcftools view --threads {params.thred} \
+		--regions chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX \
+		-q {params.MAF}:minor ../../data/{wildcards.pool}/temp2.vcf.gz -Oz -o ../../data/{wildcards.pool}/temp.MAF0.01.vcf.gz
+
+		mv ../../data/{wildcards.pool}/temp.MAF0.01.vcf.gz {output.genotype}
+
+		echo "Generating index file"
+		/software/teamtrynka/conda/trynka-base/bin/bcftools index -f {output.genotype}
+		rm ../../data/{wildcards.pool}/temp*
+        """
+
+rule plink_genotype_files:
+    input: 
+        VCF="../../data/{pool}/tocheck.genotype_wgs.vcf.gz",
+        genotype_1kgenomes="/lustre/scratch123/hgi/teams/trynka/resources/1000g/1000G/release/20220719/all_hg38_plink.bed"
+    output:
+        genotype="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed",
+        gen_1k="../../data/{pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bed"
+    message: "Generating genotype files for tensorQTL. Filter alleles to only include with MAF>0.05.  "
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log.plink_genotype_files.%J.%I",
+        error="-e ../../errors/error.plink_genotype_files.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # Run PLINK
+         PLINK2_LOC=/software/hgi/installs/plink/2.00-alpha
+
+        # explicitly keep biallelic variants just in case
+        $PLINK2_LOC/plink2 --vcf {input.VCF} \
+        --max-alleles 2 \
+        --allow-extra-chr --chr 1-22, X \
+        --make-bed \
+        --out ../../data/{wildcards.pool}/genotype/tmp2
+
+        # remove duplicated variants
+        # and those that don't survive variant filters
+        zcat {input.VCF} | grep -v '^#' | cut -f 3 | sort | uniq -d > ../../data/{wildcards.pool}/genotype/tocheck.genotype.MAF01.hg38.dups
+
+        # remove variants with MAF below 10%
+        # remove variants with Hardy-Weinberg equilibrium exact test p-values below 1e-6 =0.000001
+        # geno: exclude SNPs missing in over 10% of samples
+        $PLINK2_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/tmp2 \
+        --exclude ../../data/{wildcards.pool}/genotype/tocheck.genotype.MAF01.hg38.dups \
+        --maf 0.1 \
+        --hwe 0.000001 \
+        --geno 0.1 \
+        --make-bed \
+        --out ../../data/{wildcards.pool}/genotype/tmp3
+
+        # same for 1k genomes file
+        $PLINK2_LOC/plink2 --bfile /lustre/scratch123/hgi/teams/trynka/resources/1000g/1000G/release/20220719/all_hg38_plink \
+        --max-alleles 2 \
+        --allow-extra-chr --chr 1-22, X \
+        --exclude ../../data/{wildcards.pool}/genotype/tocheck.genotype.MAF01.hg38.dups \
+        --geno 0.1 \
+        --mind 0.01 \
+        --maf 0.1 \
+        --hwe 0.000001 \
+        --make-bed \
+        --out ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked
+
+        # create files in bed format after HWE and MAF filtering
+
+        # mind = exclude individuals with over 1% missing genotype
+         $PLINK2_LOC/plink2 --make-bed \
+         --mind 0.01 \
+         --bfile ../../data/{wildcards.pool}/genotype/tmp3 \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05
+
+        #rm ../../data/{wildcards.pool}/genotype/tmp.p*
+        #rm ../../data/{wildcards.pool}/genotype/tmp*.b*
+    """
+
+rule recode_fam_IDs:
+        input:
+            bed="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed",
+            fam="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.fam"
+        output:
+            fam="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.recoded.fam"
+        message: "Recoding fam file because IDs with underscores have been split.Remember to run this independently."
+        params:
+            group= "-G teamtrynka",
+            queue="-q normal",
+            threads="-n 20",
+            memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+            jobname= "-o ../../logs/log.recode_fam_IDs.%J.%I",
+            error="-e ../../errors/error.recode_fam_IDs.%J.%I"
+        shell:
+            """
+            set +o pipefail;
+            cp {input.fam} ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.fam_orig
+            /software/teamtrynka/conda/otar2065/bin/Rscript 2.5.Fix_genotype_fam.R ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.fam_orig {output.fam}
+            cp {output.fam} {input.fam}
+
+            """
+rule check_bed_file:
+    input:
+        bed="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed",
+        genotype="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bim",
+        genotype_1k="../../data/{pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim"
+    output:
+        check="../../data/{pool}/genotype/plink_genotypes/check_hipsci.log",
+        check2="../../data/{pool}/genotype/plink_genotypes/check_1k.log"
+    message: "Check chromosomes present in bed file"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log.check_bed_file.%J.%I",
+        error="-e ../../errors/error.check_bed_file.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # Run PLINK
+         PLINK_LOC=/software/hgi/installs/plink/2.00-alpha
+         $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05 --write-snplist allow-dups \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/check_hipsci
+         $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+         --write-snplist allow-dups --out ../../data/{wildcards.pool}/genotype/plink_genotypes/check_1k
+
+         cut -f 1 {input.genotype} | sort -u > ../../data/{wildcards.pool}/genotype/plink_genotypes/unique_chr.txt
+        """
+
+rule generate_kinship_matrix:
+    input:
+        vcf="../../data/{pool}/tocheck.genotype_wgs.vcf.gz"
+    output:
+        kinship="../../data/{pool}/kinship/tocheck.genotype.MAF01.hg38.king"
+    message: "Generating the kinship matrix. Token error means you might need to delete lines from the VCF."
+    threads: 20
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+        jobname= "-o ../../logs/log.generate_kinship_matrix.%J.%I",
+        error="-e ../../errors/error.generate_kinship_matrix.%J.%I"
+    shell:
+     """
+        set +o pipefail;
+        # Run PLINK
+        PLINK_LOC=/software/hgi/installs/plink/2.00-alpha
+        $PLINK_LOC/plink2 --make-king square --vcf {input.vcf} \
+        --allow-extra-chr \
+        --threads {threads} --out ../../data/{wildcards.pool}/kinship/tocheck.genotype.MAF01.hg38
+        $PLINK_LOC/plink2 --make-king-table --vcf {input.vcf} \
+        --allow-extra-chr \
+        --threads {threads} --out ../../data/{wildcards.pool}/kinship/tocheck.genotype.MAF01.hg38
+    """
+
+
+rule check_kinship_matrix:
+    input:
+        kinship="../../data/{pool}/kinship/tocheck.genotype.MAF01.hg38.kin0"
+    output:
+        plot="../../data/{pool}/kinship/kinship_histogram.pdf"
+    message: "Checking the kinship matrix to ensure donors are unrelated."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M4000 -R'span[hosts=1] select[mem>4000] rusage[mem=4000]'",
+        jobname= "-o ../../logs/log.check_kinship_matrix.%J.%I",
+        error="-e ../../errors/error.check_kinship_matrix.%J.%I"
+    shell:
+     """
+     set +o pipefail;
+     /software/teamtrynka/conda/otar2065/bin/Rscript 1.Inspect_kinship_matrix.R {input.kinship} {output.plot}
+
+    """
+rule calculate_genotype_pc:
+    input:
+        genotype="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed"
+    output:
+        eigenvec="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.eigenvec"
+    message: "Calculate principal components from the genotype file."
+    params:
+        group= "-G teamtrynka",
+        threads="-n 20",
+        queue="-q normal",
+        memory="-M5000 -R'span[hosts=1] select[mem>5000] rusage[mem=5000]'",
+        jobname= "-o ../../logs/log.calculate_genotype_pc.%J.%I",
+        error="-e ../../errors/error.calculate_genotype_pc.%J.%I",
+        pc_num=60
+    shell:
+        """
+        set +o pipefail;
+        # Run PLINK
+         PLINK_LOC=/software/hgi/installs/plink/2.00-alpha
+         # LD pruning to prevent p-value deflation later.
+         $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05 \
+         --indep-pairwise 500kb 0.2 \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.LDpruned
+         # PCA
+         $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05 \
+         --pca {params.pc_num} --exclude ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.LDpruned.prune.out \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05
+
+    """
+
+rule try_merge_hipsci_1000genomes:
+    input:
+        genotype="../../data/{pool}/genotype/plink_genotypes/tocheck.genotype.MAF05.bed",
+        gen_1k="../../data/{pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bed"
+    output:
+        merged="../../data/{pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05.bed"
+    message: "Try merge genotype files from hipsci and 1000 genomes for easier genotype PC visualization."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log.try_merge_hipsci_100genomes.%J.%I",
+        error="-e ../../errors/error.try_merge_hipsci_100genomes.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        # warning: paths are fixed in the following script
+        # to annotate the 1000 genomes with SNP id and generate missing SNPs file
+        /software/teamtrynka/conda/otar2065/bin/Rscript 1.2.Annotate_1000genomes_rsID.R
+        cp ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked_annotated.bim \
+        ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked.bim
+        # Run PLINK
+
+         PLINK_LOC=/software/hgi/installs/plink/1.90-beta-05-03-2022 # using plink 1 for this merge function
+
+         $PLINK_LOC/plink --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.genotype.MAF05 \
+         --exclude ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked_annotated.missingsnp \
+         --make-bed \
+         --no-parents --no-sex --no-pheno \
+         --out ../../data/{wildcards.pool}/genotype/tmp4
+
+        $PLINK_LOC/plink --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked \
+        --exclude ../../data/{wildcards.pool}/genotype/plink_genotypes/1000G_maf05perc_biallelic_nonmissing_nochr_withrsid_checked_annotated.missingsnp \
+        --make-bed \
+        --no-parents --no-sex --no-pheno \
+        --out ../../data/{wildcards.pool}/genotype/tmp5
+
+         $PLINK_LOC/plink --bfile ../../data/{wildcards.pool}/genotype/tmp4 \
+         --bmerge ../../data/{wildcards.pool}/genotype/plink_genotypes/tmp5 \
+         --merge-equal-pos \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05
+
+         # might throw an error because of a multiallelic variant - exclude in next step
+
+    """
+
+
+rule calculate_genotype_pc_for_vis:
+    input:
+        genotype="../../data/{pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05.bed"
+    output:
+        eigenvec="../../data/{pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05.eigenvec"
+    message: "Calculate principal components from the merged genotype file for visualization purposes."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 20",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log.calculate_genotype_pc_for_vis.%J.%I",
+        error="-e ../../errors/error.calculate_genotype_pc_for_vis.%J.%I",
+        pc_num=4
+    shell:
+        """
+                    set +o pipefail;
+        PLINK_LOC=/software/hgi/installs/plink/2.00-alpha
+
+            #calculate missingness rate - important for PCA probably source of error in pca command from PLINK
+            $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05 \
+            --geno 0.05 \
+            --missing \
+            --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05.LD.filtered
+
+        # Run PLINK
+
+         # exclude here and calculate PCs
+         # geno filters out all variants with missing call rates exceeding the provided value (default 0.1)
+         # mind is the same for samples
+         $PLINK_LOC/plink2 --bfile ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05 \
+         --geno 0.05 \
+         --maf 0.05 \
+         --hwe 0.0001 \
+         --pca {params.pc_num} \
+         --out ../../data/{wildcards.pool}/genotype/plink_genotypes/tocheck.1kgenomes.genotype.MAF05
+
+            #rm ../../data/{wildcards.pool}/genotype/tmp.f*
+             #rm ../../data/{wildcards.pool}/genotype/tmp*.b*
+
+    """

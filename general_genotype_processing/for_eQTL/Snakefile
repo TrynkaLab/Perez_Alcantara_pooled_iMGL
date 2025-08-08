@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# Snakefile for reprocessing the merged genotype vcf for all donors located in
+#/lustre/scratch123/hgi/projects/hipsci/releases/data/gtarray/releases/merged_files/REL-2018-01
+# per chromosome
+# snakemake is in /software/teamtrynka/conda/otar2065/bin/snakemake v 7.30.2
+import os
+import numpy as np
+
+POOL=["all_pools"]
+CHR = [i for i in np.arange(1,23,1)] + ["X"]
+
+rule all:
+    input:
+        full_genotype=expand("../../data/{pool}/eqtl_gwas_imputed.hg38.vcf.gz",pool=POOL)
+
+rule remove_only_clones_for_eqtl_gwas:
+    input:
+        genotype="/lustre/scratch123/hgi/projects/otar2065/hipsci_genotype_processing/data/imputed_from_kaur/microglia_samples.GRCh38.filtered.vcf.gz",
+        index="/lustre/scratch123/hgi/projects/otar2065/hipsci_genotype_processing/data/imputed_from_kaur/microglia_samples.GRCh38.filtered.vcf.gz.csi",
+        donors="../../data/{pool}/eqtl_gwas_with_ipmar_donors_donorNames.txt"
+    output:
+        genotype="../../data/{pool}/eqtl_gwas_imputed.hg38.vcf.gz"
+    message: "Remove clones for eQTL and association analyses."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+        jobname= "-o ../../logs/log_remove_only_clones_for_eqtl_gwas.%J.%I",
+        error="-e ../../errors/error_remove_only_clones_for_eqtl_gwas.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+	echo "Changing sample names in header"
+        detectedDonors="../../data/{wildcards.pool}/all_hipsci_ipmar_donors_donorNames.txt"
+
+        bcftools reheader \
+        --samples $detectedDonors -o ../../data/{wildcards.pool}/temp_reheaded.vcf {input.genotype}
+	bcftools index ../../data/{wildcards.pool}/temp_reheaded.vcf
+        # subset donors
+        # I removed from full set "letw_5","lizq_3","zaie_1","romx_2","seru_7","qonc_2","sebn_4","boqx_2","garx_2","yoch_6"
+        # and 2 wgs donors iukl_1 and curn_3
+# should remove sojd_3?
+        # clones or had wonky projections in 1000 genomes (non-European or mixed ancestry)
+
+        bcftools view -S {input.donors} ../../data/{wildcards.pool}/temp_reheaded.vcf --threads 2 -Oz -o {output.genotype}
+        # Ensuring IDs are CHROM_POS_REF_ALT
+        #bcftools annotate --set-id '%CHROM\_%POS\_%REF\_%FIRST_ALT' -Oz -o {output.genotype} \
+        #../../data/{wildcards.pool}/temp.vcf.gz
+        bcftools index {output.genotype}
+
+        """
+

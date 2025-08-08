@@ -1,0 +1,12 @@
+Building DAG of jobs...
+AmbiguousRuleException:
+Rules subset_to_high_quality_imputation_hipsci and subset_donors_vcf_hipsci are ambiguous for the file ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual.genotype.vcf.gz.
+Consider starting rule output with a unique prefix, constrain your wildcards, or use the ruleorder directive.
+Wildcards:
+	subset_to_high_quality_imputation_hipsci: chromosomes=1,hipsci=pool_14_hipsci,pool=pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1
+	subset_donors_vcf_hipsci: chromosomes=1,hipsci=pool_14_hipsci.highqual,pool=pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1
+Expected input files:
+	subset_to_high_quality_imputation_hipsci: ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.genotype.vcf.gz ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.genotype.vcf.gz.csi
+	subset_donors_vcf_hipsci: ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual_donorIds.txt ../../data/full_genotype/chr1/hipsci.wec.gtarray.HumanCoreExome.imputed_phased.20180102.genotypes.chr1.vcf.gzExpected output files:
+	subset_to_high_quality_imputation_hipsci: ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual.genotype.vcf.gz ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual.genotype.vcf.gz.csi
+	subset_donors_vcf_hipsci: ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual.genotype.vcf.gz ../../data/pool_14/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/chr1/pool_14_hipsci.highqual.genotype.vcf.gz.csi

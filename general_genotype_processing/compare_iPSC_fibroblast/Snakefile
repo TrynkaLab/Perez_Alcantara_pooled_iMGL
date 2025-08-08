@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+# Snakefile for comparing fibroblast and iPSC genotypes
+# place fibroblast genotypes inside each folder and rename to fibro.genotype.vcf.gz
+# Merged file for iPSC is in:
+#/lustre/scratch123/hgi/projects/hipsci/releases/data/gtarray/releases/merged_files/REL-2018-01
+# per chromosome
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+import numpy as np
+
+POOL=["fibro_zuuy_4","fibro_aowh_2","fibro_aevs_1","fibro_xojn_3",
+"fibro_aipt_33","fibro_miaj_4","fibro_bilx_1","fibro_deyz_2","fibro_rutc_2","fibro_uoxz_4"]
+
+CHR = [i for i in np.arange(1,23,1)]
+
+rule all:
+    input:
+        subset=expand("../../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",pool=POOL,chromosomes=CHR),
+        genotype=expand("../../../data/{pool}/{pool}.genotype.vcf.gz",pool=POOL),
+        genotype_hg38=expand("../../../data/{pool}/{pool}.genotype.hg38.vcf.gz", pool=POOL)
+        #common=expand("../../../data/{pool}/fibro_iPSC_common_variants.vcf.gz",pool=POOL)
+
+rule subset_donors_vcf:
+    input:
+        metadata="../../../data/sampleMetadata.txt",
+        donor_ids="../../../data/donor_id_match.txt",
+        all_hipsci_vcfs="../../../data/full_genotype/chr{chromosomes}/hipsci.wec.gtarray.HumanCoreExome.imputed_phased.20180102.genotypes.chr{chromosomes}.vcf.gz"
+    output:
+        genotype="../../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",
+        index="../../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz.csi"
+    message: "Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../../logs/log_{pool}_{chromosomes}_subset_donors_vcf.%J.%I",
+        error="-e ../../../errors/error_{pool}_{chromosomes}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        while read ptn; do grep -w $ptn {input.donor_ids} | awk '{{print $2}}' | tr ';' '\n' ; done < $detectedDonors > ../../../data/{wildcards.pool}/{wildcards.pool}_donorIds.txt
+        # Subset donors
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -S ../../../data/{wildcards.pool}/{wildcards.pool}_donorIds.txt {input.all_hipsci_vcfs} --threads 32 -Oz -o {output.genotype}
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+        """
+rule concat_and_sort_genotype_vcf:
+    input:
+        genotype=expand("../../../data/{{pool}}/chr{chromosomes}/{{pool}}.genotype.vcf.gz", chromosomes=CHR)
+    output:
+        genotype="../../../data/{pool}/{pool}.genotype.vcf.gz"
+    message: "Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../../logs/log_{pool}_concat_and_sort_genotype_vcf.%J.%I",
+        error="-e ../../../errors/error_{pool}_concat_and_sort_genotype_vcf.%J.%I"
+    shell:
+        """
+        ls ../../../data/{wildcards.pool}/chr*/{wildcards.pool}.genotype.vcf.gz > ../../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt
+        echo "Merging VCFs"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools concat -a --threads 32 \
+        --file-list ../../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt -Oz -o ../../../data/{wildcards.pool}/temp.vcf.gz
+
+        echo "Saving VCF header"
+        zcat ../../../data/{wildcards.pool}/temp.vcf.gz | awk '/^\#/' > ../../../data/{wildcards.pool}/header.txt
+
+        echo "Sorting"
+        /software/teamtrynka/conda/trynka-base/bin/bedtools sort -i ../../../data/{wildcards.pool}/temp.vcf.gz > {output.genotype}
+
+        echo "Attaching header"
+        cat {output.genotype} >> ../../../data/{wildcards.pool}/header.txt
+        mv ../../../data/{wildcards.pool}/header.txt {output.genotype}
+
+        echo "Changing sample names in header"
+        detectedDonors="../../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+
+        /software/teamtrynka/conda/trynka-base/bin/bcftools reheader --threads 32 \
+        --samples $detectedDonors -o ../../../data/{wildcards.pool}/temp_reheaded.vcf {output.genotype}
+
+        echo "Compressing with bgzip"
+        # Genotype files need to be compressed with bgzip to work with Vireo
+        /software/teamtrynka/conda/trynka-base/bin/bgzip ../../../data/{wildcards.pool}/temp_reheaded.vcf
+        mv ../../../data/{wildcards.pool}/temp_reheaded.vcf.gz {output.genotype}
+
+        echo "Generating index file"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+        #rm ../../../data/{wildcards.pool}/temp.vcf.gz
+        """
+
+rule liftover_hg19_hg38:
+    input:
+        genotype="../../../data/{pool}/{pool}.genotype.vcf.gz"
+    output:
+        genotype="../../../data/{pool}/{pool}.genotype.hg38.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38). Run with snakemake --jobs 1 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../../logs/log_{pool}_liftover_hg19_hg38.%J.%I",
+        error="-e ../../../errors/error_{pool}_liftover_hg19_hg38.%J.%I",
+        chain="/lustre/scratch123/hgi/teams/trynka/marta/resources/for_liftOver/chain/hg19ToHg38.over.chain.gz",
+        fasta="/lustre/scratch123/hgi/teams/trynka/marta/resources/for_liftOver/fasta/hg38.fa.gz",
+        dict="/lustre/scratch123/hgi/teams/trynka/marta/resources/for_liftOver/fasta/hg38.dict",
+        reference="/lustre/scratch115/teams/bassett/Erica/Miseq_10x_iPSC_082019/refdata-cellranger-GRCh38-3.0.0/fasta/genome.fa",
+        recoding="/lustre/scratch123/hgi/teams/trynka/marta/resources/for_liftOver/chromosome_mappings_hg19_to_b37/GRCh37_UCSC2ensembl_b37tohg19.txt"
+    shell:
+        """
+        #echo "Creating dictionary..."
+        #/software/teamtrynka/picard.jar CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+        echo "Changing vcf from bg37 to hg19"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools annotate --rename-chrs {params.recoding} \
+        -o ../../../data/{wildcards.pool}/temp_chrChange.vcf {input.genotype}
+
+    echo "Lifting over..."
+        /software/teamtrynka/picard.jar LiftoverVcf \
+        I=../../../data/{wildcards.pool}/temp_chrChange.vcf \
+        O=../../../data/{wildcards.pool}/temp_liftedOver.vcf \
+        CHAIN={params.chain} \
+        REJECT=../../../data/{wildcards.pool}/rejected_variants.vcf \
+        R={params.fasta}
+
+
+    echo "Generating index file"
+    /software/teamtrynka/conda/trynka-base/bin/bcftools view -Oz -o {output.genotype} ../../../data/{wildcards.pool}/temp_liftedOver.vcf
+    /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+    rm ../../../data/{wildcards.pool}/temp_chrChange.vcf
+
+        """

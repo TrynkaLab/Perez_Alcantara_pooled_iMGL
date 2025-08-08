@@ -1,0 +1,676 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	30	count_alleles
+	30	get_coverage
+	29	index_bam
+	90
+
+[Sun Jul 10 19:17:18 2022]
+Job 13: Indexing bams.
+
+Submitted job 13 with external jobid 'Job <487656> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:18 2022]
+Job 4: Indexing bams.
+
+Submitted job 4 with external jobid 'Job <487657> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:18 2022]
+Job 21: Indexing bams.
+
+Submitted job 21 with external jobid 'Job <487658> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:18 2022]
+Job 25: Indexing bams.
+
+Submitted job 25 with external jobid 'Job <487659> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 9: Indexing bams.
+
+Submitted job 9 with external jobid 'Job <487660> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 28: Indexing bams.
+
+Submitted job 28 with external jobid 'Job <487661> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 31: Calculating depth and coverage from crams.
+
+Submitted job 31 with external jobid 'Job <487662> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 2: Indexing bams.
+
+Submitted job 2 with external jobid 'Job <487663> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 5: Indexing bams.
+
+Submitted job 5 with external jobid 'Job <487664> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:19 2022]
+Job 16: Indexing bams.
+
+Submitted job 16 with external jobid 'Job <487665> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 18: Indexing bams.
+
+Submitted job 18 with external jobid 'Job <487667> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 6: Indexing bams.
+
+Submitted job 6 with external jobid 'Job <487668> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 10: Indexing bams.
+
+Submitted job 10 with external jobid 'Job <487669> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 14: Indexing bams.
+
+Submitted job 14 with external jobid 'Job <487670> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 7: Indexing bams.
+
+Submitted job 7 with external jobid 'Job <487671> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:20 2022]
+Job 30: Indexing bams.
+
+Submitted job 30 with external jobid 'Job <487672> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 27: Indexing bams.
+
+Submitted job 27 with external jobid 'Job <487673> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 8: Indexing bams.
+
+Submitted job 8 with external jobid 'Job <487674> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 23: Indexing bams.
+
+Submitted job 23 with external jobid 'Job <487675> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 17: Indexing bams.
+
+Submitted job 17 with external jobid 'Job <487676> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 11: Indexing bams.
+
+Submitted job 11 with external jobid 'Job <487677> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:21 2022]
+Job 22: Indexing bams.
+
+Submitted job 22 with external jobid 'Job <487678> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 20: Indexing bams.
+
+Submitted job 20 with external jobid 'Job <487679> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 61: Counting alleles with bam-readcount.
+
+Submitted job 61 with external jobid 'Job <487680> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 26: Indexing bams.
+
+Submitted job 26 with external jobid 'Job <487681> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 29: Indexing bams.
+
+Submitted job 29 with external jobid 'Job <487682> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 24: Indexing bams.
+
+Submitted job 24 with external jobid 'Job <487683> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:22 2022]
+Job 15: Indexing bams.
+
+Submitted job 15 with external jobid 'Job <487684> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:23 2022]
+Job 12: Indexing bams.
+
+Submitted job 12 with external jobid 'Job <487685> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:23 2022]
+Job 19: Indexing bams.
+
+Submitted job 19 with external jobid 'Job <487686> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:17:23 2022]
+Job 3: Indexing bams.
+
+Submitted job 3 with external jobid 'Job <487687> is submitted to queue <normal>.'.
+[Sun Jul 10 19:18:22 2022]
+Finished job 24.
+1 of 90 steps (1%) done
+
+[Sun Jul 10 19:18:22 2022]
+Job 84: Counting alleles with bam-readcount.
+
+Submitted job 84 with external jobid 'Job <487688> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:22 2022]
+Job 54: Calculating depth and coverage from crams.
+
+Submitted job 54 with external jobid 'Job <487689> is submitted to queue <normal>.'.
+[Sun Jul 10 19:18:35 2022]
+Finished job 26.
+2 of 90 steps (2%) done
+
+[Sun Jul 10 19:18:35 2022]
+Job 86: Counting alleles with bam-readcount.
+
+[Sun Jul 10 19:18:35 2022]
+Finished job 29.
+3 of 90 steps (3%) done
+[Sun Jul 10 19:18:35 2022]
+Finished job 15.
+4 of 90 steps (4%) done
+Submitted job 86 with external jobid 'Job <487690> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:35 2022]
+Job 56: Calculating depth and coverage from crams.
+
+Submitted job 56 with external jobid 'Job <487691> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:36 2022]
+Job 89: Counting alleles with bam-readcount.
+
+Submitted job 89 with external jobid 'Job <487692> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:36 2022]
+Job 75: Counting alleles with bam-readcount.
+
+Submitted job 75 with external jobid 'Job <487693> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:36 2022]
+Job 59: Calculating depth and coverage from crams.
+
+Submitted job 59 with external jobid 'Job <487694> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:36 2022]
+Job 45: Calculating depth and coverage from crams.
+
+Submitted job 45 with external jobid 'Job <487695> is submitted to queue <normal>.'.
+[Sun Jul 10 19:18:47 2022]
+Finished job 18.
+5 of 90 steps (6%) done
+
+[Sun Jul 10 19:18:47 2022]
+Job 48: Calculating depth and coverage from crams.
+
+[Sun Jul 10 19:18:47 2022]
+Finished job 6.
+6 of 90 steps (7%) done
+Submitted job 48 with external jobid 'Job <487696> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:47 2022]
+Job 78: Counting alleles with bam-readcount.
+
+Submitted job 78 with external jobid 'Job <487697> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:48 2022]
+Job 66: Counting alleles with bam-readcount.
+
+Submitted job 66 with external jobid 'Job <487698> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:48 2022]
+Job 36: Calculating depth and coverage from crams.
+
+Submitted job 36 with external jobid 'Job <487699> is submitted to queue <normal>.'.
+[Sun Jul 10 19:18:48 2022]
+Finished job 27.
+7 of 90 steps (8%) done
+
+[Sun Jul 10 19:18:48 2022]
+Job 87: Counting alleles with bam-readcount.
+
+[Sun Jul 10 19:18:48 2022]
+Finished job 11.
+8 of 90 steps (9%) done
+[Sun Jul 10 19:18:48 2022]
+Finished job 22.
+9 of 90 steps (10%) done
+Submitted job 87 with external jobid 'Job <487700> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:48 2022]
+Job 57: Calculating depth and coverage from crams.
+
+Submitted job 57 with external jobid 'Job <487701> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:49 2022]
+Job 71: Counting alleles with bam-readcount.
+
+Submitted job 71 with external jobid 'Job <487702> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:49 2022]
+Job 82: Counting alleles with bam-readcount.
+
+Submitted job 82 with external jobid 'Job <487703> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:49 2022]
+Job 52: Calculating depth and coverage from crams.
+
+Submitted job 52 with external jobid 'Job <487704> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:49 2022]
+Job 41: Calculating depth and coverage from crams.
+
+Submitted job 41 with external jobid 'Job <487705> is submitted to queue <normal>.'.
+[Sun Jul 10 19:18:49 2022]
+Finished job 12.
+10 of 90 steps (11%) done
+
+[Sun Jul 10 19:18:49 2022]
+Job 72: Counting alleles with bam-readcount.
+
+Submitted job 72 with external jobid 'Job <487706> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:18:49 2022]
+Job 42: Calculating depth and coverage from crams.
+
+Submitted job 42 with external jobid 'Job <487707> is submitted to queue <normal>.'.
+[Sun Jul 10 19:19:02 2022]
+Finished job 19.
+11 of 90 steps (12%) done
+
+[Sun Jul 10 19:19:02 2022]
+Job 79: Counting alleles with bam-readcount.
+
+[Sun Jul 10 19:19:02 2022]
+Finished job 3.
+12 of 90 steps (13%) done
+Submitted job 79 with external jobid 'Job <487708> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:19:03 2022]
+Job 49: Calculating depth and coverage from crams.
+
+Submitted job 49 with external jobid 'Job <487709> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:19:03 2022]
+Job 63: Counting alleles with bam-readcount.
+
+Submitted job 63 with external jobid 'Job <487710> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:19:03 2022]
+Job 33: Calculating depth and coverage from crams.
+
+Submitted job 33 with external jobid 'Job <487711> is submitted to queue <normal>.'.
+[Sun Jul 10 19:19:16 2022]
+Finished job 20.
+13 of 90 steps (14%) done
+
+[Sun Jul 10 19:19:16 2022]
+Job 80: Counting alleles with bam-readcount.
+
+Submitted job 80 with external jobid 'Job <487712> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:19:17 2022]
+Job 50: Calculating depth and coverage from crams.
+
+Submitted job 50 with external jobid 'Job <487713> is submitted to queue <normal>.'.
+[Sun Jul 10 19:21:09 2022]
+Finished job 10.
+14 of 90 steps (16%) done
+
+[Sun Jul 10 19:21:09 2022]
+Job 70: Counting alleles with bam-readcount.
+
+Submitted job 70 with external jobid 'Job <487716> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:21:09 2022]
+Job 40: Calculating depth and coverage from crams.
+
+Submitted job 40 with external jobid 'Job <487717> is submitted to queue <normal>.'.
+[Sun Jul 10 19:21:23 2022]
+Finished job 2.
+15 of 90 steps (17%) done
+
+[Sun Jul 10 19:21:23 2022]
+Job 32: Calculating depth and coverage from crams.
+
+Submitted job 32 with external jobid 'Job <487718> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:21:23 2022]
+Job 62: Counting alleles with bam-readcount.
+
+Submitted job 62 with external jobid 'Job <487719> is submitted to queue <normal>.'.
+[Sun Jul 10 19:21:50 2022]
+Finished job 13.
+16 of 90 steps (18%) done
+
+[Sun Jul 10 19:21:50 2022]
+Job 43: Calculating depth and coverage from crams.
+
+Submitted job 43 with external jobid 'Job <487720> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:21:50 2022]
+Job 73: Counting alleles with bam-readcount.
+
+Submitted job 73 with external jobid 'Job <487721> is submitted to queue <normal>.'.
+[Sun Jul 10 19:23:02 2022]
+Finished job 7.
+17 of 90 steps (19%) done
+
+[Sun Jul 10 19:23:02 2022]
+Job 67: Counting alleles with bam-readcount.
+
+Submitted job 67 with external jobid 'Job <487724> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:23:02 2022]
+Job 37: Calculating depth and coverage from crams.
+
+Submitted job 37 with external jobid 'Job <487725> is submitted to queue <normal>.'.
+[Sun Jul 10 19:23:15 2022]
+Finished job 14.
+18 of 90 steps (20%) done
+
+[Sun Jul 10 19:23:15 2022]
+Job 74: Counting alleles with bam-readcount.
+
+Submitted job 74 with external jobid 'Job <487726> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:23:16 2022]
+Job 44: Calculating depth and coverage from crams.
+
+Submitted job 44 with external jobid 'Job <487727> is submitted to queue <normal>.'.
+[Sun Jul 10 19:25:09 2022]
+Finished job 30.
+19 of 90 steps (21%) done
+
+[Sun Jul 10 19:25:09 2022]
+Job 90: Counting alleles with bam-readcount.
+
+Submitted job 90 with external jobid 'Job <487730> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:25:09 2022]
+Job 60: Calculating depth and coverage from crams.
+
+Submitted job 60 with external jobid 'Job <487731> is submitted to queue <normal>.'.
+[Sun Jul 10 19:38:24 2022]
+Finished job 36.
+20 of 90 steps (22%) done
+[Sun Jul 10 19:39:49 2022]
+Finished job 48.
+21 of 90 steps (23%) done
+[Sun Jul 10 19:39:50 2022]
+Finished job 57.
+22 of 90 steps (24%) done
+[Sun Jul 10 19:40:18 2022]
+Finished job 52.
+23 of 90 steps (26%) done
+[Sun Jul 10 19:40:47 2022]
+Finished job 23.
+24 of 90 steps (27%) done
+
+[Sun Jul 10 19:40:47 2022]
+Job 83: Counting alleles with bam-readcount.
+
+Submitted job 83 with external jobid 'Job <488178> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:40:47 2022]
+Job 53: Calculating depth and coverage from crams.
+
+Submitted job 53 with external jobid 'Job <488179> is submitted to queue <normal>.'.
+[Sun Jul 10 19:41:28 2022]
+Finished job 59.
+25 of 90 steps (28%) done
+[Sun Jul 10 19:41:44 2022]
+Finished job 25.
+26 of 90 steps (29%) done
+
+[Sun Jul 10 19:41:44 2022]
+Job 55: Calculating depth and coverage from crams.
+
+Submitted job 55 with external jobid 'Job <488237> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:41:44 2022]
+Job 85: Counting alleles with bam-readcount.
+
+Submitted job 85 with external jobid 'Job <488238> is submitted to queue <normal>.'.
+[Sun Jul 10 19:41:58 2022]
+Finished job 4.
+27 of 90 steps (30%) done
+
+[Sun Jul 10 19:41:58 2022]
+Job 34: Calculating depth and coverage from crams.
+
+Submitted job 34 with external jobid 'Job <488252> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:41:58 2022]
+Job 64: Counting alleles with bam-readcount.
+
+Submitted job 64 with external jobid 'Job <488253> is submitted to queue <normal>.'.
+[Sun Jul 10 19:42:13 2022]
+Finished job 8.
+28 of 90 steps (31%) done
+
+[Sun Jul 10 19:42:13 2022]
+Job 68: Counting alleles with bam-readcount.
+
+Submitted job 68 with external jobid 'Job <488270> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:42:13 2022]
+Job 38: Calculating depth and coverage from crams.
+
+Submitted job 38 with external jobid 'Job <488271> is submitted to queue <normal>.'.
+[Sun Jul 10 19:42:39 2022]
+Finished job 33.
+29 of 90 steps (32%) done
+[Sun Jul 10 19:43:19 2022]
+Finished job 37.
+30 of 90 steps (33%) done
+[Sun Jul 10 19:43:47 2022]
+Finished job 44.
+31 of 90 steps (34%) done
+[Sun Jul 10 19:43:48 2022]
+Finished job 49.
+32 of 90 steps (36%) done
+[Sun Jul 10 19:44:04 2022]
+Finished job 17.
+33 of 90 steps (37%) done
+
+[Sun Jul 10 19:44:04 2022]
+Job 77: Counting alleles with bam-readcount.
+
+Submitted job 77 with external jobid 'Job <488379> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:44:04 2022]
+Job 47: Calculating depth and coverage from crams.
+
+Submitted job 47 with external jobid 'Job <488380> is submitted to queue <normal>.'.
+[Sun Jul 10 19:44:32 2022]
+Finished job 9.
+34 of 90 steps (38%) done
+
+[Sun Jul 10 19:44:32 2022]
+Job 69: Counting alleles with bam-readcount.
+
+Submitted job 69 with external jobid 'Job <488412> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:44:33 2022]
+Job 39: Calculating depth and coverage from crams.
+
+Submitted job 39 with external jobid 'Job <488413> is submitted to queue <normal>.'.
+[Sun Jul 10 19:45:43 2022]
+Finished job 21.
+35 of 90 steps (39%) done
+
+[Sun Jul 10 19:45:43 2022]
+Job 51: Calculating depth and coverage from crams.
+
+Submitted job 51 with external jobid 'Job <488428> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:45:43 2022]
+Job 81: Counting alleles with bam-readcount.
+
+Submitted job 81 with external jobid 'Job <488429> is submitted to queue <normal>.'.
+[Sun Jul 10 19:45:57 2022]
+Finished job 28.
+36 of 90 steps (40%) done
+
+[Sun Jul 10 19:45:57 2022]
+Job 58: Calculating depth and coverage from crams.
+
+Submitted job 58 with external jobid 'Job <488430> is submitted to queue <normal>.'.
+
+[Sun Jul 10 19:45:58 2022]
+Job 88: Counting alleles with bam-readcount.
+
+Submitted job 88 with external jobid 'Job <488431> is submitted to queue <normal>.'.
+[Sun Jul 10 19:46:24 2022]
+Finished job 50.
+37 of 90 steps (41%) done
+[Sun Jul 10 19:47:37 2022]
+Finished job 42.
+38 of 90 steps (42%) done
+[Sun Jul 10 19:48:19 2022]
+Finished job 60.
+39 of 90 steps (43%) done
+[Sun Jul 10 19:49:26 2022]
+Finished job 43.
+40 of 90 steps (44%) done
+[Sun Jul 10 19:50:10 2022]
+Finished job 41.
+41 of 90 steps (46%) done
+[Sun Jul 10 19:54:36 2022]
+Finished job 32.
+42 of 90 steps (47%) done
+[Sun Jul 10 19:58:34 2022]
+Finished job 34.
+43 of 90 steps (48%) done
+[Sun Jul 10 19:59:30 2022]
+Finished job 55.
+44 of 90 steps (49%) done
+[Sun Jul 10 20:00:41 2022]
+Finished job 53.
+45 of 90 steps (50%) done
+[Sun Jul 10 20:03:57 2022]
+Finished job 47.
+46 of 90 steps (51%) done
+[Sun Jul 10 20:06:36 2022]
+Finished job 51.
+47 of 90 steps (52%) done
+[Sun Jul 10 20:08:22 2022]
+Finished job 31.
+48 of 90 steps (53%) done
+[Sun Jul 10 20:10:05 2022]
+Finished job 40.
+49 of 90 steps (54%) done
+[Sun Jul 10 20:19:03 2022]
+Finished job 38.
+50 of 90 steps (56%) done
+[Sun Jul 10 20:19:41 2022]
+Finished job 56.
+51 of 90 steps (57%) done
+[Sun Jul 10 20:24:28 2022]
+Finished job 54.
+52 of 90 steps (58%) done
+[Sun Jul 10 20:36:53 2022]
+Finished job 45.
+53 of 90 steps (59%) done
+[Sun Jul 10 20:40:07 2022]
+Finished job 58.
+54 of 90 steps (60%) done
+[Sun Jul 10 21:24:44 2022]
+Finished job 39.
+55 of 90 steps (61%) done
+[Mon Jul 11 00:52:07 2022]
+Finished job 16.
+56 of 90 steps (62%) done
+
+[Mon Jul 11 00:52:07 2022]
+Job 46: Calculating depth and coverage from crams.
+
+Submitted job 46 with external jobid 'Job <490814> is submitted to queue <normal>.'.
+
+[Mon Jul 11 00:52:07 2022]
+Job 76: Counting alleles with bam-readcount.
+
+Submitted job 76 with external jobid 'Job <490815> is submitted to queue <normal>.'.
+[Mon Jul 11 01:06:02 2022]
+Finished job 5.
+57 of 90 steps (63%) done
+
+[Mon Jul 11 01:06:02 2022]
+Job 35: Calculating depth and coverage from crams.
+
+Submitted job 35 with external jobid 'Job <490828> is submitted to queue <normal>.'.
+
+[Mon Jul 11 01:06:02 2022]
+Job 65: Counting alleles with bam-readcount.
+
+Submitted job 65 with external jobid 'Job <490829> is submitted to queue <normal>.'.
+[Mon Jul 11 02:32:10 2022]
+Finished job 35.
+58 of 90 steps (64%) done
+[Mon Jul 11 02:34:10 2022]
+Finished job 46.
+59 of 90 steps (66%) done
+[Mon Jul 11 04:32:30 2022]
+Finished job 63.
+60 of 90 steps (67%) done
+[Mon Jul 11 04:57:24 2022]
+Finished job 81.
+61 of 90 steps (68%) done
+[Mon Jul 11 05:29:33 2022]
+Finished job 79.
+62 of 90 steps (69%) done
+[Mon Jul 11 05:51:14 2022]
+Finished job 66.
+63 of 90 steps (70%) done
+[Mon Jul 11 05:57:04 2022]
+Finished job 84.
+64 of 90 steps (71%) done
+[Mon Jul 11 06:10:56 2022]
+Finished job 68.
+65 of 90 steps (72%) done
+[Mon Jul 11 06:20:09 2022]
+Finished job 87.
+66 of 90 steps (73%) done
+[Mon Jul 11 06:22:32 2022]
+Finished job 73.
+67 of 90 steps (74%) done
+[Mon Jul 11 06:26:21 2022]
+Finished job 74.
+68 of 90 steps (76%) done
+[Mon Jul 11 06:34:36 2022]
+Finished job 80.
+69 of 90 steps (77%) done
+[Mon Jul 11 06:48:51 2022]
+Finished job 69.
+70 of 90 steps (78%) done
+[Mon Jul 11 07:05:48 2022]
+Finished job 72.
+71 of 90 steps (79%) done
+[Mon Jul 11 07:13:20 2022]
+Finished job 88.
+72 of 90 steps (80%) done
+[Mon Jul 11 07:34:07 2022]
+Finished job 77.
+73 of 90 steps (81%) done
+Terminating processes on user request, this might take some time.
+Cancelling snakemake on user request.

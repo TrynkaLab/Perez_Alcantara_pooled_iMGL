@@ -1,0 +1,368 @@
+#!/usr/bin/env python3
+# run rename_files.sh first
+# snakemake is in snakemake
+import os
+
+POOL=["pool7","pool8","pool11","pool13"]
+PHENOTYPE=["migration"]
+SAMPLE,= glob_wildcards("../../data/crams/{pool}/{phenotype}/{sample}.cram")
+CHUNK, = glob_wildcards("../../data/genotypes/full_genotype/genotype_minor_allele_dosage_{chunk}.csv")
+
+rule all:
+	input:
+		bam=expand("../../data/bams/{sample}.bam",sample=SAMPLE),
+		bai=expand("../../data/bams/{sample}.bam.bai",sample=SAMPLE),
+		coverage_samtools=expand("../../data/depth/{sample}_coverage_samtools.txt",sample=SAMPLE),
+		region_list_pool4="../../data/genotype/pool_4.merged.genotype.hg38.nonIdentical.txt",
+		depth_P4="../../data/depth/depth_at_SNPs_P4T.txt",
+		b_estimate=expand("../../data/b/{sample}_b_estimate.csv",sample=SAMPLE),
+		genotype_minor_allele_dosage=expand("../../data/genotypes/{sample}_genotype_minor_allele_dosage.csv", sample=SAMPLE),
+		variants_retained=expand("../../data/genotypes/{sample}_Nvariants_retained_reduced_genotype.txt",sample=SAMPLE),
+		w_estimate=expand("../../data/w/{sample}_w_estimate.txt",sample=SAMPLE),
+		genotype_for_GWAS="../../data/genotypes/full_genotype/microglia_samples.GRCh38.filtered.no_outliers.for_GWAS.vcf.gz",
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/genotype_minor_allele_dosage.csv",
+		genotype_subset="../../data/genotypes/full_genotype/genotype_minor_allele_dosage_1.csv",
+		pqtl_res=expand("../../data/results/5.proportion_QTL/prop_QTL_{chunk}.csv",chunk=CHUNK),
+		regenie_covariate_file="../../data/results/1.3.data_for_regenie/covariates_for_regenie.txt",
+		genotype_regenie="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted.bed",
+		regenie_pqtl_res="../../data/results/regenie_prop_QTL/migration_regenie_out__Untreated.regenie"
+
+
+# filters for GWAS
+
+rule GWAS_filters:
+	input:
+		genotype="../../../OTAR2065_sc_eQTL/data/genotype/microglia_samples.GRCh38.filtered.no_outliers.vcf.gz"
+	output:
+		genotype_for_GWAS="../../data/genotypes/full_genotype/microglia_samples.GRCh38.filtered.no_outliers.for_GWAS.vcf.gz"
+	message: "Convert VCF to allele dosage, with snps named in chr_pos_REF_ALT format."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 20",
+		memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+		jobname= "-o ../../logs/log_GWAS_filters.%J.%I",
+		error="-e ../../errors/error_GWAS_filters.%J.%I"
+	shell:
+	 	"""
+		set +o pipefail;
+        # remove HLA region
+        bcftools view --targets ^6:25726063-33400644 --threads 20 -o ../../data/genotypes/full_genotype/temp.vcf {input.genotype} 
+        #bcftools index --threads 20 ../../data/genotypes/full_genotype/temp.vcf
+
+		 plink2 --vcf ../../data/genotypes/full_genotype/temp.vcf \
+        --max-alleles 2 \
+        --allow-extra-chr --chr 1-22 \
+        --rm-dup 'force-first' \
+        --make-bed \
+        --out ../../data/genotypes/full_genotype/tmp2
+
+        # remove variants with MAF below 5%
+        # remove variants with Hardy-Weinberg equilibrium exact test p-values below 1e-6 =0.000001
+        # geno: exclude SNPs missing in over 10% of samples
+        plink2 --bfile ../../data/genotypes/full_genotype/tmp2 \
+        --maf 0.05 \
+        --hwe 0.000001 \
+        --geno 0.1 \
+        --make-bed \
+        --out ../../data/genotypes/full_genotype/tmp3
+
+        # mind = exclude individuals with over 1% missing genotype
+         plink2 --make-pgen \
+         --mind 0.01 \
+         --sort-vars \
+         --bfile ../../data/genotypes/full_genotype/tmp3 \
+         --out ../../data/genotypes/full_genotype/tmp4
+
+		# save in plink format and VCF
+        plink2 --make-bed \
+         --pfile ../../data/genotypes/full_genotype/tmp4 \
+         --out ../../data/genotypes/full_genotype/microglia_samples.GRCh38.filtered.no_outliers.for_GWAS
+
+		plink2 --export vcf \
+         --pfile ../../data/genotypes/full_genotype/tmp4 \
+         --out ../../data/genotypes/full_genotype/tmp5
+
+		bcftools view --threads 20 -Oz -o {output.genotype_for_GWAS} ../../data/genotypes/full_genotype/tmp5.vcf
+		bcftools index --threads 20 {output.genotype_for_GWAS}
+		rm ../../data/genotypes/full_genotype/tmp*
+		"""
+
+
+
+rule vcf_to_allele_dosage:
+	input:
+		genotype_for_GWAS="../../data/genotypes/full_genotype/microglia_samples.GRCh38.filtered.no_outliers.for_GWAS.vcf.gz"
+	output:
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/genotype_minor_allele_dosage.csv"
+	message: "Convert VCF to allele dosage, with snps named in chr_pos_REF_ALT format."
+	params:
+		group="-G teamtrynka",
+		queue="-q hugemem",
+		threads="-n 1",
+		memory="-M350000 -R'span[hosts=1] select[mem>350000] rusage[mem=350000]'",
+		jobname= "-o ../../logs/log_vcf_to_allele_dosage.%J.%I",
+		error="-e ../../errors/error_vcf_to_allele_dosage.%J.%I"
+	shell:
+	 	"""
+		set +o pipefail;
+		Rscript 5.vcf_to_allele_dosages.R {input.genotype} {output.genotype_minor_allele_dosage}
+
+		"""
+
+rule split_allele_dosage_file:
+	input:
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/genotype_minor_allele_dosage.csv"
+	output:
+		genotype_subset="../../data/genotypes/full_genotype/genotype_minor_allele_dosage_1.csv"
+	message: "Split allele dosage csv in parts of equal size to speed up QTL analysis."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 2",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_split_allele_dosage_file.%J.%I",
+		error="-e ../../errors/error_split_allele_dosage_file.%J.%I",
+		N_snps=9999,
+		split_basename="genotype_minor_allele_dosage_"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+		cat {input.genotype_minor_allele_dosage} | parallel --header : --pipe -N{params.N_snps} 'cat >{params.split_basename}{{#}}.csv'
+		mv genotype_minor_allele_dosage_* ../../data/genotypes/full_genotype/
+		
+		
+
+		"""
+
+rule get_phenotype_outcome:
+	input:
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/{sample}_genotype_minor_allele_dosage.csv"
+	output:
+		w_estimate="../../data/results/phenotype_outcome/{sample}_w_estimate.txt"
+	message: "Get phenotype outcome to run pQTL. Log(bottom fraction / top fraction) in the case of the migration, after adjusting for errors."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_get_phenotype_outcome.{sample}.%J.%I",
+		error="-e ../../errors/error_get_phenotype_outcome.{sample}.%J.%I"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+#write reduced version of step 4 inspect donor prop here
+
+
+		"""
+rule run_pQTL:
+	input:
+		migration_info="../../data/all_pools_migration_sample_info.csv",
+		donor_prop_changes="../../data/results/4.check_donor_proportions/line_prop_changes_averages_variances_1pct_filtered.csv",
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/genotype_minor_allele_dosage_{chunk}.csv",
+		eqtl_res="../../../OTAR2065_sc_eQTL/data/results/tensorqtl/60/sum_sizefactorsNorm_log2_scaled_centered_unique_nominal_snps.csv"
+	output:
+		pqtl_res="../../data/results/5.proportion_QTL/prop_QTL_{chunk}.csv"
+	message: "Run QTL analysis in chunks of variants and treatments."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_run_pQTL.{chunk}.%J.%I",
+		error="-e ../../errors/error_run_pQTL.{chunk}.%J.%I"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+			# check how many genotype allele dosage files there are and launch that many jobs
+			Rscript 1.2.proportion_QTL.R \
+			{input.migration_info} {input.donor_prop_changes} {input.genotype_minor_allele_dosage} {input.eqtl_res} \
+			{output.pqtl_res}
+
+
+		"""
+
+rule run_pQTL_MM:
+	input:
+		migration_info="../../data/all_pools_migration_sample_info.csv",
+		donor_prop_changes="../../data/results/1.check_line_proportions/line_prop_changes_per_well.csv",
+		genotype_minor_allele_dosage="../../data/genotypes/full_genotype/genotype_minor_allele_dosage_{chunk}.csv",
+		eqtl_res="../../../OTAR2065_sc_eQTL/data/results/tensorqtl/60/sum_sizefactorsNorm_log2_scaled_centered_unique_nominal_snps.csv"
+	output:
+		pqtl_res="../../data/results/1.2.proportion_QTL_mixed_models/prop_QTL_{chunk}.csv"
+	message: "Run QTL analysis using mixed models in chunks of variants and treatments."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_run_pQTL_MM.{chunk}.%J.%I",
+		error="-e ../../errors/error_run_pQTL_MM.{chunk}.%J.%I"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+			# check how many genotype allele dosage files there are and launch that many jobs
+			Rscript 1.2.proportion_QTL_mixed_models.R \
+			{input.migration_info} {input.donor_prop_changes} {input.genotype_minor_allele_dosage} {input.eqtl_res} \
+			{output.pqtl_res}
+
+
+		"""
+
+
+rule files_for_regenie:
+	input:
+		sample_info="../../data/all_pools_migration_sample_info.csv",
+		donor_prop_changes="../../data/results/4.check_donor_proportions/line_prop_changes_averages_variances_1pct_filtered.csv",
+		genotype_pc="../../../OTAR2065_sc_eQTL/data/genotype/plink_genotypes/all_pools.genotype.MAF05.eigenvec",
+		genotype_for_GWAS="../../data/genotypes/full_genotype/microglia_samples.GRCh38.filtered.no_outliers.for_GWAS.vcf.gz"
+	output:
+		regenie_pheno_file="../../data/results/1.3.data_for_regenie/phenotype_for_regenie.txt",
+		regenie_covariate_file="../../data/results/1.3.data_for_regenie/covariates_for_regenie.txt",
+		genotype="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted.bed"
+	message: "Creating input files for regenie."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_files_for_regenie.%J.%I",
+		error="-e ../../errors/error_files_for_regenie.%J.%I",
+		donor_blacklist = "letw_5,lizq_3,zaie_1,romx_2,seru_7,qonc_2,boqx_2,garx_2,sojd_3,yoch_6"
+	shell:
+	 	"""
+		set +o pipefail;
+		Rscript 1.3.prepare_data_for_regenie.R {input.sample_info} \
+		{input.donor_prop_changes} {input.genotype_pc} {output.regenie_pheno_file} {output.regenie_covariate_file} {params.donor_blacklist}
+
+		# Run PLINK
+		 # subset with higher imputation quality for step1
+	      bcftools filter -e 'INFO/INFO<=0.95' -Oz \
+		  -o ../../data/results/regenie_prop_QTL/fit/tmp.vcf.gz \
+		  ../../../OTAR2065_sc_eQTL/data/genotype/eqtl_gwas.genotype.MAF01.hg38.vcf.gz
+		  plink2 --vcf ../../data/results/regenie_prop_QTL/fit/tmp.vcf.gz \
+  			--max-alleles 2 \
+  			--allow-extra-chr --chr 1-22, X \
+  			--make-bed \
+  			--out ../../data/results/regenie_prop_QTL/fit/tmp
+		plink2 --bfile ../../data/results/regenie_prop_QTL/fit/tmp \
+			--make-pgen --sort-vars n \
+			--maf 0.01 \
+			--hwe 0.000001 \
+			--geno 0.1 \
+			--mind 0.01 \
+			--out ../../data/results/regenie_prop_QTL/fit/tmp2
+
+			plink2 --pfile ../../data/results/regenie_prop_QTL/fit/tmp2 \
+			--make-bed --out ../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF01.highest.imputation.sorted
+
+		# larger set for step 2
+		plink2 --vcf ../../../OTAR2065_sc_eQTL/data/genotype/eqtl_gwas.genotype.MAF01.hg38.vcf.gz \
+		--max-alleles 2 \
+		--allow-extra-chr --chr 1-22, X \
+		--make-bed \
+		--out ../../data/results/regenie_prop_QTL/fit/tmp3
+
+		# proper chromosome sorting. Need to create pgen first due to some bug in bed sorting
+
+		plink2 --bfile ../../data/results/regenie_prop_QTL/fit/tmp3 \
+			--make-pgen --sort-vars n \
+			--maf 0.05 \
+			--hwe 0.000001 \
+			--geno 0.1 \
+			--mind 0.01 \
+			--out ../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted
+
+	plink2 --pfile ../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted \
+	--make-bed --out ../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted
+	rm ../../data/results/regenie_prop_QTL/fit/tmp*
+
+		"""
+rule run_pQTL_regenie:
+	input:
+		regenie_pheno_file="../../data/results/1.3.data_for_regenie/phenotype_for_regenie.txt",
+		regenie_covariate_file="../../data/results/1.3.data_for_regenie/covariates_for_regenie.txt",
+		genotype="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted",
+		small_genotype="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF01.highest.imputation.sorted.bed"
+	output:
+		regenie_pqtl_res="../../data/results/regenie_prop_QTL/migration_regenie_out__Untreated.regenie"
+	message: "Run QTL analysis using regenie."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_run_pQTL_regenie.%J.%I",
+		error="-e ../../errors/error_run_pQTL_regenie.%J.%I"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+			# We recommend to use a smaller set in step 1, which should be sufficient to capture genome-wide polygenic effects.
+			/software/teamtrynka/regenie/regenie_v3.0.3.gz_x86_64_Linux --step 1 \
+			--bed {input.small_genotype} \
+			--phenoFile {input.regenie_pheno_file} \
+			--covarFile {input.regenie_covariate_file} \
+			--bsize 100 \
+			--covarColList pool,sex \
+			--catCovarList pool,sex \
+			--out ../../data/results/regenie_prop_QTL/fit/
+
+			/software/teamtrynka/regenie/regenie_v3.0.3.gz_x86_64_Linux --step 2 \
+			--bed {input.genotype} \
+			--phenoFile {input.regenie_pheno_file} \
+			--covarFile {input.regenie_covariate_file}\
+			--covarColList pool,sex \
+			--catCovarList pool,sex \
+			--bsize 200 \
+			--pThresh 0.05 \
+			--pred ../../data/results/regenie_prop_QTL/fit/_pred.list \
+			--out ../../data/results/regenie_prop_QTL/migration_regenie_out_
+
+		"""
+rule run_pQTL_regenie_gene_tests:
+	input:
+		regenie_pheno_file="../../data/results/1.3.data_for_regenie/phenotype_for_regenie.txt",
+		regenie_covariate_file="../../data/results/1.3.data_for_regenie/covariates_for_regenie.txt",
+		genotype="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF05.sorted",
+		small_genotype="../../data/results/regenie_prop_QTL/fit/all_pools.genotype.MAF01.highest.imputation.sorted.bed"
+	output:
+		regenie_pqtl_res="../../data/results/regenie_prop_QTL/migration_regenie_out__Untreated.regenie"
+	message: "Run QTL analysis using regenie."
+	params:
+		group="-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		jobname= "-o ../../logs/log_run_pQTL_regenie_gene_tests.%J.%I",
+		error="-e ../../errors/error_run_pQTL_regenie_gene_tests.%J.%I"
+	shell:
+	 	"""
+		        set +o pipefail;
+
+			# We recommend to use a smaller set in step 1, which should be sufficient to capture genome-wide polygenic effects.
+			/software/teamtrynka/regenie/regenie_v3.0.3.gz_x86_64_Linux --step 1 \
+			--bed {input.small_genotype} \
+			--phenoFile {input.regenie_pheno_file} \
+			--covarFile {input.regenie_covariate_file} \
+			--bsize 100 \
+			--covarColList pool,sex \
+			--catCovarList pool,sex \
+			--out ../../data/results/regenie_prop_QTL/fit/
+
+			/software/teamtrynka/regenie/regenie_v3.0.3.gz_x86_64_Linux --step 2 \
+			--bed {input.genotype} \
+			--phenoFile {input.regenie_pheno_file} \
+			--covarFile {input.regenie_covariate_file}\
+			--covarColList pool,sex \
+			--catCovarList pool,sex \
+			--bsize 200 \
+			--pThresh 0.05 \
+			--pred ../../data/results/regenie_prop_QTL/fit/_pred.list \
+			--out ../../data/results/regenie_prop_QTL/migration_regenie_out_
+
+		"""

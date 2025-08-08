@@ -1,0 +1,50 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	remove_dups_sort_bam
+	5
+
+[Thu Nov 16 09:20:12 2023]
+Job 1: Remove duplicates with picard, and sort.
+
+Submitted job 1 with external jobid 'Job <38384138> is submitted to queue <normal>.'.
+
+[Thu Nov 16 09:20:12 2023]
+Job 2: Remove duplicates with picard, and sort.
+
+Submitted job 2 with external jobid 'Job <38384139> is submitted to queue <normal>.'.
+
+[Thu Nov 16 09:20:13 2023]
+Job 3: Remove duplicates with picard, and sort.
+
+Submitted job 3 with external jobid 'Job <38384140> is submitted to queue <normal>.'.
+
+[Thu Nov 16 09:20:13 2023]
+Job 4: Remove duplicates with picard, and sort.
+
+Submitted job 4 with external jobid 'Job <38384141> is submitted to queue <normal>.'.
+[Thu Nov 16 09:53:44 2023]
+Finished job 4.
+1 of 5 steps (20%) done
+[Thu Nov 16 09:57:54 2023]
+Finished job 2.
+2 of 5 steps (40%) done
+[Thu Nov 16 09:59:54 2023]
+Finished job 3.
+3 of 5 steps (60%) done
+[Thu Nov 16 10:00:34 2023]
+Finished job 1.
+4 of 5 steps (80%) done
+
+[Thu Nov 16 10:00:34 2023]
+localrule all:
+    input: ../../../data/bams_nodups/pool13/pool13_day35_preMAC.bam.bai, ../../../data/bams_nodups/pool13/pool13_day50_preMAC.bam.bai, ../../../data/bams_nodups/pool13/pool13_day43_preMAC.bam.bai, ../../../data/bams_nodups/pool13/pool13_day0_iPSC.bam.bai
+    jobid: 0
+
+[Thu Nov 16 10:00:34 2023]
+Finished job 0.
+5 of 5 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool13/.snakemake/log/2023-11-16T092011.902131.snakemake.log

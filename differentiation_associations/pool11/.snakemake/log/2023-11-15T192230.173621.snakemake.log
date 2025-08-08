@@ -1,0 +1,39 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	cram_to_bam
+	4	merge_lanes
+	4	subset_and_index_bam
+	13
+
+[Wed Nov 15 19:22:30 2023]
+Job 11: Cram to bam.
+
+Submitted job 11 with external jobid 'Job <38362838> is submitted to queue <normal>.'.
+
+[Wed Nov 15 19:22:30 2023]
+Job 10: Cram to bam.
+
+Submitted job 10 with external jobid 'Job <38362839> is submitted to queue <normal>.'.
+
+[Wed Nov 15 19:22:31 2023]
+Job 9: Cram to bam.
+
+Submitted job 9 with external jobid 'Job <38362840> is submitted to queue <normal>.'.
+
+[Wed Nov 15 19:22:31 2023]
+Job 12: Cram to bam.
+
+Submitted job 12 with external jobid 'Job <38362841> is submitted to queue <normal>.'.
+[Wed Nov 15 19:36:41 2023]
+Finished job 9.
+1 of 13 steps (8%) done
+
+[Wed Nov 15 19:36:41 2023]
+Job 5: Merging lanes.
+
+RuleException in line 41 of /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool11/Snakefile:
+'Wildcards' object has no attribute 'phenotype'

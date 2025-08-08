@@ -1,0 +1,564 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	30	calculate_b_estimate_MAD
+	8	count_alleles
+	30	estimate_weights
+	69
+
+[Tue Jul 12 10:53:38 2022]
+Job 112: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 112 with external jobid 'Job <519881> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 113: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 113 with external jobid 'Job <519882> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 117: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 117 with external jobid 'Job <519883> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 94: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 94 with external jobid 'Job <519884> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 96: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 96 with external jobid 'Job <519885> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 102: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 102 with external jobid 'Job <519886> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:39 2022]
+Job 111: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 111 with external jobid 'Job <519887> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 107: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 107 with external jobid 'Job <519888> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 62: Counting alleles with bam-readcount.
+
+Submitted job 62 with external jobid 'Job <519889> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 98: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 98 with external jobid 'Job <519890> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 89: Counting alleles with bam-readcount.
+
+Submitted job 89 with external jobid 'Job <519891> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 90: Counting alleles with bam-readcount.
+
+Submitted job 90 with external jobid 'Job <519892> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:40 2022]
+Job 65: Counting alleles with bam-readcount.
+
+Submitted job 65 with external jobid 'Job <519893> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 99: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 99 with external jobid 'Job <519894> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 114: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 114 with external jobid 'Job <519895> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 97: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 97 with external jobid 'Job <519896> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 78: Counting alleles with bam-readcount.
+
+Submitted job 78 with external jobid 'Job <519897> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 93: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 93 with external jobid 'Job <519898> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 71: Counting alleles with bam-readcount.
+
+Submitted job 71 with external jobid 'Job <519899> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:41 2022]
+Job 75: Counting alleles with bam-readcount.
+
+Submitted job 75 with external jobid 'Job <519900> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 100: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 100 with external jobid 'Job <519901> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 106: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 106 with external jobid 'Job <519902> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 110: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 110 with external jobid 'Job <519903> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 104: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 104 with external jobid 'Job <519904> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 109: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 109 with external jobid 'Job <519905> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:42 2022]
+Job 115: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 115 with external jobid 'Job <519906> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:43 2022]
+Job 91: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 91 with external jobid 'Job <519907> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:43 2022]
+Job 86: Counting alleles with bam-readcount.
+
+Submitted job 86 with external jobid 'Job <519908> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:43 2022]
+Job 118: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 118 with external jobid 'Job <519909> is submitted to queue <long>.'.
+
+[Tue Jul 12 10:53:43 2022]
+Job 103: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 103 with external jobid 'Job <519910> is submitted to queue <long>.'.
+[Tue Jul 12 11:12:45 2022]
+Finished job 113.
+1 of 69 steps (1%) done
+
+[Tue Jul 12 11:12:45 2022]
+Job 143: Estimate proportion (weights) of donors.
+
+[Tue Jul 12 11:12:45 2022]
+Finished job 94.
+2 of 69 steps (3%) done
+[Tue Jul 12 11:12:45 2022]
+Finished job 96.
+3 of 69 steps (4%) done
+Submitted job 143 with external jobid 'Job <519976> is submitted to queue <normal>.'.
+
+[Tue Jul 12 11:12:45 2022]
+Job 124: Estimate proportion (weights) of donors.
+
+Submitted job 124 with external jobid 'Job <519977> is submitted to queue <normal>.'.
+
+[Tue Jul 12 11:12:45 2022]
+Job 126: Estimate proportion (weights) of donors.
+
+Submitted job 126 with external jobid 'Job <519978> is submitted to queue <normal>.'.
+[Tue Jul 12 11:12:58 2022]
+Finished job 117.
+4 of 69 steps (6%) done
+
+[Tue Jul 12 11:12:58 2022]
+Job 147: Estimate proportion (weights) of donors.
+
+Submitted job 147 with external jobid 'Job <519980> is submitted to queue <normal>.'.
+[Tue Jul 12 11:13:00 2022]
+Finished job 115.
+5 of 69 steps (7%) done
+
+[Tue Jul 12 11:13:00 2022]
+Job 145: Estimate proportion (weights) of donors.
+
+Submitted job 145 with external jobid 'Job <519981> is submitted to queue <normal>.'.
+[Tue Jul 12 11:13:25 2022]
+Finished job 99.
+6 of 69 steps (9%) done
+
+[Tue Jul 12 11:13:25 2022]
+Job 129: Estimate proportion (weights) of donors.
+
+Submitted job 129 with external jobid 'Job <519983> is submitted to queue <normal>.'.
+[Tue Jul 12 11:13:26 2022]
+Finished job 103.
+7 of 69 steps (10%) done
+
+[Tue Jul 12 11:13:26 2022]
+Job 133: Estimate proportion (weights) of donors.
+
+Submitted job 133 with external jobid 'Job <519984> is submitted to queue <normal>.'.
+[Tue Jul 12 11:14:16 2022]
+Finished job 147.
+8 of 69 steps (12%) done
+[Tue Jul 12 11:14:29 2022]
+Finished job 143.
+9 of 69 steps (13%) done
+[Tue Jul 12 11:14:55 2022]
+Finished job 145.
+10 of 69 steps (14%) done
+[Tue Jul 12 11:15:06 2022]
+Finished job 93.
+11 of 69 steps (16%) done
+
+[Tue Jul 12 11:15:06 2022]
+Job 123: Estimate proportion (weights) of donors.
+
+Submitted job 123 with external jobid 'Job <519989> is submitted to queue <normal>.'.
+[Tue Jul 12 11:15:07 2022]
+Finished job 133.
+12 of 69 steps (17%) done
+[Tue Jul 12 11:15:31 2022]
+Finished job 91.
+13 of 69 steps (19%) done
+
+[Tue Jul 12 11:15:31 2022]
+Job 121: Estimate proportion (weights) of donors.
+
+Submitted job 121 with external jobid 'Job <519990> is submitted to queue <normal>.'.
+[Tue Jul 12 11:15:44 2022]
+Finished job 118.
+14 of 69 steps (20%) done
+
+[Tue Jul 12 11:15:44 2022]
+Job 148: Estimate proportion (weights) of donors.
+
+Submitted job 148 with external jobid 'Job <519995> is submitted to queue <normal>.'.
+[Tue Jul 12 11:15:56 2022]
+Finished job 104.
+15 of 69 steps (22%) done
+
+[Tue Jul 12 11:15:56 2022]
+Job 134: Estimate proportion (weights) of donors.
+
+Submitted job 134 with external jobid 'Job <519997> is submitted to queue <normal>.'.
+[Tue Jul 12 11:16:30 2022]
+Finished job 102.
+16 of 69 steps (23%) done
+
+[Tue Jul 12 11:16:30 2022]
+Job 132: Estimate proportion (weights) of donors.
+
+Submitted job 132 with external jobid 'Job <519998> is submitted to queue <normal>.'.
+[Tue Jul 12 11:16:42 2022]
+Finished job 111.
+17 of 69 steps (25%) done
+
+[Tue Jul 12 11:16:42 2022]
+Job 141: Estimate proportion (weights) of donors.
+
+Submitted job 141 with external jobid 'Job <520000> is submitted to queue <normal>.'.
+[Tue Jul 12 11:16:54 2022]
+Finished job 124.
+18 of 69 steps (26%) done
+[Tue Jul 12 11:16:55 2022]
+Finished job 112.
+19 of 69 steps (28%) done
+
+[Tue Jul 12 11:16:55 2022]
+Job 142: Estimate proportion (weights) of donors.
+
+Submitted job 142 with external jobid 'Job <520001> is submitted to queue <normal>.'.
+[Tue Jul 12 11:17:09 2022]
+Finished job 121.
+20 of 69 steps (29%) done
+[Tue Jul 12 11:17:45 2022]
+Finished job 110.
+21 of 69 steps (30%) done
+
+[Tue Jul 12 11:17:45 2022]
+Job 140: Estimate proportion (weights) of donors.
+
+Submitted job 140 with external jobid 'Job <520002> is submitted to queue <normal>.'.
+[Tue Jul 12 11:17:46 2022]
+Finished job 109.
+22 of 69 steps (32%) done
+
+[Tue Jul 12 11:17:46 2022]
+Job 139: Estimate proportion (weights) of donors.
+
+Submitted job 139 with external jobid 'Job <520003> is submitted to queue <normal>.'.
+[Tue Jul 12 11:17:58 2022]
+Finished job 148.
+23 of 69 steps (33%) done
+[Tue Jul 12 11:18:08 2022]
+Finished job 142.
+24 of 69 steps (35%) done
+[Tue Jul 12 11:18:08 2022]
+Finished job 141.
+25 of 69 steps (36%) done
+[Tue Jul 12 11:18:20 2022]
+Finished job 132.
+26 of 69 steps (38%) done
+[Tue Jul 12 11:18:56 2022]
+Finished job 123.
+27 of 69 steps (39%) done
+[Tue Jul 12 11:19:30 2022]
+Finished job 129.
+28 of 69 steps (41%) done
+[Tue Jul 12 11:25:25 2022]
+Finished job 97.
+29 of 69 steps (42%) done
+
+[Tue Jul 12 11:25:25 2022]
+Job 127: Estimate proportion (weights) of donors.
+
+Submitted job 127 with external jobid 'Job <520317> is submitted to queue <normal>.'.
+[Tue Jul 12 11:25:46 2022]
+Finished job 114.
+30 of 69 steps (43%) done
+
+[Tue Jul 12 11:25:46 2022]
+Job 144: Estimate proportion (weights) of donors.
+
+Submitted job 144 with external jobid 'Job <520347> is submitted to queue <normal>.'.
+[Tue Jul 12 11:28:22 2022]
+Finished job 127.
+31 of 69 steps (45%) done
+[Tue Jul 12 11:28:44 2022]
+Finished job 144.
+32 of 69 steps (46%) done
+[Tue Jul 12 11:29:39 2022]
+Finished job 134.
+33 of 69 steps (48%) done
+[Tue Jul 12 11:30:00 2022]
+Finished job 140.
+34 of 69 steps (49%) done
+[Tue Jul 12 11:30:11 2022]
+Finished job 98.
+35 of 69 steps (51%) done
+
+[Tue Jul 12 11:30:11 2022]
+Job 128: Estimate proportion (weights) of donors.
+
+Submitted job 128 with external jobid 'Job <520623> is submitted to queue <normal>.'.
+[Tue Jul 12 11:31:51 2022]
+Finished job 126.
+36 of 69 steps (52%) done
+[Tue Jul 12 11:36:49 2022]
+Finished job 100.
+37 of 69 steps (54%) done
+
+[Tue Jul 12 11:36:49 2022]
+Job 130: Estimate proportion (weights) of donors.
+
+Submitted job 130 with external jobid 'Job <520785> is submitted to queue <normal>.'.
+[Tue Jul 12 11:37:12 2022]
+Finished job 139.
+38 of 69 steps (55%) done
+[Tue Jul 12 11:46:34 2022]
+Finished job 128.
+39 of 69 steps (57%) done
+[Tue Jul 12 11:48:13 2022]
+Finished job 107.
+40 of 69 steps (58%) done
+
+[Tue Jul 12 11:48:14 2022]
+Job 137: Estimate proportion (weights) of donors.
+
+Submitted job 137 with external jobid 'Job <521093> is submitted to queue <normal>.'.
+[Tue Jul 12 11:54:30 2022]
+Finished job 130.
+41 of 69 steps (59%) done
+[Tue Jul 12 11:55:36 2022]
+Finished job 137.
+42 of 69 steps (61%) done
+[Tue Jul 12 12:20:12 2022]
+Finished job 106.
+43 of 69 steps (62%) done
+
+[Tue Jul 12 12:20:12 2022]
+Job 136: Estimate proportion (weights) of donors.
+
+Submitted job 136 with external jobid 'Job <523210> is submitted to queue <normal>.'.
+[Tue Jul 12 12:30:14 2022]
+Finished job 136.
+44 of 69 steps (64%) done
+[Tue Jul 12 21:30:20 2022]
+Finished job 65.
+45 of 69 steps (65%) done
+
+[Tue Jul 12 21:30:20 2022]
+Job 95: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 95 with external jobid 'Job <539853> is submitted to queue <long>.'.
+[Tue Jul 12 21:50:24 2022]
+Finished job 95.
+46 of 69 steps (67%) done
+
+[Tue Jul 12 21:50:24 2022]
+Job 125: Estimate proportion (weights) of donors.
+
+Submitted job 125 with external jobid 'Job <540027> is submitted to queue <normal>.'.
+[Tue Jul 12 21:53:25 2022]
+Finished job 125.
+47 of 69 steps (68%) done
+[Wed Jul 13 00:05:37 2022]
+Finished job 86.
+48 of 69 steps (70%) done
+
+[Wed Jul 13 00:05:37 2022]
+Job 116: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 116 with external jobid 'Job <547316> is submitted to queue <long>.'.
+[Wed Jul 13 00:25:52 2022]
+Finished job 71.
+49 of 69 steps (71%) done
+
+[Wed Jul 13 00:25:52 2022]
+Job 101: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 101 with external jobid 'Job <547828> is submitted to queue <long>.'.
+[Wed Jul 13 00:32:23 2022]
+Finished job 116.
+50 of 69 steps (72%) done
+
+[Wed Jul 13 00:32:23 2022]
+Job 146: Estimate proportion (weights) of donors.
+
+Submitted job 146 with external jobid 'Job <548046> is submitted to queue <normal>.'.
+[Wed Jul 13 00:33:44 2022]
+Finished job 146.
+51 of 69 steps (74%) done
+[Wed Jul 13 00:35:04 2022]
+Finished job 78.
+52 of 69 steps (75%) done
+
+[Wed Jul 13 00:35:04 2022]
+Job 108: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 108 with external jobid 'Job <548052> is submitted to queue <long>.'.
+[Wed Jul 13 00:45:57 2022]
+Finished job 90.
+53 of 69 steps (77%) done
+
+[Wed Jul 13 00:45:57 2022]
+Job 120: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 120 with external jobid 'Job <548070> is submitted to queue <long>.'.
+[Wed Jul 13 00:54:29 2022]
+Finished job 101.
+54 of 69 steps (78%) done
+
+[Wed Jul 13 00:54:29 2022]
+Job 131: Estimate proportion (weights) of donors.
+
+Submitted job 131 with external jobid 'Job <548117> is submitted to queue <normal>.'.
+[Wed Jul 13 00:56:19 2022]
+Finished job 131.
+55 of 69 steps (80%) done
+[Wed Jul 13 01:07:52 2022]
+Finished job 75.
+56 of 69 steps (81%) done
+
+[Wed Jul 13 01:07:52 2022]
+Job 105: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 105 with external jobid 'Job <548153> is submitted to queue <long>.'.
+[Wed Jul 13 01:17:14 2022]
+Finished job 108.
+57 of 69 steps (83%) done
+
+[Wed Jul 13 01:17:14 2022]
+Job 138: Estimate proportion (weights) of donors.
+
+Submitted job 138 with external jobid 'Job <548171> is submitted to queue <normal>.'.
+[Wed Jul 13 01:18:55 2022]
+Finished job 138.
+58 of 69 steps (84%) done
+[Wed Jul 13 01:23:46 2022]
+Finished job 89.
+59 of 69 steps (86%) done
+
+[Wed Jul 13 01:23:46 2022]
+Job 119: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 119 with external jobid 'Job <548184> is submitted to queue <long>.'.
+[Wed Jul 13 01:36:29 2022]
+Finished job 120.
+60 of 69 steps (87%) done
+
+[Wed Jul 13 01:36:29 2022]
+Job 150: Estimate proportion (weights) of donors.
+
+Submitted job 150 with external jobid 'Job <548201> is submitted to queue <normal>.'.
+[Wed Jul 13 01:38:20 2022]
+Finished job 150.
+61 of 69 steps (88%) done
+[Wed Jul 13 01:58:54 2022]
+Finished job 105.
+62 of 69 steps (90%) done
+
+[Wed Jul 13 01:58:54 2022]
+Job 135: Estimate proportion (weights) of donors.
+
+Submitted job 135 with external jobid 'Job <548250> is submitted to queue <normal>.'.
+[Wed Jul 13 02:09:26 2022]
+Finished job 135.
+63 of 69 steps (91%) done
+[Wed Jul 13 02:24:09 2022]
+Finished job 62.
+64 of 69 steps (93%) done
+
+[Wed Jul 13 02:24:09 2022]
+Job 92: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 92 with external jobid 'Job <548291> is submitted to queue <long>.'.
+[Wed Jul 13 02:25:50 2022]
+Finished job 119.
+65 of 69 steps (94%) done
+
+[Wed Jul 13 02:25:50 2022]
+Job 149: Estimate proportion (weights) of donors.
+
+Submitted job 149 with external jobid 'Job <548294> is submitted to queue <normal>.'.
+[Wed Jul 13 02:30:41 2022]
+Finished job 149.
+66 of 69 steps (96%) done
+[Wed Jul 13 02:48:14 2022]
+Finished job 92.
+67 of 69 steps (97%) done
+
+[Wed Jul 13 02:48:14 2022]
+Job 122: Estimate proportion (weights) of donors.
+
+Submitted job 122 with external jobid 'Job <548327> is submitted to queue <normal>.'.
+[Wed Jul 13 02:49:34 2022]
+Finished job 122.
+68 of 69 steps (99%) done
+
+[Wed Jul 13 02:49:35 2022]
+localrule all:
+    input: ../../../data/bams/P3_147_merged.bam.bai, ../../../data/bams/P4_170_merged.bam.bai, ../../../data/bams/P3_136_merged.bam.bai, ../../../data/bams/P3_140_merged.bam.bai, ../../../data/bams/P3_148_merged.bam.bai, ../../../data/bams/P3_145_merged.bam.bai, ../../../data/bams/P3_146_merged.bam.bai, ../../../data/bams/P4_176_merged.bam.bai, ../../../data/bams/P3_152_merged.bam.bai, ../../../data/bams/P3_149_merged.bam.bai, ../../../data/bams/P4_169_merged.bam.bai, ../../../data/bams/P4_168_merged.bam.bai, ../../../data/bams/P3_144_merged.bam.bai, ../../../data/bams/P4_163_merged.bam.bai, ../../../data/bams/P4_172_merged.bam.bai, ../../../data/bams/P4_175_merged.bam.bai, ../../../data/bams/P4_162_merged.bam.bai, ../../../data/bams/P4_174_merged.bam.bai, ../../../data/bams/P4_173_merged.bam.bai, ../../../data/bams/P4_161_merged.bam.bai, ../../../data/bams/P3_138_merged.bam.bai, ../../../data/bams/P4_159_merged.bam.bai, ../../../data/bams/P3_150_merged.bam.bai, ../../../data/bams/P3_135_merged.bam.bai, ../../../data/bams/P3_139_merged.bam.bai, ../../../data/bams/P4_171_merged.bam.bai, ../../../data/bams/P3_151_merged.bam.bai, ../../../data/bams/P4_160_merged.bam.bai, ../../../data/bams/P4_164_merged.bam.bai, ../../../data/bams/P3_137_merged.bam.bai, ../../../data/depth/P3_147_merged_coverage_samtools.txt, ../../../data/depth/P4_170_merged_coverage_samtools.txt, ../../../data/depth/P3_136_merged_coverage_samtools.txt, ../../../data/depth/P3_140_merged_coverage_samtools.txt, ../../../data/depth/P3_148_merged_coverage_samtools.txt, ../../../data/depth/P3_145_merged_coverage_samtools.txt, ../../../data/depth/P3_146_merged_coverage_samtools.txt, ../../../data/depth/P4_176_merged_coverage_samtools.txt, ../../../data/depth/P3_152_merged_coverage_samtools.txt, ../../../data/depth/P3_149_merged_coverage_samtools.txt, ../../../data/depth/P4_169_merged_coverage_samtools.txt, ../../../data/depth/P4_168_merged_coverage_samtools.txt, ../../../data/depth/P3_144_merged_coverage_samtools.txt, ../../../data/depth/P4_163_merged_coverage_samtools.txt, ../../../data/depth/P4_172_merged_coverage_samtools.txt, ../../../data/depth/P4_175_merged_coverage_samtools.txt, ../../../data/depth/P4_162_merged_coverage_samtools.txt, ../../../data/depth/P4_174_merged_coverage_samtools.txt, ../../../data/depth/P4_173_merged_coverage_samtools.txt, ../../../data/depth/P4_161_merged_coverage_samtools.txt, ../../../data/depth/P3_138_merged_coverage_samtools.txt, ../../../data/depth/P4_159_merged_coverage_samtools.txt, ../../../data/depth/P3_150_merged_coverage_samtools.txt, ../../../data/depth/P3_135_merged_coverage_samtools.txt, ../../../data/depth/P3_139_merged_coverage_samtools.txt, ../../../data/depth/P4_171_merged_coverage_samtools.txt, ../../../data/depth/P3_151_merged_coverage_samtools.txt, ../../../data/depth/P4_160_merged_coverage_samtools.txt, ../../../data/depth/P4_164_merged_coverage_samtools.txt, ../../../data/depth/P3_137_merged_coverage_samtools.txt, ../../../data/bam-readcount/P3_147_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_170_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_136_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_140_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_148_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_145_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_146_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_176_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_152_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_149_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_169_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_168_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_144_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_163_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_172_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_175_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_162_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_174_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_173_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_161_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_138_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_159_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_150_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_135_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_139_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_171_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_151_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_160_bam-readcount.txt.gz, ../../../data/bam-readcount/P4_164_bam-readcount.txt.gz, ../../../data/bam-readcount/P3_137_bam-readcount.txt.gz, ../../../data/b/P3_147_b_estimate.csv, ../../../data/b/P4_170_b_estimate.csv, ../../../data/b/P3_136_b_estimate.csv, ../../../data/b/P3_140_b_estimate.csv, ../../../data/b/P3_148_b_estimate.csv, ../../../data/b/P3_145_b_estimate.csv, ../../../data/b/P3_146_b_estimate.csv, ../../../data/b/P4_176_b_estimate.csv, ../../../data/b/P3_152_b_estimate.csv, ../../../data/b/P3_149_b_estimate.csv, ../../../data/b/P4_169_b_estimate.csv, ../../../data/b/P4_168_b_estimate.csv, ../../../data/b/P3_144_b_estimate.csv, ../../../data/b/P4_163_b_estimate.csv, ../../../data/b/P4_172_b_estimate.csv, ../../../data/b/P4_175_b_estimate.csv, ../../../data/b/P4_162_b_estimate.csv, ../../../data/b/P4_174_b_estimate.csv, ../../../data/b/P4_173_b_estimate.csv, ../../../data/b/P4_161_b_estimate.csv, ../../../data/b/P3_138_b_estimate.csv, ../../../data/b/P4_159_b_estimate.csv, ../../../data/b/P3_150_b_estimate.csv, ../../../data/b/P3_135_b_estimate.csv, ../../../data/b/P3_139_b_estimate.csv, ../../../data/b/P4_171_b_estimate.csv, ../../../data/b/P3_151_b_estimate.csv, ../../../data/b/P4_160_b_estimate.csv, ../../../data/b/P4_164_b_estimate.csv, ../../../data/b/P3_137_b_estimate.csv, ../../../data/genotypes/P3_147_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_170_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_136_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_140_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_148_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_145_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_146_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_176_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_152_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_149_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_169_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_168_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_144_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_163_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_172_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_175_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_162_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_174_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_173_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_161_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_138_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_159_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_150_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_135_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_139_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_171_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_151_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_160_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P4_164_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_137_genotype_minor_allele_dosage.csv, ../../../data/genotypes/P3_147_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_170_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_136_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_140_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_148_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_145_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_146_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_176_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_152_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_149_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_169_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_168_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_144_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_163_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_172_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_175_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_162_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_174_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_173_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_161_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_138_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_159_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_150_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_135_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_139_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_171_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_151_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_160_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P4_164_Nvariants_retained_reduced_genotype.txt, ../../../data/genotypes/P3_137_Nvariants_retained_reduced_genotype.txt, ../../../data/w/P3_147_w_estimate.txt, ../../../data/w/P4_170_w_estimate.txt, ../../../data/w/P3_136_w_estimate.txt, ../../../data/w/P3_140_w_estimate.txt, ../../../data/w/P3_148_w_estimate.txt, ../../../data/w/P3_145_w_estimate.txt, ../../../data/w/P3_146_w_estimate.txt, ../../../data/w/P4_176_w_estimate.txt, ../../../data/w/P3_152_w_estimate.txt, ../../../data/w/P3_149_w_estimate.txt, ../../../data/w/P4_169_w_estimate.txt, ../../../data/w/P4_168_w_estimate.txt, ../../../data/w/P3_144_w_estimate.txt, ../../../data/w/P4_163_w_estimate.txt, ../../../data/w/P4_172_w_estimate.txt, ../../../data/w/P4_175_w_estimate.txt, ../../../data/w/P4_162_w_estimate.txt, ../../../data/w/P4_174_w_estimate.txt, ../../../data/w/P4_173_w_estimate.txt, ../../../data/w/P4_161_w_estimate.txt, ../../../data/w/P3_138_w_estimate.txt, ../../../data/w/P4_159_w_estimate.txt, ../../../data/w/P3_150_w_estimate.txt, ../../../data/w/P3_135_w_estimate.txt, ../../../data/w/P3_139_w_estimate.txt, ../../../data/w/P4_171_w_estimate.txt, ../../../data/w/P3_151_w_estimate.txt, ../../../data/w/P4_160_w_estimate.txt, ../../../data/w/P4_164_w_estimate.txt, ../../../data/w/P3_137_w_estimate.txt
+    jobid: 0
+
+[Wed Jul 13 02:49:35 2022]
+Finished job 0.
+69 of 69 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/log/2022-07-12T105338.703606.snakemake.log

@@ -1,0 +1,202 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	23	subset_donors_vcf_hipsci
+	24
+
+[Tue Dec  5 17:48:36 2023]
+Job 1: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_1_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_1_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 1 with external jobid 'Job <40477658> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:36 2023]
+Job 13: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_13_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_13_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 13 with external jobid 'Job <40477659> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:37 2023]
+Job 15: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_15_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_15_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 15 with external jobid 'Job <40477663> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:37 2023]
+Job 23: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_X_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_X_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 23 with external jobid 'Job <40477665> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:38 2023]
+Job 8: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_8_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_8_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 8 with external jobid 'Job <40477668> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:38 2023]
+Job 2: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_2_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_2_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 2 with external jobid 'Job <40477671> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:39 2023]
+Job 3: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_3_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_3_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 3 with external jobid 'Job <40477673> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:39 2023]
+Job 11: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_11_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_11_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 11 with external jobid 'Job <40477677> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:39 2023]
+Job 22: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_22_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_22_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 22 with external jobid 'Job <40477680> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:40 2023]
+Job 6: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_6_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_6_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 6 with external jobid 'Job <40477683> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:40 2023]
+Job 21: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_21_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_21_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 21 with external jobid 'Job <40477685> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:41 2023]
+Job 19: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_19_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_19_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 19 with external jobid 'Job <40477688> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:41 2023]
+Job 4: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_4_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_4_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 4 with external jobid 'Job <40477691> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:41 2023]
+Job 9: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_9_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_9_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 9 with external jobid 'Job <40477693> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:42 2023]
+Job 5: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_5_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_5_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 5 with external jobid 'Job <40477696> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:42 2023]
+Job 17: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_17_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_17_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 17 with external jobid 'Job <40477699> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:43 2023]
+Job 7: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_7_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_7_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 7 with external jobid 'Job <40477701> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:43 2023]
+Job 18: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_18_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_18_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 18 with external jobid 'Job <40477704> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:44 2023]
+Job 14: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_14_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_14_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 14 with external jobid 'Job <40477708> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:44 2023]
+Job 16: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_16_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_16_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 16 with external jobid 'Job <40477711> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:44 2023]
+Job 10: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_10_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_10_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 10 with external jobid 'Job <40477712> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:45 2023]
+Job 20: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_20_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_20_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 20 with external jobid 'Job <40477714> is submitted to queue <normal>.'.
+
+[Tue Dec  5 17:48:45 2023]
+Job 12: Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_12_pool_14_hipsci_subset_donors_vcf.%J.%I -e ../../errors/error_pool_14_12_pool_14_hipsci_subset_donors_vcf.%J.%I [comma]
+
+Submitted job 12 with external jobid 'Job <40477716> is submitted to queue <normal>.'.
+[Tue Dec  5 17:54:10 2023]
+Finished job 22.
+1 of 24 steps (4%) done
+[Tue Dec  5 17:54:11 2023]
+Finished job 21.
+2 of 24 steps (8%) done
+[Tue Dec  5 17:57:48 2023]
+Finished job 20.
+3 of 24 steps (12%) done
+[Tue Dec  5 17:57:59 2023]
+Finished job 19.
+4 of 24 steps (17%) done
+[Tue Dec  5 18:00:35 2023]
+Finished job 17.
+5 of 24 steps (21%) done
+[Tue Dec  5 18:00:35 2023]
+Finished job 18.
+6 of 24 steps (25%) done
+[Tue Dec  5 18:00:56 2023]
+Finished job 15.
+7 of 24 steps (29%) done
+[Tue Dec  5 18:02:35 2023]
+Finished job 13.
+8 of 24 steps (33%) done
+[Tue Dec  5 18:02:58 2023]
+Finished job 14.
+9 of 24 steps (38%) done
+[Tue Dec  5 18:02:58 2023]
+Finished job 16.
+10 of 24 steps (42%) done
+[Tue Dec  5 18:04:03 2023]
+Finished job 23.
+11 of 24 steps (46%) done
+[Tue Dec  5 18:05:31 2023]
+Finished job 9.
+12 of 24 steps (50%) done
+[Tue Dec  5 18:07:34 2023]
+Finished job 12.
+13 of 24 steps (54%) done
+[Tue Dec  5 18:07:44 2023]
+Finished job 11.
+14 of 24 steps (58%) done
+[Tue Dec  5 18:08:45 2023]
+Finished job 10.
+15 of 24 steps (62%) done
+[Tue Dec  5 18:10:25 2023]
+Finished job 8.
+16 of 24 steps (67%) done
+[Tue Dec  5 18:12:15 2023]
+Finished job 7.
+17 of 24 steps (71%) done
+[Tue Dec  5 18:13:45 2023]
+Finished job 6.
+18 of 24 steps (75%) done
+[Tue Dec  5 18:13:55 2023]
+Finished job 5.
+19 of 24 steps (79%) done
+[Tue Dec  5 18:16:35 2023]
+Finished job 3.
+20 of 24 steps (83%) done
+[Tue Dec  5 18:17:25 2023]
+Finished job 4.
+21 of 24 steps (88%) done
+[Tue Dec  5 18:20:16 2023]
+Finished job 1.
+22 of 24 steps (92%) done
+[Tue Dec  5 18:23:16 2023]
+Finished job 2.
+23 of 24 steps (96%) done
+
+[Tue Dec  5 18:23:16 2023]
+localrule all:
+    input: ../../data/pool_14/chr1/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr2/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr3/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr4/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr5/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr6/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr7/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr8/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr9/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr10/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr11/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr12/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr13/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr14/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr15/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr16/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr17/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr18/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr19/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr20/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr21/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chr22/pool_14_hipsci.genotype.vcf.gz, ../../data/pool_14/chrX/pool_14_hipsci.genotype.vcf.gz
+    jobid: 0
+
+[Tue Dec  5 18:23:16 2023]
+Finished job 0.
+24 of 24 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/log/2023-12-05T174836.287228.snakemake.log

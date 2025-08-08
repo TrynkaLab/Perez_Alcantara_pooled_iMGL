@@ -1,0 +1,16 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	concat_and_sort_genotype_vcf
+	2
+
+[Sun Mar 19 19:24:13 2023]
+Job 2: Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]' -o ../../logs/log_all_pools_concat_and_sort_genotype_vcf.%J.%I -e ../../errors/error_all_pools_concat_and_sort_genotype_vcf.%J.%I [comma]
+
+Submitted job 2 with external jobid 'Job <18454336> is submitted to queue <normal>.'.
+Terminating processes on user request, this might take some time.
+Will exit after finishing currently running jobs.
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/for_eQTL/.snakemake/log/2023-03-19T192413.418981.snakemake.log

@@ -1,0 +1,32 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	exonfilter_genotype_file
+	1	subset_variants
+	3
+
+[Mon Mar  4 09:38:57 2024]
+Job 2: Subsetting genotypes to exonic positions.
+
+Submitted job 2 with external jobid 'Job <49199134> is submitted to queue <normal>.'.
+[Mon Mar  4 09:39:47 2024]
+Error in rule exonfilter_genotype_file:
+    jobid: 2
+    output: ../../data/pool_14/pool_14.genotype.exonfiltered.vcf.gz
+    shell:
+        
+        echo "Subset to exon"
+        singularity exec --bind /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_14/         /software/teamtrynka/Demuxafy.sif vcftools         --gzvcf /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_14/pool_14.genotype.vcf.gz         --max-alleles 2         --remove-indels         --bed /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_14/genotypes/hg38exonsUCSC.bed         --recode         --recode-INFO-all         --out /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_14/pool_14.genotype.exonfiltered.vcf
+
+        /software/teamtrynka/conda/trynka-base/bin/bgzip /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/data/pool_14/pool_14.genotype.exonfiltered.vcf
+        
+        (exited with non-zero exit code)
+    cluster_jobid: Job <49199134> is submitted to queue <normal>.
+
+Error executing rule exonfilter_genotype_file on cluster (jobid: 2, external: Job <49199134> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/tmp.k3f18dpl/snakejob.exonfilter_genotype_file.2.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/log/2024-03-04T093857.308701.snakemake.log

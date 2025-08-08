@@ -1,0 +1,35 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	subset_hipsci_pool_14
+	1	subset_ipmar_pool_14
+	3
+
+[Tue Dec  5 15:26:04 2023]
+Job 1: Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub -G teamtrynka -q normal -n 2 -M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]' -o ../../logs/log_pool_donor_ids.%J.%I -e ../../errors/error_pool_donor_ids.%J.%I [comma]
+
+Submitted job 1 with external jobid 'Job <40461000> is submitted to queue <normal>.'.
+
+[Tue Dec  5 15:26:05 2023]
+Job 2: Extracting donors present in the pools.
+
+Submitted job 2 with external jobid 'Job <40461003> is submitted to queue <normal>.'.
+[Tue Dec  5 15:26:34 2023]
+Finished job 1.
+1 of 3 steps (33%) done
+[Tue Dec  5 15:26:34 2023]
+Finished job 2.
+2 of 3 steps (67%) done
+
+[Tue Dec  5 15:26:34 2023]
+localrule all:
+    input: ../../data/pool_15/pool_15_hipsci_donorIds.txt, ../../data/pool_15/pool_15_ipmar_donorNames.txt
+    jobid: 0
+
+[Tue Dec  5 15:26:34 2023]
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/.snakemake/log/2023-12-05T152604.563604.snakemake.log

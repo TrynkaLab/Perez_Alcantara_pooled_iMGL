@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+# Snakefile for running eQTL analysis on hiPSCI differentiation data
+
+# snakemake location:  /software/teamtrynka/conda/otar2065/bin/snakemake
+
+import os
+TREATMENT=["untreated", "IFN", "LPS"]
+
+
+rule all:
+    input:
+        #seurat_treatment="../../data/results/1.QC/filtered_media_merged_normalised_noRegression_LPS.rds",
+        for_diffexpr=expand("../../data/results/5.prepare_differential_expression_pseudobulks/expr_sum_counts_pseudobulk_pool13_{treatment}.tsv",treatment=TREATMENT)
+
+rule QC:
+    input:
+        unnormalised="../../data/results/1.QC/filtered_media_noRegression_list.rds"
+    output:'../../data/results/1.QC/filtered_media_merged_normalised_noRegression_LPS.rds'
+    message: "Differentiation efficiency QC."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/QC.%J.%I",
+        error="-e ../../errors/QC.%J.%I"
+    shell:"/software/R-4.1.0/bin/Rscript 1.QC.R"
+
+rule process_seurat_for_eqtl:
+    input:
+        seurat="../../data/results/1.QC_v5/{treatment}_filtered_harmony/{treatment}_filtered_harmony.Rds"
+    output:
+        for_diffexpr="../../data/results/5.prepare_differential_expression_pseudobulks/expr_sum_counts_pseudobulk_pool13_{treatment}.tsv"
+    message: "Processing seurat's object for DE analysis."
+    conda:"seuratv5"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log.process_seurat_for_DE.{treatment}.%J.%I",
+        error="-e ../../errors/error.process_seurat_for_DE.{treatment}.%J.%I",
+        output_dir="../../data/results/5.prepare_differential_expression_pseudobulks"
+    shell:
+     """
+     set +o pipefail;
+     /software/teamtrynka/conda/otar2065/bin/Rscript 5.prepare_differential_expression_pseudobulks.R \
+     {wildcards.treatment} {params.output_dir}
+    """

@@ -1,0 +1,35 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	calculate_b_estimate_MAD
+	4	count_alleles
+	4	estimate_weights
+	4	remove_dups_sort_bam
+	4	subset_and_index_bam
+	21
+
+[Sun Dec 31 17:27:50 2023]
+Job 21: Indexing bams.
+
+Submitted job 21 with external jobid 'Job <43496969> is submitted to queue <normal>.'.
+
+[Sun Dec 31 17:27:51 2023]
+Job 18: Indexing bams.
+
+Submitted job 18 with external jobid 'Job <43496970> is submitted to queue <normal>.'.
+
+[Sun Dec 31 17:27:51 2023]
+Job 20: Indexing bams.
+
+Submitted job 20 with external jobid 'Job <43496971> is submitted to queue <normal>.'.
+
+[Sun Dec 31 17:27:52 2023]
+Job 19: Indexing bams.
+
+Submitted job 19 with external jobid 'Job <43496972> is submitted to queue <normal>.'.
+Terminating processes on user request, this might take some time.
+Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

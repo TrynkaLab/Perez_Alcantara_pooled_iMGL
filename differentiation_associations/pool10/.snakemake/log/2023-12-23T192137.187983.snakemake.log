@@ -1,0 +1,211 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	5	calculate_b_estimate_MAD
+	5	count_alleles
+	5	cram_to_bam
+	5	estimate_weights
+	1	get_region_list
+	5	merge_lanes
+	5	remove_dups_sort_bam
+	5	subset_and_index_bam
+	37
+
+[Sat Dec 23 19:21:37 2023]
+Job 35: Cram to bam.
+
+Submitted job 35 with external jobid 'Job <42588258> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:21:37 2023]
+Job 34: Cram to bam.
+
+Submitted job 34 with external jobid 'Job <42588264> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:21:38 2023]
+Job 16: Getting region list for bam-readcount.
+
+Submitted job 16 with external jobid 'Job <42588272> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:21:38 2023]
+Job 32: Cram to bam.
+
+Submitted job 32 with external jobid 'Job <42588275> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:21:38 2023]
+Job 33: Cram to bam.
+
+Submitted job 33 with external jobid 'Job <42588281> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:21:39 2023]
+Job 36: Cram to bam.
+
+Submitted job 36 with external jobid 'Job <42588285> is submitted to queue <normal>.'.
+[Sat Dec 23 19:28:47 2023]
+Finished job 16.
+1 of 37 steps (3%) done
+[Sat Dec 23 19:35:28 2023]
+Finished job 32.
+2 of 37 steps (5%) done
+[Sat Dec 23 19:35:28 2023]
+Finished job 33.
+3 of 37 steps (8%) done
+
+[Sat Dec 23 19:35:28 2023]
+Job 27: Merging lanes.
+
+Submitted job 27 with external jobid 'Job <42595790> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:35:28 2023]
+Job 28: Merging lanes.
+
+Submitted job 28 with external jobid 'Job <42595795> is submitted to queue <normal>.'.
+[Sat Dec 23 19:35:58 2023]
+Finished job 34.
+4 of 37 steps (11%) done
+
+[Sat Dec 23 19:35:58 2023]
+Job 29: Merging lanes.
+
+Submitted job 29 with external jobid 'Job <42596055> is submitted to queue <normal>.'.
+[Sat Dec 23 19:36:38 2023]
+Finished job 35.
+5 of 37 steps (14%) done
+[Sat Dec 23 19:36:38 2023]
+Finished job 36.
+6 of 37 steps (16%) done
+
+[Sat Dec 23 19:36:38 2023]
+Job 30: Merging lanes.
+
+Submitted job 30 with external jobid 'Job <42596393> is submitted to queue <normal>.'.
+
+[Sat Dec 23 19:36:38 2023]
+Job 31: Merging lanes.
+
+Submitted job 31 with external jobid 'Job <42596398> is submitted to queue <normal>.'.
+[Sat Dec 23 19:41:28 2023]
+Finished job 28.
+7 of 37 steps (19%) done
+
+[Sat Dec 23 19:41:28 2023]
+Job 23: Indexing bams.
+
+Submitted job 23 with external jobid 'Job <42598456> is submitted to queue <normal>.'.
+[Sat Dec 23 19:42:08 2023]
+Finished job 27.
+8 of 37 steps (22%) done
+
+[Sat Dec 23 19:42:08 2023]
+Job 22: Indexing bams.
+
+Submitted job 22 with external jobid 'Job <42598794> is submitted to queue <normal>.'.
+[Sat Dec 23 19:42:58 2023]
+Finished job 29.
+9 of 37 steps (24%) done
+
+[Sat Dec 23 19:42:58 2023]
+Job 24: Indexing bams.
+
+Submitted job 24 with external jobid 'Job <42599235> is submitted to queue <normal>.'.
+[Sat Dec 23 19:43:29 2023]
+Finished job 31.
+10 of 37 steps (27%) done
+
+[Sat Dec 23 19:43:29 2023]
+Job 26: Indexing bams.
+
+Submitted job 26 with external jobid 'Job <42599489> is submitted to queue <normal>.'.
+[Sat Dec 23 19:44:29 2023]
+Finished job 30.
+11 of 37 steps (30%) done
+
+[Sat Dec 23 19:44:29 2023]
+Job 25: Indexing bams.
+
+Submitted job 25 with external jobid 'Job <42599998> is submitted to queue <normal>.'.
+[Sat Dec 23 19:59:00 2023]
+Error in rule subset_and_index_bam:
+    jobid: 23
+    output: ../../../data/bams/pool10/P10a_D0_iPSC_190822.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/merged_P10a_D0_iPSC_190822.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool10/merged_P10a_D0_iPSC_190822.bam chr{1..22} chrX > ../../../data/bams/P10a_D0_iPSC_190822.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/P10a_D0_iPSC_190822.bam ../../../data/bams/pool10/P10a_D0_iPSC_190822.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <42598456> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 23, external: Job <42598456> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/tmp.poa8hpry/snakejob.subset_and_index_bam.23.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sat Dec 23 19:59:20 2023]
+Error in rule subset_and_index_bam:
+    jobid: 22
+    output: ../../../data/bams/pool10/P10a_D43_PreMac_071022.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/merged_P10a_D43_PreMac_071022.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool10/merged_P10a_D43_PreMac_071022.bam chr{1..22} chrX > ../../../data/bams/P10a_D43_PreMac_071022.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/P10a_D43_PreMac_071022.bam ../../../data/bams/pool10/P10a_D43_PreMac_071022.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <42598794> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 22, external: Job <42598794> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/tmp.poa8hpry/snakejob.subset_and_index_bam.22.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sat Dec 23 20:01:10 2023]
+Error in rule subset_and_index_bam:
+    jobid: 24
+    output: ../../../data/bams/pool10/P10a_D50_PreMac_141022.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/merged_P10a_D50_PreMac_141022.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool10/merged_P10a_D50_PreMac_141022.bam chr{1..22} chrX > ../../../data/bams/P10a_D50_PreMac_141022.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/P10a_D50_PreMac_141022.bam ../../../data/bams/pool10/P10a_D50_PreMac_141022.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <42599235> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 24, external: Job <42599235> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/tmp.poa8hpry/snakejob.subset_and_index_bam.24.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sat Dec 23 20:02:50 2023]
+Error in rule subset_and_index_bam:
+    jobid: 26
+    output: ../../../data/bams/pool10/P10a_D36_PreMac_300922.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/merged_P10a_D36_PreMac_300922.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool10/merged_P10a_D36_PreMac_300922.bam chr{1..22} chrX > ../../../data/bams/P10a_D36_PreMac_300922.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/P10a_D36_PreMac_300922.bam ../../../data/bams/pool10/P10a_D36_PreMac_300922.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <42599489> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 26, external: Job <42599489> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/tmp.poa8hpry/snakejob.subset_and_index_bam.26.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sat Dec 23 20:05:10 2023]
+Error in rule subset_and_index_bam:
+    jobid: 25
+    output: ../../../data/bams/pool10/P10a_D54_PreMac_181022.bam.bai
+    shell:
+        
+		set +o pipefail;
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/merged_P10a_D54_PreMac_181022.bam
+        /software/teamtrynka/conda/trynka-base/bin/samtools view -@ 32 -b ../../../data/bams/pool10/merged_P10a_D54_PreMac_181022.bam chr{1..22} chrX > ../../../data/bams/P10a_D54_PreMac_181022.bam
+		/software/teamtrynka/conda/trynka-base/bin/samtools index -@ 32 ../../../data/bams/pool10/P10a_D54_PreMac_181022.bam ../../../data/bams/pool10/P10a_D54_PreMac_181022.bam.bai
+
+		
+        (exited with non-zero exit code)
+    cluster_jobid: Job <42599998> is submitted to queue <normal>.
+
+Error executing rule subset_and_index_bam on cluster (jobid: 25, external: Job <42599998> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/tmp.poa8hpry/snakejob.subset_and_index_bam.25.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool10/.snakemake/log/2023-12-23T192137.187983.snakemake.log

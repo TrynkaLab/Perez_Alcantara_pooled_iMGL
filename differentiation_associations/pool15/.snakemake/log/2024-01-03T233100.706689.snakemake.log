@@ -1,0 +1,149 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	calculate_b_estimate_MAD
+	4	count_alleles
+	4	estimate_weights
+	4	remove_dups_sort_bam
+	17
+
+[Wed Jan  3 23:31:01 2024]
+Job 17: Remove duplicates with picard, and sort.
+
+Submitted job 17 with external jobid 'Job <43826487> is submitted to queue <normal>.'.
+
+[Wed Jan  3 23:31:01 2024]
+Job 14: Remove duplicates with picard, and sort.
+
+Submitted job 14 with external jobid 'Job <43826488> is submitted to queue <normal>.'.
+
+[Wed Jan  3 23:31:02 2024]
+Job 16: Remove duplicates with picard, and sort.
+
+Submitted job 16 with external jobid 'Job <43826489> is submitted to queue <normal>.'.
+
+[Wed Jan  3 23:31:02 2024]
+Job 15: Remove duplicates with picard, and sort.
+
+Submitted job 15 with external jobid 'Job <43826490> is submitted to queue <normal>.'.
+[Thu Jan  4 00:35:26 2024]
+Finished job 17.
+1 of 17 steps (6%) done
+
+[Thu Jan  4 00:35:26 2024]
+Job 12: Counting alleles with bam-readcount.
+
+Submitted job 12 with external jobid 'Job <43828529> is submitted to queue <normal>.'.
+[Thu Jan  4 00:48:07 2024]
+Finished job 14.
+2 of 17 steps (12%) done
+
+[Thu Jan  4 00:48:07 2024]
+Job 9: Counting alleles with bam-readcount.
+
+Submitted job 9 with external jobid 'Job <43828807> is submitted to queue <normal>.'.
+[Thu Jan  4 01:30:40 2024]
+Finished job 16.
+3 of 17 steps (18%) done
+
+[Thu Jan  4 01:30:40 2024]
+Job 11: Counting alleles with bam-readcount.
+
+Submitted job 11 with external jobid 'Job <43829731> is submitted to queue <normal>.'.
+[Thu Jan  4 03:52:30 2024]
+Finished job 15.
+4 of 17 steps (24%) done
+
+[Thu Jan  4 03:52:30 2024]
+Job 10: Counting alleles with bam-readcount.
+
+Submitted job 10 with external jobid 'Job <43831943> is submitted to queue <normal>.'.
+[Thu Jan  4 06:46:33 2024]
+Finished job 9.
+5 of 17 steps (29%) done
+
+[Thu Jan  4 06:46:33 2024]
+Job 5: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 5 with external jobid 'Job <43837233> is submitted to queue <normal>.'.
+[Thu Jan  4 06:59:03 2024]
+Finished job 5.
+6 of 17 steps (35%) done
+
+[Thu Jan  4 06:59:03 2024]
+Job 1: Estimate proportion (weights) of donors.
+
+Submitted job 1 with external jobid 'Job <43838248> is submitted to queue <normal>.'.
+[Thu Jan  4 06:59:54 2024]
+Finished job 1.
+7 of 17 steps (41%) done
+[Thu Jan  4 07:19:25 2024]
+Finished job 12.
+8 of 17 steps (47%) done
+
+[Thu Jan  4 07:19:25 2024]
+Job 8: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 8 with external jobid 'Job <43838609> is submitted to queue <normal>.'.
+[Thu Jan  4 07:30:16 2024]
+Finished job 8.
+9 of 17 steps (53%) done
+
+[Thu Jan  4 07:30:16 2024]
+Job 4: Estimate proportion (weights) of donors.
+
+Submitted job 4 with external jobid 'Job <43838781> is submitted to queue <normal>.'.
+[Thu Jan  4 07:30:56 2024]
+Finished job 4.
+10 of 17 steps (59%) done
+[Thu Jan  4 08:46:01 2024]
+Finished job 11.
+11 of 17 steps (65%) done
+
+[Thu Jan  4 08:46:01 2024]
+Job 7: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 7 with external jobid 'Job <43841792> is submitted to queue <normal>.'.
+[Thu Jan  4 08:58:02 2024]
+Finished job 7.
+12 of 17 steps (71%) done
+
+[Thu Jan  4 08:58:02 2024]
+Job 3: Estimate proportion (weights) of donors.
+
+Submitted job 3 with external jobid 'Job <43842156> is submitted to queue <normal>.'.
+[Thu Jan  4 08:59:12 2024]
+Finished job 3.
+13 of 17 steps (76%) done
+[Thu Jan  4 09:58:05 2024]
+Finished job 10.
+14 of 17 steps (82%) done
+
+[Thu Jan  4 09:58:05 2024]
+Job 6: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 6 with external jobid 'Job <43843442> is submitted to queue <normal>.'.
+[Thu Jan  4 10:09:56 2024]
+Finished job 6.
+15 of 17 steps (88%) done
+
+[Thu Jan  4 10:09:56 2024]
+Job 2: Estimate proportion (weights) of donors.
+
+Submitted job 2 with external jobid 'Job <43843730> is submitted to queue <normal>.'.
+[Thu Jan  4 10:12:06 2024]
+Finished job 2.
+16 of 17 steps (94%) done
+
+[Thu Jan  4 10:12:06 2024]
+localrule all:
+    input: ../../../data/w/pool15/P15_D49_PreMac_170823_w_estimate.txt, ../../../data/w/pool15/P15_D39_PreMac_070823_w_estimate.txt, ../../../data/w/pool15/P15_D36_PreMac_040823_w_estimate.txt, ../../../data/w/pool15/P15_D0_iPSC_230623_w_estimate.txt
+    jobid: 0
+
+[Thu Jan  4 10:12:06 2024]
+Finished job 0.
+17 of 17 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool15/.snakemake/log/2024-01-03T233100.706689.snakemake.log

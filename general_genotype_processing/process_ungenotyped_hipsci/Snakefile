@@ -1,0 +1,730 @@
+#!/usr/bin/env python3
+# Snakefile for creating genotype VCF from WGS from ungenotyped donors
+# per chromosome
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+import numpy as np
+
+SAMPLE = ["aowh_2","curn_3","iukl_1","kolf2_1s"]
+LANE = ["L001","L002"]
+CHR = [i for i in np.arange(1, 23, 1)] + ["X"]
+CHR2 = [i for i in np.arange(1, 13, 1)] + [i for i in np.arange(14, 18, 1)] + [i for i in np.arange(19, 22, 1)]
+IMP = ["HRC","1K_10K"]
+rule all:
+        input:
+            #recal=expand("../../data/ungenotyped_donors/bam/merged/recal_{sample}.bam",sample=SAMPLE),
+            #coverage=expand("../../data/ungenotyped_donors/QC/coverage_{sample}.txt",sample=SAMPLE),
+            #qc="../../data/ungenotyped_donors/QC/multiqc_report.html",
+            genotype=expand("../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/Bellenguez_checked.vcf.gz",imp=IMP),
+            #subset="../../data/ungenotyped_donors/deepvariant_nextflow/AD_DV_output_hg19.vcf.gz"
+            
+
+
+rule rename_samples:
+        output:
+            renamed_sample="../../data/ungenotyped_donors/fastq/kolf2_1s_L002_R2_001.fastq.gz"
+        message: "Rename samples in fastqs"
+        params:
+            group="-G teamtrynka",
+            queue="-q small",
+            threads="-n 1",
+            memory="-M400 -R'span[hosts=1] select[mem>400] rusage[mem=400]'",
+            jobname= "-o ../../logs/log_rename_samples.%J.%I",
+            error="-e ../../errors/error_rename_samples.%J.%I"
+        shell:
+                """
+                mkdir -p ../../logs
+                mkdir -p ../../errors
+                # Change to the fastq directory
+                cd ../../data/ungenotyped_donors/fastq
+                # Rename files matching the patterns
+                rename 's/aowh-2-WGS_S2/aowh_2/' aowh-2*
+                rename 's/curn-3-WGS_S3/curn_3/' curn-3*
+                rename 's/iukl-1-WGS_S4/iukl_1/' iukl-1*
+                rename 's/kolf2-1s-WGS_S1/kolf2_1s/' kolf2-1s*
+                """
+# tried sarek nexflow with singularity, problems downloading resources
+# running steps manually
+rule fastq_to_unmapped_bam:
+        input:
+                fastq_R1="../../data/ungenotyped_donors/fastq/{sample}_L001_R1_001.fastq.gz",
+                fastq_R2="../../data/ungenotyped_donors/fastq/{sample}_L001_R2_001.fastq.gz",
+                fastq_lane2_R1="../../data/ungenotyped_donors/fastq/{sample}_L002_R1_001.fastq.gz",
+                fastq_lane2_R2="../../data/ungenotyped_donors/fastq/{sample}_L002_R2_001.fastq.gz"
+        output:
+                bam="../../data/ungenotyped_donors/bam/{sample}_L001.bam",
+                bam_lane2="../../data/ungenotyped_donors/bam/{sample}_L002.bam"
+        message: "Convert fastqs to unmapped bams with proper header information."
+        params:
+                group="-G teamtrynka",
+                queue="-q normal",
+                threads="-n 16",
+                memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+                jobname= "-o ../../logs/log_fastq_to_unmapped_bam.{sample}.%J.%I",
+                error="-e ../../errors/error_fastq_to_unmapped_bam.{sample}.%J.%I"
+        shell:
+                """
+                # Picard v. 2.21.4
+                # first lane
+                /software/teamtrynka/picard.jar FastqToSam \
+                FASTQ={input.fastq_R1} \
+                FASTQ2={input.fastq_R2} \
+                OUTPUT={output.bam} \
+                READ_GROUP_NAME=H3V2YDRX3.1 \
+                SAMPLE_NAME={wildcards.sample} \
+                LIBRARY_NAME=NovaSeq6000 \
+                PLATFORM_UNIT=A00715.1 \
+                PLATFORM=illumina \
+                SEQUENCING_CENTER=SANGER
+
+                # second lane
+                /software/teamtrynka/picard.jar FastqToSam \
+                FASTQ={input.fastq_lane2_R1} \
+                FASTQ2={input.fastq_lane2_R2} \
+                OUTPUT={output.bam_lane2} \
+                READ_GROUP_NAME=H3V2YDRX3.2 \
+                SAMPLE_NAME={wildcards.sample} \
+                LIBRARY_NAME=NovaSeq6000 \
+                PLATFORM_UNIT=A00715.2 \
+                PLATFORM=illumina \
+                SEQUENCING_CENTER=SANGER
+                """
+rule mark_adapters:
+    input:
+        bam="../../data/ungenotyped_donors/bam/{sample}_{lane}.bam",
+    output:
+        adapter_m="../../data/ungenotyped_donors/bam/{sample}_{lane}_markilluminaadapters.bam"
+    message: "Marking illumina adapters per lane."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_mark_adapters.%J.%I",
+        error="-e ../../errors/error_mark_adapters.%J.%I",
+        temp="../../data/ungenotyped_donors/bam/tmp"
+    shell:
+        """
+        # Picard v. 2.21.4
+        /software/teamtrynka/picard.jar MarkIlluminaAdapters \
+        INPUT={input.bam} \
+        OUTPUT={output.adapter_m} \
+        METRICS=../../data/ungenotyped_donors/bam/{wildcards.sample}_{wildcards.lane}_snippet_markilluminaadapters_metrics.txt
+        """
+
+rule index_ref:
+    input:
+        ref="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
+    output:
+        index="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.pac"
+    message: "Indexing the reference with bwa-mem2. Conda activate hgi_base first?"
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_index_ref.%J.%I",
+        error="-e ../../errors/error_index_ref.%J.%I",
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+        # bwa-mem2 version 2.0
+        /software/hgi/installs/anaconda3/envs/hgi_base/bin/bwa-mem2 index \
+        -p {params.prefix} \
+        {input.ref}
+        """
+rule bam_to_fastq:
+    input:
+        adapter_m="../../data/ungenotyped_donors/bam/{sample}_{lane}_markilluminaadapters.bam"
+    output:
+        fastq="../../data/ungenotyped_donors/fastq/{sample}_{lane}_interleaved.fastq"
+    message: "Bam to fastq for mapping."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_bam_to_fastq.{sample}.%J.%I",
+        error="-e ../../errors/error_bam_to_fastq.{sample}.%J.%I",
+        bwa_threads=16,
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+        ### see https://gatk.broadinstitute.org/hc/en-us/articles/360039568932
+        # Picard v. 2.21.4
+        /software/teamtrynka/picard.jar SamToFastq \
+        I={input.adapter_m} \
+        FASTQ={output.fastq} \
+        CLIPPING_ATTRIBUTE=XT CLIPPING_ACTION=2 INTERLEAVE=true NON_PF=true
+        """
+
+rule map:
+    input:
+        fastq="../../data/ungenotyped_donors/fastq/{sample}_{lane}_interleaved.fastq",
+        index="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.pac"
+    output:
+        mapped="../../data/ungenotyped_donors/bam/{sample}_{lane}_mapped.bam"
+    message: "Mapping with bwa-mem2."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_map.{sample}.%J.%I",
+        error="-e ../../errors/error_map.{sample}.%J.%I",
+        bwa_threads=16,
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+        ###
+        # Picard v. 2.21.4
+        # bwa-mem2 version 2.0
+        /software/hgi/installs/anaconda3/envs/hgi_base/bin/bwa-mem2 mem -M -t {params.bwa_threads} -p\
+        -o {output.mapped} \
+        {params.prefix} {input.fastq}
+
+        """
+
+rule merge_bam_alignment:
+    input:
+        bam="../../data/ungenotyped_donors/bam/{sample}_{lane}.bam",
+        mapped="../../data/ungenotyped_donors/bam/{sample}_{lane}_mapped.bam"
+    output:
+        merged_al="../../data/ungenotyped_donors/bam/{sample}_{lane}_merged_alignments.bam"
+    message: "Adjusts proper pair and mate unmapped flags for multimapping pairs, to conserve read data, e.g. original read information and base quality scores."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_merge_bam_alignment.{sample}.{lane}.%J.%I",
+        error="-e ../../errors/error_merge_bam_alignment.{sample}.{lane}.%J.%I",
+        bwa_threads=16,
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+        ###
+        # Picard v. 2.21.4
+        /software/teamtrynka/picard.jar MergeBamAlignment \
+        ALIGNED_BAM={input.mapped} \
+        UNMAPPED_BAM={input.bam} \
+        OUTPUT={output.merged_al} \
+        R={params.prefix}.fa \
+        CREATE_INDEX=true ADD_MATE_CIGAR=true \
+        CLIP_ADAPTERS=false CLIP_OVERLAPPING_READS=true \
+        INCLUDE_SECONDARY_ALIGNMENTS=true MAX_INSERTIONS_OR_DELETIONS=-1 \
+        PRIMARY_ALIGNMENT_STRATEGY=MostDistant ATTRIBUTES_TO_RETAIN=XS
+
+        """
+
+rule sort:
+    input:
+        merged_al="../../data/ungenotyped_donors/bam/{sample}_{lane}_merged_alignments.bam"
+    output:
+        sorted="../../data/ungenotyped_donors/bam/{sample}_{lane}_sorted.bam"
+    message: "Sorting."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_sort.{sample}.%J.%I",
+        error="-e ../../errors/error_sort.{sample}.%J.%I",
+        samtools_threads=16,
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+
+        /software/teamtrynka/conda/trynka-base/bin/samtools sort \
+        --threads {params.samtools_threads} \
+        -o {output.sorted} {input.merged_al}
+
+        """
+
+rule mark_duplicates:
+    input:
+        sorted="../../data/ungenotyped_donors/bam/{sample}_{lane}_sorted.bam"
+    output:
+        dup_marked="../../data/ungenotyped_donors/bam/{sample}_{lane}_dedup.bam"
+    message: "Mark optical duplicates."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_mark_duplicates.%J.%I",
+        error="-e ../../errors/error_mark_duplicates.%J.%I",
+        mem=100
+    shell:
+        """
+        # Picard v. 2.21.4
+        /software/teamtrynka/picard.jar \
+        MarkDuplicates \
+        I={input.sorted} \
+        O={output.dup_marked} \
+        METRICS_FILE=../../data/ungenotyped_donors/bam/{wildcards.sample}_{wildcards.lane}_dedup_metrics.txt
+        """
+
+rule merge_lanes:
+    input:
+        dup_marked_L1="../../data/ungenotyped_donors/bam/{sample}_L001_dedup.bam",
+        dup_marked_L2="../../data/ungenotyped_donors/bam/{sample}_L002_dedup.bam"
+    output:
+        merged_l="../../data/ungenotyped_donors/bam/merged/merged_{sample}.bam"
+    message: "Merging lanes."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_merge_lanes.{sample}.%J.%I",
+        error="-e ../../errors/error_merge_lanes.{sample}.%J.%I",
+        samtools_threads=16,
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+
+        /software/teamtrynka/conda/trynka-base/bin/samtools merge \
+        --threads {params.samtools_threads} \
+        ../../data/ungenotyped_donors/bam/merged/{wildcards.sample}_tmp.bam {input.dup_marked_L1} {input.dup_marked_L2}
+
+        /software/teamtrynka/conda/trynka-base/bin/samtools sort \
+        --threads {params.samtools_threads} \
+        -o {output.merged_l} ../../data/ungenotyped_donors/bam/merged/{wildcards.sample}_tmp.bam
+
+        rm ../../data/ungenotyped_donors/bam/merged/{wildcards.sample}_tmp.bam
+
+        """
+rule mark_duplicates_merged:
+    input:
+        merged_l="../../data/ungenotyped_donors/bam/merged/merged_{sample}.bam"
+    output:
+        dup_marked_l="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam"
+    message: "Mark PCR duplicates on bam after merging lanes."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_mark_duplicates_merged.{sample}.%J.%I",
+        error="-e ../../errors/error_mark_duplicates_merged.{sample}.%J.%I"
+    shell:
+        """
+        # see here for explanation of metrics https://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics
+        # Picard v. 2.21.4
+        /software/teamtrynka/picard.jar \
+        MarkDuplicates \
+        I={input.merged_l} \
+        O={output.dup_marked_l} \
+        METRICS_FILE=../../data/ungenotyped_donors/bam/merged/{wildcards.sample}_dedup_metrics.txt
+        """
+
+rule dictionary_ref:
+    input:
+        ref="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
+    output:
+        dict="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.dict",
+        ref_unc="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa",
+        ref_unc_index="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.fai"
+    message: "Create dictionary for the reference genome (used in base recalibration). Do conda activate gatk-env first."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_dictionary_ref.%J.%I",
+        error="-e ../../errors/error_dictionary_ref.%J.%I",
+        prefix="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly"
+    shell:
+        """
+
+        gunzip -c {input.ref} > {output.ref_unc}
+        # using GATK v.4-4.0.5.1-0
+        gatk CreateSequenceDictionary \
+        -R {output.ref_unc} \
+        -O {output.dict}
+
+        # re-index
+        # samtools 1.9
+        /software/teamtrynka/conda/trynka-base/bin/samtools faidx {output.ref_unc}
+
+        """
+
+rule index_vcf:
+    input:
+        known_dbsnp="/lustre/scratch123/hgi/teams/trynka/resources/dbsnp/151/b38/All_20180418.vcf.gz",
+    output:
+        known_dbsnp_idx="/lustre/scratch123/hgi/teams/trynka/resources/dbsnp/151/b38/All_20180418.vcf.gz.tbi"
+    message: "Indexing dbSNP file. Run conda activate gatk-env first."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 4",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_index_vcf.%J.%I",
+        error="-e ../../errors/error_index_vcf.%J.%I"
+    shell:
+        """
+        # using GATK v.4-4.0.5.1-0
+        # using dbSNP 151 GRCh38 - all variants (even MAF <1%)
+        gatk IndexFeatureFile \
+        -F {input.known_dbsnp}
+
+        """
+rule index_bam:
+    input:
+        dup_marked_l="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam"
+    output:
+        dup_marked_indexed="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam.bai"
+    message: "Indexing bam file."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_index_bam.%J.%I",
+        error="-e ../../errors/error_index_bam.%J.%I",
+        samtools_threads=16
+    shell:
+        """
+        /software/teamtrynka/conda/trynka-base/bin/samtools index \
+        -@ {params.samtools_threads} \
+        {input.dup_marked_l} {output.dup_marked_indexed}
+
+        """
+
+rule base_recalibration:
+    input:
+        dup_marked_l="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam",
+        dup_marked_indexed="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam.bai",
+        ref_unc="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa",
+        known_dbsnp="/lustre/scratch123/hgi/teams/trynka/resources/dbsnp/151/b38/All_20180418.vcf.gz",
+        known_dbsnp_idx="/lustre/scratch123/hgi/teams/trynka/resources/dbsnp/151/b38/All_20180418.vcf.gz.tbi",
+        dict="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.dict"
+    output:
+        recal_table="../../data/ungenotyped_donors/recal/{sample}.table"
+    message: "Base recalibration."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 4",
+        memory="-M200000 -R'span[hosts=1] select[mem>200000] rusage[mem=200000]'",
+        jobname= "-o ../../logs/log_{sample}_base_recalibration.%J.%I",
+        error="-e ../../errors/error_{sample}_base_recalibration.%J.%I"
+    shell:
+        """
+        # using dbSNP 151 GRCh38 - all variants (even MAF <1%)
+        # Generate recalibration table for Base Quality Score Recalibration (BQSR)
+
+        # needs uncompressed reference
+
+        /software/cellgeni/wrappers/gatk-4.5.0.0/gatk BaseRecalibrator \
+        -I {input.dup_marked_l} \
+        -R {input.ref_unc} \
+        -known-sites {input.known_dbsnp} \
+        -O {output.recal_table}
+
+        """
+rule base_recalibration_part2:
+    input:
+        dup_marked_l="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam",
+        dup_marked_l_index="../../data/ungenotyped_donors/bam/merged/dedup_{sample}.bam.bai",
+        ref_unc="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa",
+        recal_table="../../data/ungenotyped_donors/recal/{sample}.table"
+    output:
+        recal_bam="../../data/ungenotyped_donors/bam/merged/recal_{sample}.bam"
+    message: "Apply base quality score recalibration (BSQR) using table from previous step. Run conda activate gatk-env first."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 4",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{sample}_base_recalibration_part2.%J.%I",
+        error="-e ../../errors/error_{sample}_base_recalibration_part2.%J.%I"
+    shell:
+        """
+       
+        /software/cellgeni/wrappers/gatk-4.5.0.0/gatk ApplyBQSR \
+        -R {input.ref_unc} \
+        -I {input.dup_marked_l} \
+        --bqsr-recal-file {input.recal_table} \
+        -O {output.recal_bam}
+
+        """
+rule qc:
+    input:
+        recal_bam="../../data/ungenotyped_donors/bam/merged/recal_{sample}.bam"
+    output:
+        coverage="../../data/ungenotyped_donors/QC/coverage_{sample}.txt"
+    message: "QC"
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 16",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log_qc.%J.%I",
+        error="-e ../../errors/error_qc.%J.%I",
+        samtools_threads=16
+    shell:
+        """
+        /software/teamtrynka/conda/trynka-base/bin/samtools flagstat --threads {params.samtools_threads} {input.recal_bam} > ../../data/ungenotyped_donors/QC/flagstat_{wildcards.sample}.txt
+        /software/teamtrynka/conda/trynka-base/bin/samtools idxstats --threads {params.samtools_threads} {input.recal_bam} > ../../data/ungenotyped_donors/QC/idxstats_{wildcards.sample}.txt
+        /software/teamtrynka/conda/trynka-base/bin/samtools coverage --threads {params.samtools_threads} {input.recal_bam} > ../../data/ungenotyped_donors/QC/coverage_{wildcards.sample}.txt
+        """
+rule multiqc:
+    input:
+        coverage="../../data/ungenotyped_donors/QC/coverage_{sample}.txt"
+    output:
+        multiqc="../../data/ungenotyped_donors/QC/multiqc_report.html"
+    message: "multiQC"
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log_multiqc.%J.%I",
+        error="-e ../../errors/error_multiqc.%J.%I"
+    shell:
+        """
+        /software/hgi/installs/anaconda3/envs/hgi_base/bin/fastqc ../../data/ungenotyped_donors/fastq/*fastq.gz -o ../../data/ungenotyped_donors/QC
+        /software/hgi/installs/anaconda3/envs/sjl/bin/multiqc ../../data/ungenotyped_donors/QC/ -o ../../data/ungenotyped_donors/QC
+        """
+# then run deepvariant to get the variant calling and GLNexus to jointly call the gVCFs
+# the output ../../data/ungenotyped_donors/deepvariant_nextflow/DV_output.vcf.gz has ~8 million variants
+# then we convert to hg19 before imputation
+
+rule trim_to_Bellenguez_regions:
+    input:
+        regions="5Mb_near_Bellenguez_AD_regions.txt",
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/DV_output.vcf.gz"
+    output:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/AD_DV_output.vcf.gz"
+    message: "Slimming down to near AD variants (within 250kb) (Bellenguez GWAS) to facilitate imputation."
+    params:
+        group="-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M40000 -R'span[hosts=1] select[mem>40000] rusage[mem=40000]'",
+        jobname= "-o ../../logs/log_trim_to_Bellenguez_regions.%J.%I",
+        error="-e ../../errors/error_trim_to_Bellenguez_regions.%J.%I"
+    shell:
+        """
+        ~/bin/bcftools-1.18/bcftools view -R {input.regions} --threads 2 {input.vcf} -Oz -o {output.vcf}
+        ~/bin/bcftools-1.18/bcftools index {output.vcf}   
+        """
+
+rule liftover_hg38_hg19:
+    input:
+        genotype="../../data/ungenotyped_donors/deepvariant_nextflow/AD_DV_output.vcf.gz"
+    output:
+        genotype="../../data/ungenotyped_donors/deepvariant_nextflow/AD_DV_output_hg19.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38). Run with snakemake --jobs 1 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+        jobname= "-o ../../logs/log_ungenotyped_donors_liftover_hg19_hg38.%J.%I",
+        error="-e ../../errors/error_ungenotyped_donors_liftover_hg19_hg38.%J.%I",
+        chain="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chain/hg38ToHg19.over.chain",
+        fasta="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg19.fa.gz",
+        dict="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg19.dict"
+    shell:
+        """
+        set +o pipefail;
+	    #echo "Creating dictionary..."
+	    #/software/teamtrynka/picard.jar CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+	    echo "Adding chr to first column"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools annotate --rename-chrs \
+        ../../data/ungenotyped_donors/add_chr.txt {input.genotype} > ../../data/ungenotyped_donors/deepvariant_nextflow/temp_nochr.vcf
+
+        echo "Lifting over..."
+	    /software/teamtrynka/picard.jar LiftoverVcf \
+	    I=../../data/ungenotyped_donors/deepvariant_nextflow/temp_nochr.vcf \
+	    O=../../data/ungenotyped_donors/deepvariant_nextflow/temp_liftedOver.vcf \
+	    CHAIN={params.chain} \
+	    REJECT=../../data/ungenotyped_donors/deepvariant_nextflow/rejected_variants.vcf \
+	    R={params.fasta} \
+	    MAX_RECORDS_IN_RAM=100000
+
+        echo "Removing chr for imputation"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools annotate \
+        --rename-chrs ../../data/ungenotyped_donors/rm_chr.txt ../../data/ungenotyped_donors/deepvariant_nextflow/temp_liftedOver.vcf -Oz -o ../../data/ungenotyped_donors/deepvariant_nextflow/temp_liftedOver_nochr.vcf.gz
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index ../../data/ungenotyped_donors/deepvariant_nextflow/temp_liftedOver_nochr.vcf.gz
+
+        echo "Retaining regions of interest"
+         /software/teamtrynka/conda/trynka-base/bin/bcftools view --regions 1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,19,20,21 \
+         ../../data/ungenotyped_donors/deepvariant_nextflow/temp_liftedOver_nochr.vcf.gz \
+         -Oz -o ../../data/ungenotyped_donors/deepvariant_nextflow/temp_withCNV.vcf.gz
+         ~/bin/bcftools-1.18/bcftools index ../../data/ungenotyped_donors/deepvariant_nextflow/temp_withCNV.vcf.gz
+         # removing rows with missing information
+         ~/bin/bcftools-1.18/bcftools view  ../../data/ungenotyped_donors/deepvariant_nextflow/temp_withCNV.vcf.gz | grep -v CNV > ../../data/ungenotyped_donors/deepvariant_nextflow/temp.vcf
+         ~/bin/bcftools-1.18/bcftools view ../../data/ungenotyped_donors/deepvariant_nextflow/temp.vcf \
+         -Oz -o {output.genotype}
+        echo "Generating index file"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+        rm ../../data/ungenotyped_donors/deepvariant_nextflow/temp_*
+
+    """
+
+### now impute in Sanger imputation service
+# then check and join back into main VCF
+
+rule concat_vcf:
+    input:
+        chrom_vcf=expand("../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/HRC/{chr}.vcf.gz",chr=CHR2)
+    output:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/{imp}/AD_{imp}_GRCh37.vcf.gz",
+        index="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/{imp}/AD_{imp}_GRCh37.vcf.gz.csi"
+    message: "Concatenating phased and imputed genotype from wgs lines."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+        jobname= "-o ../../logs/log_concat_vcf.%J.%I",
+        error="-e ../../errors/error_concat_vcf.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+        ~/bin/bcftools-1.18/bcftools concat -Oz -o {output.vcf} {input.chrom_vcf}
+        ~/bin/bcftools-1.18/bcftools index {output.vcf}
+        
+        """
+
+rule liftover_hg19_hg38:
+    input:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/{imp}/AD_{imp}_GRCh37.vcf.gz",
+        index="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/{imp}/AD_{imp}_GRCh37.vcf.gz.csi"
+    output:
+        genotype="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/{imp}/AD_{imp}_GRCh38.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+        jobname= "-o ../../logs/log_liftover_hg19_hg38.%J.%I",
+        error="-e ../../errors/error_liftover_hg19_hg38.%J.%I",
+        chain="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chain/hg19ToHg38.over.chain",
+        fasta="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.fa.gz",
+        dict="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.dict",
+        recoding="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chromosome_mappings_hg19_to_b37/GRCh37_UCSC2ensembl_b37tohg19.txt"
+    shell:
+        """
+        set +o pipefail;
+        #echo "Creating dictionary..."
+        #/software/teamtrynka/picard.jar CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+        echo "Changing vcf from bg37 to hg19"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools annotate --rename-chrs {params.recoding} -o {wildcards.imp}_temp_chrChange.vcf {input.vcf}
+
+        # remove some lines of vcf - malformed in the last step for some reason
+        #head -n -1 temp_chrChange.vcf > temp.vcf ; mv temp.vcf temp_chrChange.vcf
+        #/software/teamtrynka/conda/trynka-base/bin/bgzip -f temp_chrChange.vcf
+        #/software/teamtrynka/conda/trynka-base/bin/bcftools index temp_chrChange.vcf.gz
+        # remove another position that has one element of the INFO field malformed in the annotate step
+        #echo "Removing chr15:98628222 (hg19 for chr15:98084993)"
+        #/software/teamtrynka/conda/trynka-base/bin/bcftools view -t ^chr15:98628222 temp_chrChange.vcf.gz > temp.vcf
+        #mv temp.vcf temp_chrChange.vcf
+
+    echo "Lifting over..."
+        /software/teamtrynka/picard.jar LiftoverVcf \
+        I={wildcards.imp}_temp_chrChange.vcf \
+        O={wildcards.imp}_temp_liftedOver.vcf \
+        CHAIN={params.chain} \
+        REJECT=rejected_variants.vcf \
+        R={params.fasta} \
+        MAX_RECORDS_IN_RAM=100000
+
+
+    echo "Generating index file"
+    /software/teamtrynka/conda/trynka-base/bin/bcftools view -Oz -o {output.genotype} {wildcards.imp}_temp_liftedOver.vcf
+    /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+    rm {wildcards.imp}_temp*
+
+        """
+
+rule subset_excluding_HRC:
+    input:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/1K_10K/AD_1K_10K_GRCh38.vcf.gz",
+        vcf2="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/HRC/AD_HRC_GRCh38.vcf.gz"
+    output:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_UK10K_1KG_hg38_excluding_HRC_GRCh38.vcf.gz",
+        index="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_UK10K_1KG_hg38_excluding_HRC_GRCh38.vcf.gz.csi"
+    message: "Excluding from UK10K the positions present in the file imputed to HRC reference (more accurate)."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_subset_excluding_HRC.%J.%I",
+        error="-e ../../errors/error_subset_excluding_HRC.%J.%I"
+    shell:
+        """
+        set +o pipefail;
+
+        ~/bin/bcftools-1.18/bcftools view -T ^{input.vcf2} {input.vcf} --threads 2 -Oz -o {output.vcf}
+        ~/bin/bcftools-1.18/bcftools index {output.vcf}      
+        
+        """
+rule concat_10K_HRC:
+    input:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_UK10K_1KG_hg38_excluding_HRC_GRCh38.vcf.gz",
+        vcf2="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/HRC/AD_HRC_GRCh38.vcf.gz"
+    output:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_HRC_1K_10K_GRCh38.vcf.gz",
+        index="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_HRC_1K_10K_GRCh38.vcf.gz.csi"
+    message: "Merging (concatenating) two imputed VCFs."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M250000 -R'span[hosts=1] select[mem>250000] rusage[mem=250000]'",
+        jobname= "-o ../../logs/log_concat_10K_HRC.%J.%I",
+        error="-e ../../errors/error_concat_10K_HRC.%J.%I"
+    shell:
+        """
+        set +o pipefail;   
+        
+        echo "Merging VCFs"
+        ~/bin/bcftools-1.18/bcftools concat -a --threads 2 {input.vcf} {input.vcf2} -Oz -o temp.vcf.gz
+
+        echo "Saving VCF header"
+        zcat temp.vcf.gz | awk '/^\#/' > ../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/header.txt
+    
+        echo "Sorting"
+        /software/teamtrynka/conda/trynka-base/bin/bedtools sort -i temp.vcf.gz > {output.vcf}
+
+        echo "Attaching header"
+        cat {output.vcf} >> ../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/header.txt
+         mv ../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/header.txt ../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_HRC_1K_10K_GRCh38.vcf
+
+         echo "Compressing with bgzip"
+         /software/teamtrynka/conda/trynka-base/bin/bgzip -f ../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_HRC_1K_10K_GRCh38.vcf
+       
+        ~/bin/bcftools-1.18/bcftools index {output.vcf}   
+        """
+rule AD_variants_check:
+    input:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/AD_HRC_1K_10K_GRCh38.vcf.gz",
+        vars="AD_vars_to_check.txt"
+    output:
+        vcf="../../data/ungenotyped_donors/deepvariant_nextflow/imputed_around_AD_regions/Bellenguez_checked.vcf.gz"
+    message: "Checking AD variants from Bellenguez."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_AD_variants_check.%J.%I",
+        error="-e ../../errors/error_AD_variants_check.%J.%I"
+    shell:
+        """
+        set +o pipefail;   
+        
+        echo "Merging VCFs"
+        ~/bin/bcftools-1.18/bcftools view -R {input.vars} --threads 2 {input.vcf} -Oz -o {output.vcf}
+        ~/bin/bcftools-1.18/bcftools index {output.vcf}   
+        """

@@ -1,0 +1,23 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        4
+count_alleles                   4
+estimate_weights                4
+get_region_list                 1
+total                          14
+
+Select jobs to execute...
+
+[Sun Nov 10 22:58:17 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Code has changed since last execution
+
+Submitted job 4 with external jobid 'Job <910813> is submitted to queue <normal>.'.
+Terminating processes on user request, this might take some time.
+No --cluster-cancel given. Will exit after finishing currently running jobs.
+Cancelling snakemake on user request.

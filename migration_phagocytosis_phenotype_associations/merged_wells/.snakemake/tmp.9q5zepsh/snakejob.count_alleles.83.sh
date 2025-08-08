@@ -1,0 +1,12 @@
+#!/bin/sh
+# properties = {"type": "single", "rule": "count_alleles", "local": false, "input": ["../../../data/genotype/pool_3.merged.genotype.hg38.nonIdentical.txt", "../../../data/genotype/pool_4.merged.genotype.hg38.nonIdentical.txt", "../../../data/bams/P3_150_merged.bam", "../../../data/bams/P3_150_merged.bam.bai"], "output": ["../../../data/bam-readcount/P3_150_bam-readcount.txt.gz"], "wildcards": {"sample": "P3_150"}, "params": {"group": "-G teamtrynka", "queue": "-q normal", "threads": "-n 6", "memory": "-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'", "jobname": "-o ../../../logs/log_count_alleles.P3_150.%J.%I", "error": "-e ../../../errors/error_count_alleles.P3_150.%J.%I", "depth": "1000000000", "read_quality": "30", "reference": "/lustre/scratch117/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa"}, "log": [], "threads": 1, "resources": {}, "jobid": 83, "cluster": {}}
+cd /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells && \
+/software/teamtrynka/conda/trynka-base/bin/python \
+-m snakemake ../../../data/bam-readcount/P3_150_bam-readcount.txt.gz --snakefile /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/Snakefile \
+--force -j --keep-target-files --keep-remote \
+--wait-for-files /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.9q5zepsh ../../../data/genotype/pool_3.merged.genotype.hg38.nonIdentical.txt ../../../data/genotype/pool_4.merged.genotype.hg38.nonIdentical.txt ../../../data/bams/P3_150_merged.bam ../../../data/bams/P3_150_merged.bam.bai --latency-wait 5 \
+ --attempt 1 --force-use-threads \
+--wrapper-prefix https://bitbucket.org/snakemake/snakemake-wrappers/raw/ \
+   --allowed-rules count_alleles --nocolor --notemp --no-hooks --nolock \
+--mode 2  && touch "/lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.9q5zepsh/83.jobfinished" || (touch "/lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_run45219_migration_WGS_june2022/code/OTAR2065_run45219_migration_WGS_june2022/merged_wells/.snakemake/tmp.9q5zepsh/83.jobfailed"; exit 1)
+

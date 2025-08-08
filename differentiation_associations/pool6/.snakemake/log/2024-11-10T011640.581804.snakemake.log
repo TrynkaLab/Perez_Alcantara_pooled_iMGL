@@ -1,0 +1,156 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        5
+count_alleles                   5
+cram_to_bam                     5
+estimate_weights                5
+get_region_list                 1
+merge_lanes                     5
+remove_dups_sort_bam            5
+subset_and_index_bam            5
+total                          37
+
+Select jobs to execute...
+
+[Sun Nov 10 01:16:41 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool6/pool6_genotype.txt
+
+Submitted job 4 with external jobid 'Job <890260> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:16:41 2024]
+Job 22: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L002.bam, ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L001.bam
+
+Submitted job 22 with external jobid 'Job <890261> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:16:41 2024]
+Job 36: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_D39_PreMac_130522_L002.bam, ../../../data/bams/pool6/P6_D39_PreMac_130522_L001.bam
+
+Submitted job 36 with external jobid 'Job <890262> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:16:42 2024]
+Job 8: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L002.bam, ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L001.bam
+
+Submitted job 8 with external jobid 'Job <890263> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:16:42 2024]
+Job 15: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L002.bam
+
+Submitted job 15 with external jobid 'Job <890264> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:16:42 2024]
+Job 29: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool6/P6_D50_PreMac_240522_L001.bam, ../../../data/bams/pool6/P6_D50_PreMac_240522_L002.bam
+
+Submitted job 29 with external jobid 'Job <890265> is submitted to queue <normal>.'.
+[Sun Nov 10 01:17:01 2024]
+Error in rule cram_to_bam:
+    jobid: 36
+    input: ../../../data/crams/pool6/P6_D39_PreMac_130522_L001.cram, ../../../data/crams/pool6/P6_D39_PreMac_130522_L002.cram
+    output: ../../../data/bams/pool6/P6_D39_PreMac_130522_L001.bam, ../../../data/bams/pool6/P6_D39_PreMac_130522_L002.bam
+    shell:
+        
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_D39_PreMac_130522_L001.bam ../../../data/crams/pool6/P6_D39_PreMac_130522_L001.cram
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_D39_PreMac_130522_L002.bam ../../../data/crams/pool6/P6_D39_PreMac_130522_L002.cram
+
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890262> is submitted to queue <normal>.
+
+Error executing rule cram_to_bam on cluster (jobid: 36, external: Job <890262> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.cram_to_bam.36.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:17:01 2024]
+Error in rule cram_to_bam:
+    jobid: 8
+    input: ../../../data/crams/pool6/P6_Mig14_LPS_seeded_L001.cram, ../../../data/crams/pool6/P6_Mig14_LPS_seeded_L002.cram
+    output: ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L002.bam
+    shell:
+        
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L001.bam ../../../data/crams/pool6/P6_Mig14_LPS_seeded_L001.cram
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_LPS_seeded_L002.bam ../../../data/crams/pool6/P6_Mig14_LPS_seeded_L002.cram
+
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890263> is submitted to queue <normal>.
+
+Error executing rule cram_to_bam on cluster (jobid: 8, external: Job <890263> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.cram_to_bam.8.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:17:21 2024]
+Error in rule get_region_list:
+    jobid: 4
+    input: ../../../data/genotypes/pool6/pool6.merged.genotype.nonIdentical.hg38.vcf.gz
+    output: ../../../data/genotypes/pool6/pool6_genotype.txt
+    shell:
+        
+		set +o pipefail;
+		Rscript 1.Create_region_list_bam-readcount.R ../../../data/genotypes/pool6/pool6.merged.genotype.nonIdentical.hg38.vcf.gz ../../../data/genotypes/pool6/pool6_genotype.txt
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890260> is submitted to queue <normal>.
+
+Error executing rule get_region_list on cluster (jobid: 4, external: Job <890260> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.get_region_list.4.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:17:21 2024]
+Error in rule cram_to_bam:
+    jobid: 22
+    input: ../../../data/crams/pool6/P6_Mig14_IFN_seeded_L001.cram, ../../../data/crams/pool6/P6_Mig14_IFN_seeded_L002.cram
+    output: ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L002.bam
+    shell:
+        
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L001.bam ../../../data/crams/pool6/P6_Mig14_IFN_seeded_L001.cram
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_IFN_seeded_L002.bam ../../../data/crams/pool6/P6_Mig14_IFN_seeded_L002.cram
+
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890261> is submitted to queue <normal>.
+
+Error executing rule cram_to_bam on cluster (jobid: 22, external: Job <890261> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.cram_to_bam.22.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:17:21 2024]
+Error in rule cram_to_bam:
+    jobid: 15
+    input: ../../../data/crams/pool6/P6_Mig14_UNT_seeded_L001.cram, ../../../data/crams/pool6/P6_Mig14_UNT_seeded_L002.cram
+    output: ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L001.bam, ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L002.bam
+    shell:
+        
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L001.bam ../../../data/crams/pool6/P6_Mig14_UNT_seeded_L001.cram
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_Mig14_UNT_seeded_L002.bam ../../../data/crams/pool6/P6_Mig14_UNT_seeded_L002.cram
+
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890264> is submitted to queue <normal>.
+
+Error executing rule cram_to_bam on cluster (jobid: 15, external: Job <890264> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.cram_to_bam.15.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:17:51 2024]
+Error in rule cram_to_bam:
+    jobid: 29
+    input: ../../../data/crams/pool6/P6_D50_PreMac_240522_L001.cram, ../../../data/crams/pool6/P6_D50_PreMac_240522_L002.cram
+    output: ../../../data/bams/pool6/P6_D50_PreMac_240522_L001.bam, ../../../data/bams/pool6/P6_D50_PreMac_240522_L002.bam
+    shell:
+        
+		set +o pipefail;
+		mkdir -p ../../../data/bams
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_D50_PreMac_240522_L001.bam ../../../data/crams/pool6/P6_D50_PreMac_240522_L001.cram
+		samtools view -bh -q 40 -T /lustre/scratch125/core/sciops_repository/references/Homo_sapiens/GRCh38_15_plus_hs38d1/all/fasta/Homo_sapiens.GRCh38_15_plus_hs38d1.fa -o ../../../data/bams/pool6/P6_D50_PreMac_240522_L002.bam ../../../data/crams/pool6/P6_D50_PreMac_240522_L002.cram
+
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890265> is submitted to queue <normal>.
+
+Error executing rule cram_to_bam on cluster (jobid: 29, external: Job <890265> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool6/.snakemake/tmp.y9usx_b5/snakejob.cram_to_bam.29.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-11-10T011640.581804.snakemake.log

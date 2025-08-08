@@ -1,0 +1,265 @@
+#!/usr/bin/env python3
+# Snakefile for reprocessing the merged genotype vcf for all donors located in
+#/lustre/scratch123/hgi/projects/hipsci/releases/data/gtarray/releases/merged_files/REL-2018-01
+# per chromosome
+# snakemake is in /software/teamtrynka/conda/trynka-base/bin/snakemake
+import os
+import numpy as np
+
+POOL=["kolf_aowh"]
+DONOR=["kolf_2","aowh_2"]
+CHR = [i for i in np.arange(1,23,1)]
+
+rule all:
+    input:
+        donor_ids="../../data/donor_id_match.txt",
+        donor_pools=expand("../../data/{pool}/{pool}_donorIds.txt",pool=POOL),
+        subset=expand("../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",pool=POOL,chromosomes=CHR),
+        genotype=expand("../../data/{pool}/{pool}.genotype.vcf.gz",pool=POOL),
+        genotype_hg38=expand("../../data/{pool}/{pool}.genotype.hg38.vcf.gz", pool=POOL),
+        gen_subset=expand("../../data/{pool}/{donor}.genotype.hg38.vcf.gz",pool=POOL,donor=DONOR),
+        wgs_chr=expand("../../data/{pool}/wgs/{donor}.chr.deepvariant.vcf.gz",pool=POOL,donor=DONOR),
+        wgs_chr_full=expand("../../data/{pool}/wgs/{donor}.chr.deepvariant.g.vcf.gz",pool=POOL,donor=DONOR),
+        intersect=expand("../../data/{pool}/intersect/{donor}/0000.vcf.gz",pool=POOL,donor=DONOR),
+        intersect_full=expand("../../data/{pool}/intersect/{donor}/full/0000.vcf.gz",pool=POOL,donor=DONOR)
+
+
+rule all_donor_ids:
+    input:
+        all_hipsci_vcfs="../../data/full_genotype/chr22/hipsci.wec.gtarray.HumanCoreExome.imputed_phased.20180102.genotypes.chr22.vcf.gz"
+    output:
+        donor_ids="../../data/donor_id_match.txt"
+    message: "Extracting donors present in the merged file (using chr22). Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_all_donor_ids.%J.%I",
+        error="-e ../../errors/error_all_donor_ids.%J.%I"
+    shell:
+        """
+        # check the lines present in the full vcf (with merged info)
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view {input.all_hipsci_vcfs} head -n 66 | tail -n 1 > {output.donor_ids}
+        # transpose
+        cat {output.donor_ids} | datamash -W transpose > ../../data/vcf_header_2.txt
+        sed -n '10,$p' ../../data/vcf_header_2.txt > {output.donor_ids}
+        sed -e 's/^[^-]*-//' {output.donor_ids} > ../../data/vcf_header_2.txt
+        paste -d"\t" ../../data/vcf_header_2.txt {output.donor_ids} > ../../data/vcf_header_3.txt
+        sort -k 1 ../../data/vcf_header_3.txt > {output.donor_ids}
+        rm ../../data/vcf_header*
+        """
+rule pool_donor_ids:
+    input:
+        metadata="../../data/sampleMetadata.txt",
+        donor_ids="../../data/donor_id_match.txt"
+    output:
+        donor_pools="../../data/{pool}/{pool}_donorIds.txt"
+    message: "Extracting donors present in the pools. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_pool_donor_ids.%J.%I",
+        error="-e ../../errors/error_pool_donor_ids.%J.%I"
+    shell:
+        """
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        while read ptn; do grep -w $ptn {input.donor_ids} | awk '{{print $2}}' | tr ';' '\n' ; done < $detectedDonors > ../../data/{wildcards.pool}/{wildcards.pool}_donorIds.txt
+        """
+
+rule subset_donors_vcf:
+    input:
+        donor_pools="../../data/{pool}/{pool}_donorIds.txt",
+        all_hipsci_vcfs="../../data/full_genotype/chr{chromosomes}/hipsci.wec.gtarray.HumanCoreExome.imputed_phased.20180102.genotypes.chr{chromosomes}.vcf.gz"
+    output:
+        genotype="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz",
+        index="../../data/{pool}/chr{chromosomes}/{pool}.genotype.vcf.gz.csi"
+    message: "Subsetting donors present in the metadata file per chromosome, before merging. Run with snakemake --jobs 100 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_{chromosomes}_subset_donors_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_{chromosomes}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+        # Subset donors
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -S {input.donor_pools} {input.all_hipsci_vcfs} --threads 32 -Oz -o {output.genotype}
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+
+        """
+
+rule concat_and_sort_genotype_vcf:
+    input:
+        genotype=expand("../../data/{{pool}}/chr{chromosomes}/{{pool}}.genotype.vcf.gz", chromosomes=CHR)
+    output:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz"
+    message: "Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_concat_and_sort_genotype_vcf.%J.%I",
+        error="-e ../../errors/error_{pool}_concat_and_sort_genotype_vcf.%J.%I"
+    shell:
+        """
+        ls ../../data/{wildcards.pool}/chr*/{wildcards.pool}.genotype.vcf.gz > ../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt
+        echo "Merging VCFs"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools concat -a --threads 32 --file-list ../../data/{wildcards.pool}/{wildcards.pool}_vcf_list.txt -Oz -o ../../data/{wildcards.pool}/temp.vcf.gz
+
+        echo "Saving VCF header"
+        zcat ../../data/{wildcards.pool}/temp.vcf.gz | awk '/^\#/' > ../../data/{wildcards.pool}/header.txt
+
+        echo "Sorting"
+        /software/teamtrynka/conda/trynka-base/bin/bedtools sort -i ../../data/{wildcards.pool}/temp.vcf.gz > {output.genotype}
+
+        echo "Attaching header"
+        cat {output.genotype} >> ../../data/{wildcards.pool}/header.txt
+        mv ../../data/{wildcards.pool}/header.txt {output.genotype}
+
+        echo "Changing sample names in header"
+        detectedDonors="../../data/{wildcards.pool}/{wildcards.pool}_donorNames.txt"
+
+        /software/teamtrynka/conda/trynka-base/bin/bcftools reheader --threads 32 --samples $detectedDonors -o ../../data/{wildcards.pool}/temp_reheaded.vcf {output.genotype}
+
+        echo "Compressing with bgzip"
+        # Genotype files need to be compressed with bgzip to work with Vireo
+        /software/teamtrynka/conda/trynka-base/bin/bgzip ../../data/{wildcards.pool}/temp_reheaded.vcf
+        mv ../../data/{wildcards.pool}/temp_reheaded.vcf.gz {output.genotype}
+
+        echo "Generating index file"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+        #rm ../../data/{wildcards.pool}/temp.vcf.gz
+        """
+
+
+rule liftover_hg19_hg38:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.vcf.gz"
+    output:
+        genotype="../../data/{pool}/{pool}.genotype.hg38.vcf.gz"
+    message: "Lifting over the VCF from hg19 (GRch37) to hg38 (GRch38). Run with snakemake --jobs 1 --cluster [comma] bsub {params.group} {params.queue} {params.threads} {params.memory} {params.jobname} {params.error} [comma]"
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 1",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_liftover_hg19_hg38.%J.%I",
+        error="-e ../../errors/error_{pool}_liftover_hg19_hg38.%J.%I",
+	chain="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chain/hg19ToHg38.over.chain",
+	fasta="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.fa.gz",
+	dict="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/fasta/hg38.dict",
+	reference="/lustre/scratch115/teams/bassett/Erica/Miseq_10x_iPSC_082019/refdata-cellranger-GRCh38-3.0.0/fasta/genome.fa",
+	recoding="/lustre/scratch123/hgi/projects/otar2065/resources/for_liftOver/chromosome_mappings_hg19_to_b37/GRCh37_UCSC2ensembl_b37tohg19.txt"
+    shell:
+        """
+	#echo "Creating dictionary..."
+	#/software/teamtrynka/picard.jar CreateSequenceDictionary R={params.fasta} O={params.dict}
+
+	echo "Changing vcf from bg37 to hg19"
+	/software/teamtrynka/conda/trynka-base/bin/bcftools annotate --rename-chrs {params.recoding} -o ../../data/{wildcards.pool}/temp_chrChange.vcf {input.genotype}
+
+    echo "Lifting over..."
+	/software/teamtrynka/picard.jar LiftoverVcf \
+	I=../../data/{wildcards.pool}/temp_chrChange.vcf \
+	O=../../data/{wildcards.pool}/temp_liftedOver.vcf \
+	CHAIN={params.chain} \
+	REJECT=../../data/{wildcards.pool}/rejected_variants.vcf \
+	R={params.fasta}
+
+
+    echo "Generating index file"
+    /software/teamtrynka/conda/trynka-base/bin/bcftools view -Oz -o {output.genotype} ../../data/{wildcards.pool}/temp_liftedOver.vcf
+    /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.genotype}
+    rm ../../data/{wildcards.pool}/temp_chrChange.vcf
+
+        """
+
+rule subset_again:
+    input:
+        genotype="../../data/{pool}/{pool}.genotype.hg38.vcf.gz"
+    output:
+        subset="../../data/{pool}/{donor}.genotype.hg38.vcf.gz"
+    message: "Separate donor files."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_subset_again.%J.%I",
+        error="-e ../../errors/error_{pool}_subset_again.%J.%I"
+    shell:
+        """
+        # Subset donors
+        /software/teamtrynka/conda/trynka-base/bin/bcftools view -s {wildcards.donor} {input.genotype} --threads 32 -Oz -o {output.subset}
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.subset}
+
+        """
+rule add_chr_wgs:
+    input:
+        wgs="../../data/{pool}/wgs/{donor}.deepvariant.vcf.gz",
+        wgs_full="../../data/{pool}/wgs/{donor}.deepvariant.g.vcf.gz"
+    output:
+        wgs_chr="../../data/{pool}/wgs/{donor}.chr.deepvariant.vcf.gz",
+        wgs_full_chr="../../data/{pool}/wgs/{donor}.chr.deepvariant.g.vcf.gz",
+        wgs_chr_index="../../data/{pool}/wgs/{donor}.chr.deepvariant.vcf.gz.csi"
+    message: "Add chr to chromosomes in aowh_2 and kolf_2 wgs donor files."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_add_chr_wgs.%J.%I",
+        error="-e ../../errors/error_{pool}_add_chr_wgs.%J.%I"
+    shell:
+        """
+        # make sure wgs files for donors we want to compare are in input path and have no "chr"
+        # and change kolf2_1s for kolf_2
+        zcat {input.wgs} | awk '{{if($0 !~ /^#/) print "chr"$0; else print $0}}' > ../../data/{wildcards.pool}/wgs/{wildcards.donor}.chr.deepvariant.vcf
+
+        /software/teamtrynka/conda/trynka-base/bin/bgzip -f ../../data/{wildcards.pool}/wgs/{wildcards.donor}.chr.deepvariant.vcf
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.wgs_chr}
+
+        # for full genotype call
+        zcat {input.wgs_full} | awk '{{if($0 !~ /^#/) print "chr"$0; else print $0}}' > ../../data/{wildcards.pool}/wgs/{wildcards.donor}.chr.deepvariant.g.vcf
+        /software/teamtrynka/conda/trynka-base/bin/bgzip -f ../../data/{wildcards.pool}/wgs/{wildcards.donor}.chr.deepvariant.g.vcf
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index {output.wgs_full_chr}
+
+        """
+
+rule intersect_old_new:
+    input:
+        genotype="../../data/{pool}/{donor}.genotype.hg38.vcf.gz",
+        wgs_chr="../../data/{pool}/wgs/{donor}.chr.deepvariant.vcf.gz",
+        wgs_full_chr="../../data/{pool}/wgs/{donor}.chr.deepvariant.g.vcf.gz",
+        wgs_chr_index="../../data/{pool}/wgs/{donor}.chr.deepvariant.vcf.gz.csi"
+    output:
+        intersect="../../data/{pool}/intersect/{donor}/0000.vcf.gz",
+        intersect_full="../../data/{pool}/intersect/{donor}/full/0000.vcf.gz"
+    message: "Intersect old genotype vcf and new WGS for aowh_2 and kolf_2 donor files."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{pool}_intersect_old_new.%J.%I",
+        error="-e ../../errors/error_{pool}_intersect_old_new.%J.%I"
+    shell:
+        """
+        # /0000.vcf.gz would be variants unique to 1.vcf.gz
+        # /0001.vcf.gz would be variants unique to 2.vcf.gz
+        # /0002.vcf.gz would be variants shared by 1.vcf.gz and 2.vcf.gz as represented in 1.vcf.gz
+        # /0003.vcf.gz would be variants shared by 1.vcf.gz and 2.vcf.gz as represented in 2.vcf.gz
+        /software/teamtrynka/conda/trynka-base/bin/bcftools isec -p ../../data/{wildcards.pool}/intersect/{wildcards.donor} \
+        -Oz {input.genotype} {input.wgs_chr}
+        # for full genotype call
+        /software/teamtrynka/conda/trynka-base/bin/bcftools isec -p ../../data/{wildcards.pool}/intersect/{wildcards.donor}/full \
+        -Oz {input.genotype} {input.wgs_full_chr}
+
+        """

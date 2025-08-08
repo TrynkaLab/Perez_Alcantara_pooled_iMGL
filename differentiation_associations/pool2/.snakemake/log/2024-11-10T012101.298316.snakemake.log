@@ -1,0 +1,113 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_b_estimate_MAD        8
+count_alleles                   8
+cram_to_bam                     8
+estimate_weights                8
+get_region_list                 1
+merge_lanes                     8
+remove_dups_sort_bam            8
+subset_and_index_bam            8
+total                          58
+
+Select jobs to execute...
+
+[Sun Nov 10 01:21:02 2024]
+Job 57: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P5_Mig15_LPS_seeded_L002.bam
+
+Submitted job 57 with external jobid 'Job <890602> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:02 2024]
+Job 4: Getting region list for bam-readcount.
+Reason: Missing output files: ../../../data/genotypes/pool5/pool5_genotype.txt
+
+Submitted job 4 with external jobid 'Job <890603> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:02 2024]
+Job 22: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P5_D42_PreMac_160522_L002.bam
+
+Submitted job 22 with external jobid 'Job <890604> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:03 2024]
+Job 36: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P2-IV_D28_PreMac_041021_L002.bam
+
+Submitted job 36 with external jobid 'Job <890605> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:03 2024]
+Job 8: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P5_Mig15_IFN_seeded_L002.bam
+
+Submitted job 8 with external jobid 'Job <890606> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:03 2024]
+Job 50: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P5_D50_PreMac_240522_L002.bam
+
+Submitted job 50 with external jobid 'Job <890607> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:03 2024]
+Job 29: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P2-IV_D60_PreMac_051121_L002.bam
+
+Submitted job 29 with external jobid 'Job <890608> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:03 2024]
+Job 43: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P2-IV_D84_PreMac_291121_L002.bam
+
+Submitted job 43 with external jobid 'Job <890609> is submitted to queue <normal>.'.
+
+[Sun Nov 10 01:21:04 2024]
+Job 15: Cram to bam.
+Reason: Missing output files: ../../../data/bams/pool5/P5_Mig15_UNT_seeded_L002.bam
+
+Submitted job 15 with external jobid 'Job <890610> is submitted to queue <normal>.'.
+[Sun Nov 10 01:21:22 2024]
+Error in rule get_region_list:
+    jobid: 4
+    input: ../../../data/genotypes/pool5/pool5.merged.genotype.nonIdentical.hg38.vcf.gz
+    output: ../../../data/genotypes/pool5/pool5_genotype.txt
+    shell:
+        
+		set +o pipefail;
+		Rscript 1.Create_region_list_bam-readcount.R ../../../data/genotypes/pool5/pool5.merged.genotype.nonIdentical.hg38.vcf.gz ../../../data/genotypes/pool5/pool5_genotype.txt
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Job <890603> is submitted to queue <normal>.
+
+Error executing rule get_region_list on cluster (jobid: 4, external: Job <890603> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool2/.snakemake/tmp.nrrgxtur/snakejob.get_region_list.4.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Sun Nov 10 01:41:44 2024]
+Finished job 29.
+1 of 58 steps (2%) done
+[Sun Nov 10 01:43:34 2024]
+Finished job 15.
+2 of 58 steps (3%) done
+[Sun Nov 10 01:44:24 2024]
+Finished job 8.
+3 of 58 steps (5%) done
+[Sun Nov 10 01:44:34 2024]
+Finished job 57.
+4 of 58 steps (7%) done
+[Sun Nov 10 01:44:54 2024]
+Finished job 36.
+5 of 58 steps (9%) done
+[Sun Nov 10 01:45:24 2024]
+Finished job 22.
+6 of 58 steps (10%) done
+[Sun Nov 10 01:47:14 2024]
+Finished job 43.
+7 of 58 steps (12%) done
+[Sun Nov 10 01:47:44 2024]
+Finished job 50.
+8 of 58 steps (14%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2024-11-10T012101.298316.snakemake.log

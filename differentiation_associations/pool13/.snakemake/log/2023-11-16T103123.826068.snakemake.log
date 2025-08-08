@@ -1,0 +1,125 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	4	calculate_b_estimate_MAD
+	4	count_alleles
+	4	estimate_weights
+	1	get_region_list
+	14
+
+[Thu Nov 16 10:31:23 2023]
+Job 13: Getting region list for bam-readcount.
+
+Submitted job 13 with external jobid 'Job <38386987> is submitted to queue <normal>.'.
+[Thu Nov 16 10:36:34 2023]
+Finished job 13.
+1 of 14 steps (7%) done
+
+[Thu Nov 16 10:36:34 2023]
+Job 9: Counting alleles with bam-readcount.
+
+Submitted job 9 with external jobid 'Job <38387280> is submitted to queue <normal>.'.
+
+[Thu Nov 16 10:36:34 2023]
+Job 10: Counting alleles with bam-readcount.
+
+Submitted job 10 with external jobid 'Job <38387281> is submitted to queue <normal>.'.
+
+[Thu Nov 16 10:36:34 2023]
+Job 12: Counting alleles with bam-readcount.
+
+Submitted job 12 with external jobid 'Job <38387283> is submitted to queue <normal>.'.
+
+[Thu Nov 16 10:36:35 2023]
+Job 11: Counting alleles with bam-readcount.
+
+Submitted job 11 with external jobid 'Job <38387284> is submitted to queue <normal>.'.
+[Thu Nov 16 18:25:18 2023]
+Finished job 9.
+2 of 14 steps (14%) done
+
+[Thu Nov 16 18:25:18 2023]
+Job 5: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 5 with external jobid 'Job <38415323> is submitted to queue <normal>.'.
+[Thu Nov 16 18:29:58 2023]
+Finished job 12.
+3 of 14 steps (21%) done
+
+[Thu Nov 16 18:29:58 2023]
+Job 8: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 8 with external jobid 'Job <38415542> is submitted to queue <normal>.'.
+[Thu Nov 16 18:40:49 2023]
+Finished job 10.
+4 of 14 steps (29%) done
+
+[Thu Nov 16 18:40:49 2023]
+Job 6: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 6 with external jobid 'Job <38415820> is submitted to queue <normal>.'.
+[Thu Nov 16 18:46:50 2023]
+Finished job 5.
+5 of 14 steps (36%) done
+
+[Thu Nov 16 18:46:50 2023]
+Job 1: Estimate proportion (weights) of donors.
+
+Submitted job 1 with external jobid 'Job <38415902> is submitted to queue <normal>.'.
+[Thu Nov 16 18:50:30 2023]
+Finished job 8.
+6 of 14 steps (43%) done
+
+[Thu Nov 16 18:50:30 2023]
+Job 4: Estimate proportion (weights) of donors.
+
+Submitted job 4 with external jobid 'Job <38415977> is submitted to queue <normal>.'.
+[Thu Nov 16 18:51:20 2023]
+Finished job 1.
+7 of 14 steps (50%) done
+[Thu Nov 16 18:52:50 2023]
+Finished job 4.
+8 of 14 steps (57%) done
+[Thu Nov 16 19:01:30 2023]
+Finished job 6.
+9 of 14 steps (64%) done
+
+[Thu Nov 16 19:01:30 2023]
+Job 2: Estimate proportion (weights) of donors.
+
+Submitted job 2 with external jobid 'Job <38416235> is submitted to queue <normal>.'.
+[Thu Nov 16 19:02:10 2023]
+Finished job 11.
+10 of 14 steps (71%) done
+
+[Thu Nov 16 19:02:10 2023]
+Job 7: Transforming bam-readcount output to MAF estimate (b_estimate) and VCF to minor allele dosage.
+
+Submitted job 7 with external jobid 'Job <38416273> is submitted to queue <normal>.'.
+[Thu Nov 16 19:04:20 2023]
+Finished job 2.
+11 of 14 steps (79%) done
+[Thu Nov 16 19:27:52 2023]
+Finished job 7.
+12 of 14 steps (86%) done
+
+[Thu Nov 16 19:27:52 2023]
+Job 3: Estimate proportion (weights) of donors.
+
+Submitted job 3 with external jobid 'Job <38418586> is submitted to queue <normal>.'.
+[Thu Nov 16 19:31:42 2023]
+Finished job 3.
+13 of 14 steps (93%) done
+
+[Thu Nov 16 19:31:42 2023]
+localrule all:
+    input: ../../../data/w/pool13/pool13_day35_preMAC_w_estimate.txt, ../../../data/w/pool13/pool13_day50_preMAC_w_estimate.txt, ../../../data/w/pool13/pool13_day43_preMAC_w_estimate.txt, ../../../data/w/pool13/pool13_day0_iPSC_w_estimate.txt
+    jobid: 0
+
+[Thu Nov 16 19:31:42 2023]
+Finished job 0.
+14 of 14 steps (100%) done
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_WGS_iPSC_premac_micro/code/OTAR2065_WGS_iPSC_premac_micro/pool13/.snakemake/log/2023-11-16T103123.826068.snakemake.log

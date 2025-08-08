@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 133 of /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/for_eQTL/Snakefile:
+Missing input files for rule liftover_hg19_hg38:
+../../data/all_pools/all_pools.merged.genotype.vcf.gz

@@ -1,0 +1,25 @@
+Building DAG of jobs...
+MissingInputException in line 20 of /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool15/Snakefile:
+Missing input files for rule all:
+../../data/pool_15/chr12/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr20/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr4/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr7/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr21/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr19/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr6/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr3/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr14/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr8/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr22/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr18/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr10/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr15/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr1/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr2/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr17/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr11/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr5/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr13/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr9/pool_15_hipsci.genotype.vcf.gz
+../../data/pool_15/chr16/pool_15_hipsci.genotype.vcf.gz

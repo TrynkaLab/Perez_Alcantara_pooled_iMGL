@@ -1,0 +1,13 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	subset_variants
+	2
+
+[Sat Dec 23 11:22:09 2023]
+Job 1: Subsetting to variants that have non-identical genotypes across donors. Do conda activate otar2065 first. Run with snakemake --jobs 3 --cluster [comma] bsub -G teamtrynka -q normal -n 1 -M160000 -R'span[hosts=1] select[mem>160000] rusage[mem=160000]' -o ../../logs/log_pool_15_subset_variants_WGS.%J.%I -e ../../errors/error_pool_15_subset_variants_WGS.%J.%I [comma]
+
+Submitted job 1 with external jobid 'Job <42520998> is submitted to queue <normal>.'.

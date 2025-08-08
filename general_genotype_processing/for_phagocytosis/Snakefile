@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+# Snakefile for merging SHSY5Y genotype into all donor, then subsampling for every SAMPLE
+# snakemake is in /software/teamtrynka/conda/otar2065/bin/snakemake v 7.30.2
+import os
+import numpy as np
+
+SAMPLE=["for_phago_deconvolution"]
+POOL=["pool3","pool4","pool5","pool6","pool7","pool8","pool11","pool12"]
+
+rule all:
+	input:
+		#checks_new=expand("../../data/{sample}/pre_merge_checks_new.txt",sample=SAMPLE),
+		genotype=expand("../../data/{sample}/full.genotype.MAF01.hg38.vcf.gz",sample=SAMPLE),
+		donor_pools=expand("../../data/{sample}/{pool}_donorNames.txt",sample=SAMPLE,pool=POOL),
+		genotype=expand("../../data/{sample}/{pool}_genotype.vcf.gz",sample=SAMPLE,pool=POOL)
+
+rule check_before_merging:
+	input:
+		old_genotype="../../data/{sample}/full.genotype.MAF01.hg38.vcf.gz",
+		SHSY5Y="../../../resources/SHSY5Y_SNPs/imputed/SHSY5Y.hg38.vcf.gz"
+	output:
+		checks_old="../../data/{sample}/pre_merge_checks_old.txt",
+		checks_new="../../data/{sample}/pre_merge_checks_new.txt",
+		old_nochr="../../data/{sample}/full.genotype.MAF01.hg38.sharedvars.sorted.nochr.vcf.gz",
+		new_nochr="../../data/{sample}/SHSY5Y.hg38.nochr.vcf.gz"
+	message: "Merge old and new genotype VCFs"
+	params:
+		group= "-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M50000 -R'span[hosts=1] select[mem>50000] rusage[mem=50000]'",
+		MAF=0.01,
+		jobname= "-o ../../logs/log_{sample}_check_before_merging.%J.%I",
+		error="-e ../../errors/error_{sample}_check_before_merging.%J.%I",
+		ref="/lustre/scratch123/hgi/teams/trynka/resources/GRCh38/bgzipped/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
+	shell:
+		"""
+		set +o pipefail;
+		echo "Removing chr"
+		bcftools annotate \
+		--rename-chrs ../../data/ungenotyped_donors/rm_chr.txt {input.old_genotype} -Oz -o {output.old_nochr}
+		bcftools annotate \
+		--rename-chrs ../../data/ungenotyped_donors/rm_chr.txt {input.SHSY5Y} -Oz -o {output.new_nochr}
+
+		bcftools +fixref {output.old_nochr} -- -f {params.ref} > {output.checks_old}
+		bcftools +fixref {output.new_nochr} -- -f {params.ref} > {output.checks_new}
+
+		"""
+
+rule merge_shsy5y_vcf:
+	input:
+		old_genotype="../../data/{sample}/full.genotype.MAF01.hg38.vcf.gz",
+		SHSY5Y="../../data/{sample}/SHSY5Y.hg38.nochr.vcf.gz",
+		for_checks="../../data/{sample}/full.genotype.MAF01.hg38.sharedvars.sorted.nochr.vcf.gz"
+	output:
+		genotype="../../data/{sample}/full.genotype.SHSY5Y.MAF01.hg38.vcf.gz"
+	message: "Merge old and new genotype VCFs (SHSY5Y). This will serve as the basis to subset donors for deconvolution of each pool."
+	params:
+		group= "-G teamtrynka",
+		queue="-q normal",
+		threads="-n 32",
+		memory="-M150000 -R'span[hosts=1] select[mem>150000] rusage[mem=150000]'",
+		MAF=0.01,
+		jobname= "-o ../../logs/log_{sample}_merge_old_new_vcf.%J.%I",
+		error="-e ../../errors/error_{sample}_merge_old_new_vcf.%J.%I"
+	shell:
+		"""
+		set +o pipefail;
+		#rm ../../data/{wildcards.sample}/temp*
+		echo {input.old_genotype} > ../../data/{wildcards.sample}/{wildcards.sample}_to_merge.txt
+		echo {input.SHSY5Y} >> ../../data/{wildcards.sample}/{wildcards.sample}_to_merge.txt
+
+		echo "Merging VCFs"
+		bcftools merge --file-list ../../data/{wildcards.sample}/{wildcards.sample}_to_merge.txt -Oz -o ../../data/{wildcards.sample}/temp.vcf.gz
+		echo "Ensuring there are no missing genotypes from non-overlapping positions"
+		bcftools filter -e 'GT=\"mis\"' ../../data/{wildcards.sample}/temp.vcf.gz -Oz -o ../../data/{wildcards.sample}/temp2.vcf.gz
+		bcftools index ../../data/{wildcards.sample}/temp2.vcf.gz
+		echo "Filtering variants in VCF to selected MAF"
+
+		bcftools view --threads 32 \
+		--regions 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X \
+		-q {params.MAF}:minor ../../data/{wildcards.sample}/temp2.vcf.gz -Oz -o ../../data/{wildcards.sample}/temp.MAF0.01.vcf.gz
+
+		echo "Adding chr"
+		bcftools annotate \
+		--rename-chrs ../../data/{wildcards.sample}/add_chr.txt ../../data/{wildcards.sample}/temp.MAF0.01.vcf.gz \
+		-Oz -o {output.genotype}
+
+		echo "Generating index file"
+		bcftools index {output.genotype}
+		rm ../../data/{wildcards.sample}/temp*
+		"""
+
+rule pool_donor_names:
+    input:
+        metadata="../../data/{sample}/sampleMetadata_including_SHSY5Y.txt",
+    output:
+        donor_pools="../../data/{sample}/{pool}_donorNames.txt"
+    message: "Extracting donors present in the pools."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 2",
+        memory="-M10000 -R'span[hosts=1] select[mem>10000] rusage[mem=10000]'",
+        jobname= "-o ../../logs/log_pool_donor_ids.%J.%I",
+        error="-e ../../errors/error_pool_donor_ids.%J.%I"
+    shell:
+        """
+		set +o pipefail;
+        echo "Subsetting file names to merge, from all hipsci files available looking at the metadata IDs"
+        detectedDonors="../../data/{wildcards.sample}/{wildcards.pool}_donorNames.txt"
+        cat {input.metadata} | grep -w {wildcards.pool} | awk '{{print $3}}' | tr ';' '\n' > $detectedDonors
+        """
+
+rule subset_donors_vcf:
+    input:
+        donor_pools="../../data/{sample}/{pool}_donorNames.txt",
+		genotype="../../data/{sample}/full.genotype.SHSY5Y.MAF01.hg38.vcf.gz"
+    output:
+        genotype="../../data/{sample}/{pool}_genotype.vcf.gz",
+        index="../../data/{sample}/{pool}_genotype.vcf.gz.csi"
+    message: "Subsetting donors from each pool from the full VCF."
+    params:
+        group= "-G teamtrynka",
+        queue="-q normal",
+        threads="-n 32",
+        memory="-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+        jobname= "-o ../../logs/log_{sample}_{pool}_subset_donors_vcf.%J.%I",
+        error="-e ../../errors/error_{sample}_{pool}_subset_donors_vcf.%J.%I"
+    shell:
+        """
+		set +o pipefail;
+        # Subset donors
+        bcftools view -S {input.donor_pools} {input.genotype} --threads 32 -Oz -o {output.genotype}
+        bcftools index {output.genotype}
+
+        """

@@ -1,0 +1,45 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cluster nodes: 100
+Job counts:
+	count	jobs
+	1	all
+	1	merge_hipsci_ipmar
+	1	subset_variants
+	3
+
+[Tue Dec  5 20:40:30 2023]
+Job 2: Concatenating sample genotype files present in the metadata file needed for next step. Run with snakemake --jobs 3 --cluster [comma] bsub -G teamtrynka -q normal -n 32 -M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]' -o ../../logs/log_pool_14_merge_new_old.%J.%I -e ../../errors/error_pool_14_merge_new_old.%J.%I [comma]
+
+Submitted job 2 with external jobid 'Job <40485588> is submitted to queue <normal>.'.
+[Tue Dec  5 21:32:53 2023]
+Finished job 2.
+1 of 3 steps (33%) done
+
+[Tue Dec  5 21:32:53 2023]
+Job 1: Subsetting to variants that have non-identical genotypes across donors. Do conda activate otar2065 first. Run with snakemake --jobs 3 --cluster [comma] bsub -G teamtrynka -q normal -n 1 -M160000 -R'span[hosts=1] select[mem>160000] rusage[mem=160000]' -o ../../logs/log_pool_14_subset_variants_WGS.%J.%I -e ../../errors/error_pool_14_subset_variants_WGS.%J.%I [comma]
+
+Submitted job 1 with external jobid 'Job <40496948> is submitted to queue <normal>.'.
+[Tue Dec  5 22:42:37 2023]
+Error in rule subset_variants:
+    jobid: 1
+    output: ../../data/pool_14/pool_14.merged.genotype.nonIdentical.hg38.vcf.gz
+    shell:
+        
+        echo "Subsetting to variants that have non-identical genotypes across donors"
+        /software/teamtrynka/conda/otar2065/bin/Rscript 0.Retain_non-identical_variants.R ../../data/pool_14/pool_14.merged.genotype.hg38.vcf.gz ../../data/pool_14/pool_14.merged.genotype.nonIdentical.hg38.vcf.gz
+
+        # Decompressing and re-compressing in right format
+        gunzip -d ../../data/pool_14/pool_14.merged.genotype.nonIdentical.hg38.vcf.gz
+        /software/teamtrynka/conda/trynka-base/bin/bgzip ../../data/pool_14/pool_14.merged.genotype.nonIdentical.vcf
+
+        echo "Generating index file"
+        /software/teamtrynka/conda/trynka-base/bin/bcftools index ../../data/pool_14/pool_14.merged.genotype.nonIdentical.hg38.vcf.gz
+        
+        (exited with non-zero exit code)
+    cluster_jobid: Job <40496948> is submitted to queue <normal>.
+
+Error executing rule subset_variants on cluster (jobid: 1, external: Job <40496948> is submitted to queue <normal>., jobscript: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/tmp._84jvemi/snakejob.subset_variants.1.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /lustre/scratch123/hgi/mdt1/projects/otar2065/hipsci_genotype_processing/code/pool14/.snakemake/log/2023-12-05T204029.933880.snakemake.log
