@@ -1,0 +1,104 @@
+## 9. Transcriptome Wide Mendelian Randomization (TWMR)
+
+###  9.1 Selection of instrumental variables and exposures per focal gene
+Script [`01_IVs_and_exposures_selection.R`](01_IVs_and_exposures_selection.R). 
+
+#### 9.1.0  Explore input data sets
+
+* **eQTL summary statistics**: a previous eQTL study of 261 samples was performed to link SNPs with microglia gene expression in IFN, LPS, and untreated; this study only tested associations between variants and genes within a 500kb window around them (cis-eQTLs). In all three treatments effect sizes for >11 million eQTLs of >10k genes were provided.
+
+* **GWAS summary statisics**: summary statistics from the previous GWAS run in **8. GWAS for proliferation phenotype** were taken for proliferation from preMac → microglia in the three treatments. Sample sizes were 230 for IFN, 229 for LPS, and 209 for untreated.
+
+* **Colocalization results**: colocalization tested the sharing of the same causal variant for each gene’s expression and proliferation in each treatment, in those genes with ≥50 nearby variants tested in both eQTL and GWAS analysis (with effects for both traits). In each gene and treatment, the posterior probability of each variant being causal of both gene expression and proliferation was computed under H4 of both traits sharing the same causal variant (i.e. colocalizing variant). Not all genes had colocalization results and among those that were tested, not all had a significant coloc variant. If available, the lead coloc variant was included as IV in the TWMR model for each focal gene in **Step 1** (see further below).
+
+* **Linkage Disequilibrium data**: pair-wise SNP LD estimates were taken from TopMED (EUR ancestry), based on 13,160 individuals from 1000 Genomes.
+
+
+#### 9.1.1 Multivariable model definition per focal gene
+IVs and exposures in the multi-gene MR analysis for each focal gene and treatment were defined as follow:
+
+**Step 1: Select causal + strongest independent cis-eQTLs of focal gene**    
+
+For each focal gene we take its most significant coloc cis-eQTL, i.e. the **lead coloc cis-eQTL** (if any), and its **strongest cis-eQTL(s)** (with same min *p*-value but with different effect sizes to avoid variants in LD). 
+
+*Step 1.1: define an independent set of cis-eQTLs*
+  
+Among the causal + strongest cis-eQTLs of the focal gene, we find an independent set by first pruning variants in LD (R^2>0.2) with the lead coloc cis-eQTL (if present). Then, among the remaining ones, we prun variants in LD with the cis-eQTL with the greatest effect size on the focal gene; among the remaining, we repeat the process taking the cis-eQTL with the greatest effect, and so on. We end up with **independent cis-eQTLs** for the focal gene.
+
+**Step 2: Add all eGenes of included independent cis-eQTL(s)**             
+
+For each kept cis-eQTL, we add all their affected genes (**eGenes**) without filtering by significance given that most eQTLs have already very few eGenes each (most have 1 or 2, up to 31) so filtering causes no inclusion of additional eGenes in the model, resulting in only one exposure (the focal gene), equivalent to the standard MR model that doesn’t capture pleiotropy.
+
+*Step 2.1: exclude highly-correlated genes* 
+
+Nearby genes with highly-correlated expression are likely to be impacted similarly by eQTLs. To avoid redundancy among the genes included as exposures, for each pair of genes initially included in the model, we obtained their shared cis-eQTLs and computed the Pearson correlation between their effect sizes on both genes, discarding those variants with duplicated effects (variants in LD). We didn’t subset to significant cis-eQTLs for this analysis to include as many variants as possible to more accurately compute correlations.
+
+Uncorrelared genes were found by first removing eGenes highly correlated with the focal gene (r^2≥0.4). Among the remaining genes, the ones correlated with the most independent eGene (less correlated with focal gene) were discareded, and so on until defining a set of **independent eGenes**.
+
+ **Step 3: Add all signif (*p* < 10-6) cis-eQTLs x included eGene**             
+
+For the final uncorrelated eGenes (excluding the focal gene), we included all their significant cis-eQTLs (*p*-value <10-6 and different effect size). This time fitering to strong significant cis-eQTLs only given that each gene has many associated variants, most with small effects that we don’t want to include in the models.
+
+ **Step 4: Prun variants in LD**                                              
+
+Of all cis-eQTLs included, we pruned the ones in LD with the lead coloc + strongest cis-eQTLs of focal gene defined in **Step 1**, and then those in LD with randomly selected variants among the remaining ones.
+
+
+<figure> 
+<img src="../../images/TWMR_model_definition_steps.png">
+<figcaption>Steps for TWMR model definition per focal gene. </figcaption> 
+</figure> 
+
+
+#### 9.1.2 Prepare input matrices for TWMR
+    
+The following matrices were prepared for subsequent TWMR:
+    
+  * E (n x k): matrix of effects of the n independent IVs on k uncorr gene expression exposures.
+  * G (1 x n): vector of effects of the n independent IVs on proliferation.
+  * C (n x n): pairwise LD matrix between the n independent IVs.
+
+TWMR models for all 10k genes per treatment were created submitting an array of 1000 jobs, spanning 10 focal genes x treatment each ([submit_array.sh](submit_array.sh) that inputs to [run_01_IVs_and_exposures_selection.sh](run_01_IVs_and_exposures_selection.sh)). 
+
+
+
+### 9.2 Estimation of causal effect
+
+Script [`02_run_TWMR.R`](02_run_TWMR.R). 
+
+TWMR computes the multivariable causal effect (alpha) of each focal gene on the proliferation outcome accouting for all other related gene expression exposures and IVs through the inverse-variance weighted method (IVM), as:
+
+<figure> 
+<img src="../../images/TWMR_calculation.png">
+</figure> 
+
+The standard error and Z-statistic of the gene alpha estimate were computed as the authors did. The *p*-value of the Z-stat was obtained based on the normal distribution. 
+
+
+
+### 9.3 Check proliferation TWMR results 
+Script [`03_check_results.R`](03_check_results.R). 
+
+#### 9.3.1 Explore gene TWMR models
+
+The median and mean number of IVs and gene exposures used in the model for each focal gene were:
+    
+  * **IFN**: median 1 and mean ~4 SNPs; median and mean of ~3 genes.
+  * **LPS**: median 1 and mean ~3.5 SNPs; median and mean of ~3 genes.
+  * **untreated**: median 1 and mean ~4.5 SNPs; median and mean of ~3 genes.
+
+Subsetting to the TWMR results of genes with at least one significant cis-eQTL (FDR<0.05), we used 4,446, 4,512, and 5,170 genes in IFN, LPS, and untreated, respectively, with models with similar median and mean numbers of IVs and gene exposures. The *p*-values for the causal effects for these genes were less deflated compared to all genes.
+
+#### 9.3.2 Explore genome-wide results
+    
+Miami plots were created to genome-wide plot the *p*-values of the genes for their causal effects on the proliferation outcome in each treatment, and the *p*-values of the variants for their association with proliferation within the same treatment.
+
+#### 9.3.3 Explore significant (putative causal) genes
+    
+Considering genes with at least one significant cis-eQTL, nominally 122, 132, and 196 genes had significant (*p*<0.05) causal effects on macrophage precursor proliferation to microglia in IFN, LPS, and untreated, respectively. Adjusting for the number of genes tested per treatment, only ***NDUFA10*** in **IFN**, and ***LY86*** and ***HDHD2*** in **untreated** remained significant.
+
+Overlaps of nominally-significant TWMR genes with the previously identified proliferation-related genes according to DGE analysis, burden tests, and GWAS were computed. Regional genomic plots were created for genes of interest, showing the effects of the gene and its nearby variants on proliferation, and the effects of the variants on the expression of the gene.
+
+
+
+

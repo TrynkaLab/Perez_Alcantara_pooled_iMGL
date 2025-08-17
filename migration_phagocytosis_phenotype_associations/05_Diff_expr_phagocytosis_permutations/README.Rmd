@@ -1,0 +1,51 @@
+
+## 5. Permutation analysis for phagocytosis DGE 
+
+
+### 5.0 Data exploration and processing
+Script [`00_Data_exploration_processing.R`](00_Data_exploration_processing.R). 
+
+Cell line genotype PCs previoulsy computed by Marta Perez in `OTAR2065_sc_eQTL/data/genotype/plink_genotypes/` were added to the complete sample metadata for DGE.
+
+Regarding phagocytosis data in `OTAR2065_phenotypic_QTLs/data/results/phagocytosis/1.check_line_proportions/line_prop_changes_per_well.csv`, there are phagocytosis scaled log-fractions for a total of 1,821 samples (line x pool x treatment x replicate) across 14 pools, 202 unique lines, and the 3 treatments (and 1-3 replicates). Only samples with a min proportion of either **mCherry+** cells or  **mCherry-** cells above 0.5% were kept given that lower proportions increase variability in the fractions across pools and replicates. This left 1,267 samples across 159 lines.
+
+Then, the mean phagocytosis scaled log-fractions and min proportions were computed across replicates for each line x pool x treatment, and were added to the sample metadata: 50.94% of all samples for which there’s expression data have phagocytosis estimates also, corresponding to 158/250 unique cell lines.
+
+A 100 permutations of the phagocytosis scaled log-fractions per sample were added in the sample metadata per treatment for subsequent DGE analysis.
+
+
+#### 5.0.1 Gene expression variance partition analysis per treatment 
+The %s of variance in the expression of each gene explained by each covariate included in the DGE models were computed per treatment with *variancePartition*.
+
+
+
+### 5.1 DGE analysis for line phagocytosis phenotypes
+Script [`01_run_phagocytosis_DGE.R`](01_run_phagocytosis_DGE.R). 
+
+Differential gene expression analyses for phagocytosis phenotypes in each treatment were performed with the non-proliferative samples with at least 100 cells each.
+
+Lowly-expressed genes per treatment were filtered out (inclusion criteria: >0.1 CPM in at least 30% samples), normalization factors were computed with the TMM method using `calcNormFactors()`. These were the final sample sizes used per treatment DGE:
+
+- **IFN**: 12,823 expressed genes across 180 samples from 139 unique lines of 138 donors. Of the 180 samples, 130 had 2 replicates, 38 had 3 replicates, and 12 had no replicates.
+- **LPS**:  12,840 expressed genes across 182 LPS samples from 146 unique lines of 145 donors. Of the 182 samples, 122 had 2 replicates, 39 had 3 replicates, and 21 had no replicates.
+- **untreated**:  13,170 expressed genes across 175 untreated samples from 140 unique lines of 139 donors. Of the 175 samples, 144 had 2 replicates, 25 had 3 replicates, and 6 had no replicates.
+
+DGE was run with the *limma*-*voom* pipeline fitting the model:
+`Gene_expr`  ~ `phagocytosis_mean_scaled_log_fraction` + `Sex` + `phagocytosis_mean_min_prop` + `genotype_PC1` + `genotype_PC2` + `(1|pool)`
+
+DGE effects were compared between treatments and downstream explorations of the sample scaled log-fractions distributions and their associations with gene expression, as well as correlations between covariates, were performed for each treatment to investigate why DGE in LPS results in fewer DEGs compared to IFN and untreated.
+
+
+### 5.2 DGE analysis on permuted cell line phagocytosis phenotypes
+Script [`02_permuted_phagocytosis_DGE.R`](02_permuted_phagocytosis_DGE.R). 
+
+DGE was run as before for each of the 100 permutations of phagocytosis mean scaled log-fractions submitting an array of 100 jobs in  [`submit_array.sh`](submit_array.sh) calling the script [`run_DGE_Rscript_per_job.sh`](run_DGE_Rscript_per_job.sh), which in turn runs the R script `02_permuted_phagocytosis_DGE.R` to execute DGE per permutation.
+
+### 5.3 Compute empirical *p*-values per treatment and gene   
+Script [`03_compute_empirical_pvals.R`](03_compute_empirical_pvals.R). 
+
+Empirical *p*-values were computed for each treatment and each gene assessed in DGE, based on the 100 permutations results, per treatment. DGE cases were further explored in those permutations resulting in more DEGs than with true pehnotypes. 
+Gene empirical *p*-values were compared against their actual *p*-values for phagocytosis DGE.
+
+
+

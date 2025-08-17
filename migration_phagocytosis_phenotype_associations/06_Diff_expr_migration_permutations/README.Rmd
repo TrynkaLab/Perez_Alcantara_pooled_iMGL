@@ -1,0 +1,45 @@
+## 6. Permutation analysis for migration DGE 
+
+
+### 6.0 Data exploration and processing
+Script [`00_Data_exploration_processing.R`](00_Data_exploration_processing.R). 
+
+Migration estimates of each cell line x pool x well x treatment, were computed as scaled log-fractions by Marta Perez and taken from `OTAR2065_phenotypic_QTLs/data/results/migration/1.check_line_proportions/line_prop_changes_per_well.csv`. There are migration scaled log-fractions for a total of 1,657 samples across 15 pools, 216 lines of 209 donors, 79 wells, and the 3 treatments. All samples were in **+C5a** condition, but their migration fractions were already normalized to the fractions without it (**-C5a** condition). Samples whose lowest proportion in the migration fraction is <0.5% were filtered out because of their bigger variability, leaving 1,221 samples across 175 lines. 
+
+The replicate average of migration scaled log-fractions and min proportions were computed for each line x pool x treatment, and were added to the sample metadata:  53.97% of all samples for which there’s pseudobulk expression data have migration estimates, corresponding to 175/250 unique cell lines. Subsetting to the non-proliferative samples with ≥100 cells, 533 samples (166 lines) remained across the 3 treatments. 
+
+A 100 permutations of the mean scaled log-fractions of migration were computed per treatment for subsequent DGE analysis.
+
+
+### 6.1 DGE analysis for line migration phenotypes
+Script [`01_run_migration_DGE.R`](01_run_migration_DGE.R). 
+
+Differential gene expression analyses for migration phenotypes in each treatment were performed with the non-proliferative samples with at least 100 cells each.
+
+Lowly-expressed genes per treatment were filtered out (inclusion criteria: >0.1 CPM in at least 30% samples), normalization factors were computed with the TMM method using `calcNormFactors()`. These were the final sample sizes used per treatment DGE:
+
+- **IFN**: 12,757 expressed genes across 123 samples from 100 unique lines of 97 donors. Of the 123 samples, 94 had 2 replicates and 29 had no replicates.
+- **LPS**:  12,823 expressed genes across 199 samples from 156 unique lines of 154 donors. Of the 199 samples, 161 had 2 replicates, 36 had 3 replicates, and 2 didn’t have replicates.
+- **untreated**:  13,121 expressed genes across 211 samples from 157 unique lines of 154 donors. Of the 211 samples, 174 had 2 replicates, 31 had 3 replicates, and 6 had no replicates.
+
+Similarly to phagocytosis DGE in **[5. Permutation analysis for phagocytosis DGE](../05_Diff_expr_phagocytosis_permutations/)**, DGE was run following the *limma*-*voom* pipeline and gene expression was adjusted by the following covariates:
+
+Gene_expr  ~ `migration_mean_scaled_log_fraction` + `Sex` + `migration_mean_min_prop` + `genotype_PC1` + `genotype_PC2` + `(1|pool)`
+
+
+Sample migration scaled log-fractions and DGE effects were compared between treatments, and the %s of gene expr variance explained per model covariate, as well as correlations between them, were computed in each treatment. This, as an attempt to reveal LPS peculiarities that help explain its bigger number of DEGs compared to IFN and untreated. 
+
+
+### 6.2 DGE analysis on permuted cell line migration phenotypes
+Script [`02_permuted_migration_DGE.R`](02_permuted_migration_DGE.R). 
+
+DGE was run as before for each of the 100 permutations of migration mean scaled log-fractions submitting an array of 100 jobs in  [`submit_array.sh`](submit_array.sh), which calls the script [`run_DGE_Rscript_per_job.sh`](run_DGE_Rscript_per_job.sh), which in turn runs the R script `02_permuted_migration_DGE.R` to execute DGE per permutation.
+
+
+### 6.3 Compute empirical *p*-values per treatment and gene   
+Script [`03_compute_empirical_pvals.R`](03_compute_empirical_pvals.R). 
+
+Empirical *p*-values were computed for each treatment and each gene assessed in DGE, based on the 100 permutations results, per treatment. Gene empirical *p*-values were compared against their actual *p*-values for migration DGE.
+
+
+

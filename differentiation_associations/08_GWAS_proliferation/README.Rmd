@@ -1,0 +1,59 @@
+## 8. Genome Wide Association Study for proliferation phenotype
+
+### 8.0 Data exploration and processing
+Script [`00_Data_exploration_processing.R`](00_Data_exploration_processing.R). 
+
+A total of 6,359,662 variants splitted into 6,360 chunks of 1,000 variants each, were tested for their association with line proliferation scaled log-fractions from 1) iPSC → preMac, 2) young → old preMac, 3) preMac → microglia in IFN, 4) preMac → microglia in LPS, and 5) preMac → microglia in untreated. 
+
+Variants and donors were previously processed and filtered by Marta Perez according to the following criteria:
+
+- Exclusion of the HLA region.
+- Exclusion of variants with MAF <0.05.
+- Exclusion of variants with *p*<1e-6 for Hardy-Weinberg equilibrium exact test.
+- Exclusion of variants missing in >10% of samples.
+- Exclusion of donors with >1% missing genotype.
+- Donors that are ancestry outliers, based on PCA.
+
+After matching lines per proliferation stage comparison that have genotype information, these were the final sample sizes: 
+
+- 228 samples for iPSC → preMac
+- 210 samples for young preMac → old preMac
+- For preMac → microglia:
+    - **IFN**: 230 samples
+    - **LPS**: 229 samples
+    - **untreated**: 209 samples
+
+Input files with line proliferation estimates + genotype data were generated for each of the 5 proliferation phenotypes, and for each variant chunk, through a Snakemake workflow system (workflow specified in [`Snakefile`](Snakefile) and executed in [`run_snakemake.sh`](run_snakemake.sh)).
+
+
+### 8.1 Testing for genotype-proliferation association 
+Script [`01_Association_testing.R`](01_Association_testing.R). 
+
+Following GWAS models previously used for microglia phagocytosis, the association of each genetic variant with each proliferation phenotype was assessed fitting the next linear model:
+
+`Prolif_phenotype` ~  `allele_dosage` + `Sex` + `npool` + `genotypePC1` + `genotypePC2` + `genotypePC3` + `genotypePC4` + `genotypePC5`
+
+This was run in the same Snakemake workflow used in [**8.0 Data exploration and processing**](00_Data_exploration_processing.R).
+
+
+### 8.2 Checking results of proliferation GWASes 
+Script [`02_Check_association_results.R`](02_Check_association_results.R).  
+
+Summary stats were merged across all chunks per phenotype and variant rsIDs were searched in [`find_rsIDs.sh`](find_rsIDs.sh).
+Q-Q plots were created comparing expected vs observed-log10(*p*-values) for variants after discarding those in LD and GWAS results were summarized in Manhattan plots. Variants above the suggestive line (1e-05) were further explored with genomic zoom plots. Non-overlapping regions of interest were defined by taking windows of 250kb around the top most significant variants per chr (lead SNPs).
+
+
+### 8.3 Explorations of closest genes to lead SNPs 
+Script [`03_Closest_genes_explorations.R`](03_Closest_genes_explorations.R).  
+
+Genes overlapping each 250kb window around lead variants were considered potential targets and were contrasted against: 
+
+1. proliferation DEGs (for preMac → microglia in **IFN**/**LPS**/**untreated**), 
+2. genes whose deleterious burdens associate with proliferation at each stage (iPSC → preMAC, young → old preMac, and preMac → microglia), and 
+3. target genes associated with cell count traits, cancer, or brain disorders, obtained from the Open Targets Platform (via the **GraphQL API**).
+
+Overlaps with Open Target genes were computed across a range of gene-trait association thresholds. Enrichments between cell count trait targets were also assessed.
+Closest genes that were significant in burden tests, as well as their close lead variants, were further explored.
+
+
+

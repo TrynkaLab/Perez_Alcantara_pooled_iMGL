@@ -1,0 +1,62 @@
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@farm22-os0000001>
+Subject: Job 32052: < #!/bin/bash;#BSUB -G teamtrynka;#BSUB -q "oversubscribed";#BSUB -n 1;#BSUB -M 40000;#BSUB -R "select[mem>40000] rusage[mem=40000]";#BSUB -o "output%J.log";#BSUB -e "error%J.log"; ## Commands based on Marta's code; module load HGI/softpack/groups/otar2065/otar2065_9/34; bcftools annotate --rename-chrs /lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/rename_chrs.txt  \;/lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/dbsnp_156_GRCh38.vcf.gz | bcftools view -T ../../output_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/variants_lead_signif_macro.txt -Oz -o ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz;bcftools index ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz;# split multiallelic variants so each alt gets their own row, and subset to first 5 columns;bcftools norm -m-any ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz | bcftools query -f '%CHROM %POS %ID %REF %ALT\n' > ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.tsv> in cluster <farm22> Exited
+
+Job < #!/bin/bash;#BSUB -G teamtrynka;#BSUB -q "oversubscribed";#BSUB -n 1;#BSUB -M 40000;#BSUB -R "select[mem>40000] rusage[mem=40000]";#BSUB -o "output%J.log";#BSUB -e "error%J.log"; ## Commands based on Marta's code; module load HGI/softpack/groups/otar2065/otar2065_9/34; bcftools annotate --rename-chrs /lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/rename_chrs.txt  \;/lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/dbsnp_156_GRCh38.vcf.gz | bcftools view -T ../../output_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/variants_lead_signif_macro.txt -Oz -o ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz;bcftools index ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz;# split multiallelic variants so each alt gets their own row, and subset to first 5 columns;bcftools norm -m-any ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz | bcftools query -f '%CHROM %POS %ID %REF %ALT\n' > ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.tsv> was submitted from host <farm22-head2> by user <dg40> in cluster <farm22> at Tue Nov 19 19:56:21 2024
+Job was executed on host(s) <farm22-os0000001>, in queue <oversubscribed>, as user <dg40> in cluster <farm22> at Wed Nov 20 09:38:16 2024
+</nfs/users/nfs_d/dg40> was used as the home directory.
+</lustre/scratch123/hgi/mdt1/projects/otar2065/OTAR2065_Daianna/code/03_Mash_analysis> was used as the working directory.
+Started at Wed Nov 20 09:38:16 2024
+Terminated at Wed Nov 20 09:57:25 2024
+Results reported at Wed Nov 20 09:57:25 2024
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+
+#!/bin/bash
+#BSUB -G teamtrynka
+#BSUB -q "oversubscribed"
+#BSUB -n 1
+#BSUB -M 40000
+#BSUB -R "select[mem>40000] rusage[mem=40000]"
+#BSUB -o "output%J.log"
+#BSUB -e "error%J.log"
+
+## Commands based on Marta's code
+
+module load HGI/softpack/groups/otar2065/otar2065_9/34
+
+bcftools annotate --rename-chrs /lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/rename_chrs.txt  \
+/lustre/scratch123/hgi/projects/otar2065/OTAR2065_sc_eQTL/data/genotype/dbsnp/dbsnp_156_GRCh38.vcf.gz | bcftools view -T ../../output_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/variants_lead_signif_macro.txt -Oz -o ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz
+bcftools index ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz
+# split multiallelic variants so each alt gets their own row, and subset to first 5 columns
+bcftools norm -m-any ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.vcf.gz | bcftools query -f '%CHROM %POS %ID %REF %ALT\n' > ../../input_data/03_Mash_analysis/01_microglia_vs_macrophages_eQTLs/dbsnp.156.variants_lead_signif_macromap_Panousis_2023.subset.tsv
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 130.
+
+Resource usage summary:
+
+    CPU time :                                   1911.67 sec.
+    Max Memory :                                 37 MB
+    Average Memory :                             33.70 MB
+    Total Requested Memory :                     40000.00 MB
+    Delta Memory :                               39963.00 MB
+    Max Swap :                                   -
+    Max Processes :                              9
+    Max Threads :                                24
+    Run time :                                   1148 sec.
+    Turnaround time :                            50464 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <error32052.log> for stderr output of this job.
+

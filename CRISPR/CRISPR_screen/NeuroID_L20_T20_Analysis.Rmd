@@ -1,0 +1,496 @@
+---
+title: "OTAR2065 NeuroID Screen Analysis"
+author: "SJW"
+date: "2024-05-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(MAGeCKFlute)
+library(ggplot2)
+library(cowplot)
+library(clusterProfiler)
+library(reshape2)
+library(limma)
+library(dplyr)
+library(stringr)
+library(pheatmap)
+library(ggpubr)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= "~/Cambridge/NeuroID/Analysis/For Submission/")
+```
+
+# Introduction
+
+This is an R Markdown document of the three screens using the NeuroID library in iMGL to examine how AD associated GWAS genes impact phagocytosis of double labelled SH-SY5Y assay
+
+iMGL transduced with ~800 sgRNA library to ~300 genes of interest and 30 intergenic non-targeting controls. iMGL were then fed labelled SH-SY5Y at d14 for 6 hours. mCherry signal by FACS is a proxy for phagocytosis rate. Cells were sorted into bins of phagocytic ability
+
+L20 - lowest phagocytosing cells 
+
+LM - lower middle phagocytosis
+
+UM - upper middle phagocytosis
+
+T20 - Highest phagocytosing cells
+
+
+T0 is the baseline transduction efficiency
+
+UN are unsorted cells at the end of the experiment, used as a proxy for dropout during the differentiation of essentiallity genes
+
+###### NeuroID Rep 1:
+8x T175, approx 123x 10^6 cells -> MOI around 0.8
+Sorted approx 2ug DNA per population
+Coverage approx 400 per bin
+
+###### NeuroID Rep 2: 
+8x T175, approx 114 x 10^6 cells -> MOI around 0.5
+Sorted approx 2ug DNA per population
+Coverage approx 300 per bin
+
+###### NeuroID Rep 3:
+8x T175, approx 114 x 10^6 cells -> MOI around 0.5
+Sorted approx 2ug DNA per population
+Coverage approx 300 per bin
+
+The sgRNA cassettes were amplified by PCR before indexing and sequencing using Illumina NovaSeq Sequencing was similar across the samples once deconvoluted and aligned to the genome and counted using MAGeCk Count. Alignment and giniscores examined
+
+#### Raw Data
+
+### R2 and Reverse Complement Guide 1
+
+Plotting the raw sequencing read data, where reads have been counted to the reference files.
+
+```{r data loading R2 Complement, echo = FALSE, fig.width=20,warning=FALSE}
+raw_reads=read.delim("NeuroID_R2_Reverse_Merged.count.txt")
+
+densityreads=raw_reads[,3:14]
+densityreads=melt(densityreads)
+densityreads$log10read= log10(densityreads$value)
+
+densityplot=ggplot(densityreads,aes(x=log10read,fill=variable))+
+  geom_density(alpha=.25)
+
+violinplot=ggplot(densityreads,aes(x=variable,y=log10read,fill=variable))+
+  geom_violin(alpha=0.25)+
+  theme(axis.text.x=element_text(angle=45,vjust=0.5))
+
+plot(densityplot)
+plot(violinplot)
+
+mageck_count_files=read.delim("NeuroID_R2_Reverse_Merged.countsummary.txt")
+BarView(mageck_count_files,x="Label",y="GiniIndex",ylab="Gini Index",main="Evenness of sgRNA reads")
+
+NeuroID_1_mageck_count_files=mageck_count_files[c(1:6),]
+NeuroID_2_mageck_count_files=mageck_count_files[c(7:12),]
+NeuroID_3_mageck_count_files=mageck_count_files[c(13:18),]
+
+plot_grid(MapRatesView(NeuroID_1_mageck_count_files),MapRatesView(NeuroID_2_mageck_count_files),MapRatesView(NeuroID_2_mageck_count_files),labels=c("AUTO"))
+
+```
+
+Good coverage, low Gini Indexes, and average 68% mapping efficiency with reverse reads
+
+### R1 and Forward Sequence Guide 1
+
+Plotting the raw sequencing read data, where reads have been counted to the reference files.
+
+```{r data loading R1 Forward, echo = FALSE, fig.width=20,warning=FALSE}
+raw_reads=read.delim("NeuroID_R1_Forward_Merged.count.txt")
+
+densityreads=raw_reads[,3:14]
+densityreads=melt(densityreads)
+densityreads$log10read= log10(densityreads$value)
+
+densityplot=ggplot(densityreads,aes(x=log10read,fill=variable))+
+  geom_density(alpha=.25)
+
+violinplot=ggplot(densityreads,aes(x=variable,y=log10read,fill=variable))+
+  geom_violin(alpha=0.25)+
+  theme(axis.text.x=element_text(angle=45,vjust=0.5))
+
+plot(densityplot)
+plot(violinplot)
+
+mageck_count_files=read.delim("NeuroID_R1_Forward_Merged.countsummary.txt")
+BarView(mageck_count_files,x="Label",y="GiniIndex",ylab="Gini Index",main="Evenness of sgRNA reads")
+
+NeuroID_1_mageck_count_files=mageck_count_files[c(1:6),]
+NeuroID_2_mageck_count_files=mageck_count_files[c(7:12),]
+NeuroID_3_mageck_count_files=mageck_count_files[c(13:18),]
+
+plot_grid(MapRatesView(NeuroID_1_mageck_count_files),MapRatesView(NeuroID_2_mageck_count_files),MapRatesView(NeuroID_2_mageck_count_files))
+
+```
+
+Good coverage, low Gini Indexes, and average 78% mapping efficiency with forward reads
+
+## Post MAGeCK Analysis of Bottom vs Top 20 bins
+
+Ran MAGeCK test on the filtered data using top vs bottom to get a list of genes which are enriched in both populations, control is Bottom, Top is test
+
+The RRA was ran as a pool treating each repeat as independent, normalising library sizes to sequencing depth
+
+#### Check Log2FC of the Intergenic Guides
+
+Plot the Log2FC of the 30 intergenic guides, these should be clustered around the 0 Log2FC mark
+
+```{r, MAGeCK analysis control genes, echo=FALSE, fig.width=10, warning=FALSE}
+sdata=ReadsgRRA("NeuroID_L20vsT20_Forward.sgrna_summary.txt")
+
+p6 = ggplot(sdata[sdata$Gene=="INT",],aes(x=LFC))+
+  geom_density()+
+  theme_classic()+
+  labs(x="Log2FC",y="Frequency",title="Intergenic Controls Log2FC")+
+  theme(plot.title=element_text(hjust=0.5))+
+     theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12))+
+  xlim(c(-1,1))
+
+print(p6)
+
+```
+
+Distribution of the Control Intergenic is as expected, strong peak around 0 Log2FC, any findings should be valid as little variation in the control sgRNA.
+
+#### MAGeCK analysis of Top vs Bottom hits
+
+<span style="color:red">Red</span> is enriched in the mCherry population (increased phagocytosis)\
+<span style="color:blue">Blue</span> is enriched in the Negative population (decreased phagocytosis)\
+
+
+```{r, MAGeCK Analysis, echo=FALSE, fig.width=10,warning=FALSE}
+gdata=ReadRRA("NeuroID_L20vsT20_Forward.gene_summary.txt")
+
+gdata$Rank=rank(gdata$Score)
+geneList=gdata$Score
+names(geneList)=gdata$id
+p2=RankView(geneList,top= 10,bottom= 10)+
+  labs(title="Rank Plot")+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12))
+print(p2)
+
+ggsave("RankPlot.pdf",plot=p2,device="pdf",dpi=300,width=3,height=10)
+ggsave("RankPlot.png",plot=p2,device="png",dpi=300,width=3,height=10)
+
+mageckreport=read.delim("NeuroID_L20vsT20_Forward.gene_summary.txt")
+write.csv(mageckreport,"NeuroID_L20vsT20_Forward.gene_summary.csv")
+gdata=gdata[order(gdata$Rank),]
+write.csv(gdata,"NeuroID_L20vsT20_Forward_gdata.csv")
+
+print(gdata[which(gdata$FDR<0.05),],)
+```
+
+Results
+
+**HAVCR2, RAB7A, HMGCR, SORT1, DCAF7,LILRB2, INPP5D, LRP1, EIF4A3, MAT2A - KO Decreases Phagocytosis**
+
+**TREM2 VAMP4 ITGAX ATG14 PLCG2 PRKN SLC26A1 CASS4 CTSH - KO Increases Phagocytosis OR decreases downstream processing**
+
+Interesting that TREM2 and PLCG2 are moving in the same direction and INPP5D in the opposite. 
+
+#### Look at the significant sgRNA Log2FC
+
+Print out the individual Log2FC of each of the gRNA by gene
+
+```{r, MAGeCK Analysis sgRNA, echo=FALSE, fig.width=8,fig.height=3, warning=FALSE}
+p4=sgRankView(sdata,top=2,bottom=1,binwidth = 0.02,interval = 0.01)+
+    labs(title="FDR significant hit dgRNA Log2FC")+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12))
+print(p4)
+ggsave("NeuroID_L20_T20_Top_3_sgRNA.png",plot=p4, dpi=300,width=4,height=2)
+ggsave("NeuroID_L20_T20_Top_3_sgRNA.pdf",device="pdf",plot=p4,dpi=300,width=4,height=2)
+```
+
+#### Normalised counts across the different bins
+
+As 4 bins sorted should see a shift in the count data across the different bins when sorting, should be able to confirm strong effects in the significant genes and provide more evidence for which targets to validate.
+
+
+```{r, Plot Bins, echo=FALSE, fig.width=8,fig.height=800,comment=NA,warnings=FALSE,message=FALSE}
+######## Looking at individual gRNA
+pal=c("#2C7BB6","#ABD9E9","#FDAE61","#D7191C")
+Normalised_counts=read.delim("NeuroID_R1_Forward_Merged.count_normalized.txt")
+Genes=as.vector(unique(gdata$id))
+
+NeuroID_1=list()
+
+for(i in Genes){
+  plotname=paste("plot",i,sep="_")
+  data1=Normalised_counts[,c(1:2,5:8)]
+  data1=data1[data1$Gene==i,]
+  data1=melt(data1)
+ NeuroID_1[[plotname]]=ggplot(data1,aes(x=variable,y=value,fill=variable))+
+   geom_boxplot(alpha=.25,outlier.alpha=0)+
+   geom_jitter(shape=16,position=position_jitter(0))+
+    geom_line(aes(group=sgRNA,color=sgRNA))+
+    geom_point()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=45,vjust=0.5))+
+    labs(title=paste("NeuroID 1",i,sep=" "),y="Normalised Count NeuroID 1",x="Sample")+
+   theme(legend.position="none")
+}
+
+NeuroID_2=list()
+
+for(i in Genes){
+  plotname=paste("plot",i,sep="_")
+  data1=Normalised_counts[,c(1:2,11:14)]
+  data1=data1[data1$Gene==i,]
+  data1=melt(data1)
+ NeuroID_2[[plotname]]=ggplot(data1,aes(x=variable,y=value,fill=variable))+
+   geom_boxplot(alpha=.25,outlier.alpha=0)+
+   geom_jitter(shape=16,position=position_jitter(0))+
+    geom_line(aes(group=sgRNA,color=sgRNA))+
+    geom_point()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=45,vjust=0.5))+
+    labs(title=paste("NeuroID 2",i,sep=" "),y="Normalised Count NeuroID 2",x="Sample")+
+   theme(legend.position="none")
+}
+
+NeuroID_3=list()
+
+for(i in Genes){
+  plotname=paste("plot",i,sep="_")
+  data1=Normalised_counts[,c(1:2,17:20)]
+  data1=data1[data1$Gene==i,]
+  data1=melt(data1)
+ NeuroID_3[[plotname]]=ggplot(data1,aes(x=variable,y=value,fill=variable))+
+   geom_boxplot(alpha=.25,outlier.alpha=0)+
+   geom_jitter(shape=16,position=position_jitter(0))+
+    geom_line(aes(group=sgRNA,color=sgRNA))+
+    geom_point()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=45,vjust=0.5))+
+    labs(title=paste("NeuroID 3",i,sep=" "),y="Normalised Count NeuroID 3",x="Sample")+
+   theme(legend.position="none")
+}
+
+merge_normalised_count=c(rbind(NeuroID_1,NeuroID_2,NeuroID_3))
+plot_grid(plotlist=merge_normalised_count,ncol=3)
+
+```
+
+#### Condensed Plots
+
+Condense counts into single plot
+
+```{r, condensed plots, echo=FALSE, fig.width=12, fig.height=6, comment=NA,warnings=FALSE,message=FALSE}
+pal=c("#2C7BB6","#ABD9E9","#FDAE61","#D7191C")
+Normalised_counts=read.delim("NeuroID_R1_Forward_Merged.count_normalized.txt")
+Genes=as.vector(unique(gdata$id))
+
+Condensed_plots_down=list()
+
+for(i in Genes[1:6]){
+plotname=paste("plot",i,sep="_")
+data1=Normalised_counts[,c(1:2,5:8,11:14,17:20)]
+data1=data1[data1$Gene==i,]
+data1=melt(data1)
+data1$variable=as.character(data1$variable)
+name=str_split_fixed(data1$variable,"_",3)
+data1=cbind(data1,name)
+colnames(data1)=c("dgRNA","Gene","variable","value","NeuroID","Repeat","Bin")
+data1$dgRNA=str_split_i(data1$dgRNA,"_",2)
+data1$Repeat[data1$Repeat=="1"]="Repeat 1"
+data1$Repeat[data1$Repeat=="2"]="Repeat 2"
+data1$Repeat[data1$Repeat=="3"]="Repeat 3"
+data1$dgRNA[data1$dgRNA=="A"]="dgRNA 1"
+data1$dgRNA[data1$dgRNA=="B"]="dgRNA 2"
+data1$dgRNA[data1$dgRNA=="C"]="dgRNA 3"
+data1$Bin=factor(data1$Bin,levels=c("L20","LM","UM","T20"))
+data1$dgRNA_Rep=paste(data1$dgRNA,data1$Repeat,sep="_")
+
+Condensed_plots_down[[plotname]]=ggplot(data1,aes(x=Bin,y=value,fill=Bin))+
+   geom_boxplot(alpha=.75,outlier.alpha=0)+
+    scale_fill_manual(values=pal)+
+   geom_jitter(shape=16,position=position_jitter(0))+
+    geom_line(aes(color=dgRNA,group = dgRNA_Rep))+
+    geom_point(aes(shape=Repeat))+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=45,vjust=0.5))+
+    labs(title=paste(i),y="Normalised Count",x="Sample")+
+  guides(fill="none")
+}
+
+plot_grid(plotlist=Condensed_plots_down,ncol=3)
+ggsave("NeuroID_L20_T20_Top_6_Enriched_L20_barplots.pdf",plot=last_plot(), dpi=300)
+
+
+Condensed_plots_up=list()
+
+for(i in Genes[246:251]){
+plotname=paste("plot",i,sep="_")
+data1=Normalised_counts[,c(1:2,5:8,11:14,17:20)]
+data1=data1[data1$Gene==i,]
+data1=melt(data1)
+data1$variable=as.character(data1$variable)
+name=str_split_fixed(data1$variable,"_",3)
+data1=cbind(data1,name)
+colnames(data1)=c("dgRNA","Gene","variable","value","NeuroID","Repeat","Bin")
+data1$dgRNA=str_split_i(data1$dgRNA,"_",2)
+data1$Repeat[data1$Repeat=="1"]="Repeat 1"
+data1$Repeat[data1$Repeat=="2"]="Repeat 2"
+data1$Repeat[data1$Repeat=="3"]="Repeat 3"
+data1$dgRNA[data1$dgRNA=="A"]="dgRNA 1"
+data1$dgRNA[data1$dgRNA=="B"]="dgRNA 2"
+data1$dgRNA[data1$dgRNA=="C"]="dgRNA 3"
+data1$Bin=factor(data1$Bin,levels=c("L20","LM","UM","T20"))
+data1$dgRNA_Rep=paste(data1$dgRNA,data1$Repeat,sep="_")
+
+Condensed_plots_up[[plotname]]=ggplot(data1,aes(x=Bin,y=value,fill=Bin))+
+   geom_boxplot(alpha=.75,outlier.alpha=0)+
+  scale_fill_manual(values=pal)+
+   geom_jitter(shape=16,position=position_jitter(0))+
+    geom_line(aes(color=dgRNA,group = dgRNA_Rep))+
+    geom_point(aes(shape=Repeat))+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle=45,vjust=0.5))+
+    labs(title=paste(i),y="Normalised Count",x="Sample")+
+  guides(fill=FALSE)
+}
+
+plot_grid(plotlist=Condensed_plots_up,ncol=3)
+ggsave("NeuroID_L20_T20_Top_6_Enriched_T20_barplots.pdf",plot=last_plot(),dpi = 300)
+
+FDR_sig_plots=plot_grid(Condensed_plots_down$plot_HAVCR2,Condensed_plots_up$plot_ITGAX,Condensed_plots_up$plot_TREM2,labels=c("C","",""),ncol=1)
+FDR_sig_plot_sgRNA=plot_grid(FDR_sig_plots,p4,rel_heights = c(1,0.25),labels=c("C","D"),ncol=1)
+FDR_sig_plot_sgRNA_Rank=plot_grid(p2,FDR_sig_plot_sgRNA,ncol=2,rel_widths=c(0.75,1),labels=c("B",""))
+FDR_sig_plot_sgRNA_Rank_Method=plot_grid(NULL,FDR_sig_plot_sgRNA_Rank,ncol=1,rel_heights=c(0.25,1),labels=c("A",""))
+ggsave("NeuroID_Screen_Figure.jpeg",device="jpeg",plot=FDR_sig_plot_sgRNA_Rank_Method,dpi=600,width=8,height=12)
+
+plot_grid(Condensed_plots_down$plot_HAVCR2,Condensed_plots_up$plot_ITGAX,Condensed_plots_up$plot_TREM2,ncol=1)
+ggsave("HAVCR2_ITGAX_TREM2_Normalised_count.pdf",device="pdf",plot=last_plot(),dpi=300,width=4,height=8)
+ggsave("HAVCR2_ITGAX_TREM2_Normalised_count.png",device="png",plot=last_plot(),dpi=300,width=4,height=8)
+```
+
+#### Overlap with PILOT data
+
+Check the overlap of hits with the pilot data to confirm if they are moving in the same direction
+
+```{r, Overlap with PILOT:load data, echo=FALSE, fig.width=16, fig.height=8, comment=NA, warnings=FALSE, message=FALSE}
+
+PILOT_gdata=read.csv("PILOT006_PILOT007_L20_T20_controlnorm_gdata.csv")
+PILOT_gdata=PILOT_gdata[,-1]
+
+Overlapping_genes=PILOT_gdata[PILOT_gdata$id %in% gdata$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata,by="id")
+colnames(Overlapping_genes)=c("id","Pilot Log2FC","PILOT FDR","PILOT Rank","NeuroID Log2FC","NeuroID FDR","NeuroID Rank")
+
+Overlap_plot1=ggplot(Overlapping_genes,aes(x=`Pilot Log2FC`,y=`NeuroID Log2FC`,label=`id`))+
+  geom_point(size=0.8)+
+  geom_hline(yintercept=0)+
+  geom_vline(xintercept=0)+
+  geom_smooth(method="lm")+
+  geom_text(hjust=0.5,vjust=-1,size=2)+
+  theme_classic()+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12),
+        plot.margin = margin(5,5,5,5))+
+  stat_cor(size=3,label.y = 0.5)+
+  labs(title="Correlation Pilot and NeuroID Screens")
+
+print(Overlap_plot1)
+
+ggsave("Supplementary Figure - Correlation Pilot and Main.jpeg",plot=Overlap_plot1,device="jpeg",dpi=300,width=5,height=5)
+
+gdata_NeuroID1=read.csv("NeuroID_Screen_1_L20vsT20_Forward_gdata.csv",header=TRUE,row.names=1)
+gdata_NeuroID2=read.csv("NeuroID_Screen_2_L20vsT20_Forward_gdata.csv",header=TRUE,row.names=1)
+gdata_NeuroID3=read.csv("NeuroID_Screen_3_L20vsT20_Forward_gdata.csv",header=TRUE,row.names=1)
+
+Overlapping_genes=gdata_NeuroID1[gdata_NeuroID1$id %in% gdata_NeuroID2$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata_NeuroID2,by="id")
+colnames(Overlapping_genes)=c("id","Screen 1 Log2FC","Screen 1 FDR","Screen 1 Rank","Screen 2 Log2FC","Screen 2 FDR","Screen 2 Rank")
+
+Overlap_plot4=ggplot(Overlapping_genes,aes(x=`Screen 1 Log2FC`,y=`Screen 2 Log2FC`,label=`id`))+
+  geom_point(size=0.5)+
+  geom_hline(yintercept=0)+
+  geom_vline(xintercept=0)+
+  geom_smooth(method="lm")+
+  geom_text(hjust=0.5,vjust=1.3,size=2)+
+  theme_classic()+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12),
+        plot.margin = margin(10,5,10,5))+
+  xlim(c(-0.4,0.4))+
+  ylim(c(-0.6,0.6))+
+  
+  stat_cor()+
+  labs(title="Log2FC Correlation: Screen 1 vs Screen 2")
+
+Overlapping_genes=gdata_NeuroID1[gdata_NeuroID1$id %in% gdata_NeuroID3$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata_NeuroID3,by="id")
+colnames(Overlapping_genes)=c("id","Screen 1 Log2FC","Screen 1 FDR","Screen 1 Rank","Screen 3 Log2FC","Screen 3 FDR","Screen 3 Rank")
+
+Overlap_plot5=ggplot(Overlapping_genes,aes(x=`Screen 1 Log2FC`,y=`Screen 3 Log2FC`,label=`id`))+
+  geom_point(size=0.5)+
+  geom_hline(yintercept=0)+
+  geom_vline(xintercept=0)+
+  geom_smooth(method="lm")+
+  geom_text(hjust=0.5,vjust=1.3,size=2)+
+  theme_classic()+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12),
+        plot.margin = margin(10,5,10,5))+
+  xlim(c(-0.4,0.4))+
+  ylim(c(-0.6,0.6))+
+  stat_cor()+
+  labs(title="Log2FC Correlation: Screen 1 vs Screen 3")
+
+Overlapping_genes=gdata_NeuroID2[gdata_NeuroID2$id %in% gdata_NeuroID3$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata_NeuroID3,by="id")
+colnames(Overlapping_genes)=c("id","Screen 2 Log2FC","Screen 2 FDR","Screen 2 Rank","Screen 3 Log2FC","Screen 3 FDR","Screen 3 Rank")
+
+Overlap_plot6=ggplot(Overlapping_genes,aes(x=`Screen 2 Log2FC`,y=`Screen 3 Log2FC`,label=`id`))+
+  geom_point(size=0.5)+
+  geom_hline(yintercept=0)+
+  geom_vline(xintercept=0)+
+  geom_smooth(method="lm")+
+  geom_text(hjust=0.5,vjust=1.3,size=2)+
+  theme_classic()+
+  theme(plot.title = element_text(face="bold",size=12),
+        axis.title = element_text(face="bold",size=12),
+        plot.margin = margin(10,5,10,5))+
+  xlim(c(-0.4,0.4))+
+  ylim(c(-0.6,0.6))+
+  stat_cor()+
+  labs(title="Log2FC Correlation: Screen 2 vs Screen 3")
+
+screen_correlations=plot_grid(Overlap_plot4,Overlap_plot5,Overlap_plot6,ncol=1,labels="AUTO")
+
+print(screen_correlations)
+
+ggsave("Supplementary Figure - Correlation Three Screens.jpeg",plot=screen_correlations,device="jpeg",dpi=300,width=5,height=10)
+
+
+## heatmap of correlations
+
+Overlapping_genes=gdata_NeuroID1[gdata_NeuroID1$id %in% gdata_NeuroID2$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata_NeuroID2,by="id")
+colnames(Overlapping_genes)=c("id","Screen 1 Score","Screen 1 FDR","Screen 1 Rank","Screen 2 Score","Screen 2 FDR","Screen 2 Rank")
+Overlapping_genes=Overlapping_genes[Overlapping_genes$id %in% gdata_NeuroID3$id,]
+Overlapping_genes=merge(Overlapping_genes,gdata_NeuroID3,by="id")
+colnames(Overlapping_genes)=c("id","Screen 1 Score","Screen 1 FDR","Screen 1 Rank","Screen 2 Score","Screen 2 FDR","Screen 2 Rank","Screen 3 Score","Screen 3 FDR","Screen 3 Rank")
+
+row.names(Overlapping_genes)=Overlapping_genes$id
+
+Overlapping_genes_Score=Overlapping_genes[,c(2,5,8)]
+
+Overlapping_genes_Score=as.matrix(Overlapping_genes_Score)                              
+
+Overlap_heatmap=pheatmap(Overlapping_genes_Score,main="Screen Correlation",fontsize=8)
+
+save_pheatmap_png <- function(x, filename, width=1200, height=8000, res = 300) {
+  png(filename, width = width, height = height, res = res)
+  grid::grid.newpage()
+  grid::grid.draw(x$gtable)
+  dev.off()
+}
+
+save_pheatmap_png(Overlap_heatmap,"heatmap.png")
+
+```

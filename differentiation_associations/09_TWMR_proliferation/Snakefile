@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# Snakefile for preparing gene inputs for TWMR on microglia eQTL and preMac -> microglia proliferation data 
+# code based on Marta's code in otar2065/OTAR2065_sc_eQTL/code/TWMR_for_Daianna/Snakefile
+# snakemake location:  /software/teamtrynka/conda/otar2065/bin/snakemake
+
+################################################################################
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!    Important    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+################################################################################
+# This Snakefile wasn't executed as Snakemake didn't work properly when run in 
+# an interactive session.
+################################################################################
+
+import os
+import pandas as pd
+import numpy as np
+
+
+# GENE=["LRRK2","SLC2A13","TREM1"]
+
+# All genes with eQTLs x treatment
+eqtls_IFN = pd.read_csv("../../input_data/09_TWMR_proliferation/01_IVs_and_exposures_selection/nominal_eqtl_results_IFN.csv")
+eqtls_LPS = pd.read_csv("../../input_data/09_TWMR_proliferation/01_IVs_and_exposures_selection/nominal_eqtl_results_LPS.csv")
+eqtls_untreated = pd.read_csv("../../input_data/09_TWMR_proliferation/01_IVs_and_exposures_selection/nominal_eqtl_results_untreated.csv")
+
+genes_IFN = set(eqtls_IFN["gene_symbol"])
+genes_LPS = set(eqtls_LPS["gene_symbol"])
+genes_untreated = set(eqtls_untreated["gene_symbol"])
+
+genes = list(genes_IFN.union(genes_LPS).union(genes_untreated))
+# len(genes)
+
+GENE = genes
+TREATMENT = ["IFN", "LPS", "untreated"]
+
+# to test on reduced gene set:
+# GENE = genes[0:10]
+# TREATMENT = ["LPS"]
+
+
+rule all:
+ input:
+  model = expand('../../output_data/09_TWMR_proliferation/01_IVs_and_exposures_selection/{treatment}/{gene}_input_matrices.Rdata', treatment = TREATMENT, gene = GENE)
+
+
+rule define_TWMR_model_per_gene:
+ output:
+  out_model = '../../output_data/09_TWMR_proliferation/01_IVs_and_exposures_selection/{treatment}/{gene}_input_matrices.Rdata',
+ message: "Define TWMR model per focus gene.",
+ params:
+  group = "-G teamtrynka",
+  queue = "-q oversubscribed",
+  threads = "-n 1",
+  memory = "-M100000 -R'span[hosts=1] select[mem>100000] rusage[mem=100000]'",
+  jobname = "-o logs/01_IVs_and_exposures_selection/log.%J.%I",
+  error = "-e errors/01_IVs_and_exposures_selection/error.%J.%I",
+  output_path = "../../output_data/09_TWMR_proliferation/01_IVs_and_exposures_selection",
+ shell:
+  """
+   set +o pipefail;
+
+    Rscript 01_IVs_and_exposures_selection_withSnakemake.R  {wildcards.gene} {wildcards.treatment} {params.output_path}
+  """

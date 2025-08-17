@@ -1,0 +1,59 @@
+## 7. Permutation analysis for proliferation DGE 
+
+
+### 7.0 Data exploration and processing
+Script [`00_Data_exploration_processing.R`](00_Data_exploration_processing.R). 
+
+The proliferation scaled log-fractions utilized in [**4. Burden tests for line proliferation efficiency**](../04_Burden_test_proliferation) were used to find genes associated with proliferation efficiency. For this purpose, only proliferation estimates from preMac → microglia were considered because gene expression data are from microglia samples and given that transcriptomes differ substantially between differentiation stages, the available microglia gene expression levels are not appropriate to study cellular/molecular processes in upstream stages (i.e. iPSC and macrophage precursors).  
+
+A total of 2,344 scaled log-fractions for proliferation from macrophage precursor to microglia are available per line x pool x batch x preMac age x treatment, with 1,091 unique lines x pool x treatment (each spanning 1-4 batches or different preMac ages). Macrophage precursor span ages from 28 to 60.
+
+Scaled log-fractions were averaged across batches and preMac ages to get proliferation estimates per line x pool x treatment, matching the level of pseudobulk gene expression samples. Out of 2,077 samples with gene expression data, 1,792 (86.27%) have proliferation data; in the non-proliferative samples with ≥ 100 cells, 757 samples (193 lines).
+
+A 100 permutations of the mean scaled log-fractions of proliferation were computed per treatment for subsequent DGE analysis.
+
+
+### 7.1 DGE analysis for line proliferation phenotypes
+Script [`01_run_proliferation_DGE.R`](01_run_proliferation_DGE.R). 
+
+Differential gene expression analyses for proliferation phenotypes in each treatment were performed subsetting to the non-proliferative samples with at least 100 cells each.
+
+Lowly-expressed genes per treatment were filtered out (inclusion criteria: >0.1 CPM in at least 30% samples), normalization factors were computed with the TMM method using `calcNormFactors()`. These were the final sample sizes used per treatment DGE:
+
+- **IFN**: 12,726 expressed genes across 257 samples from 191 unique lines of 184 donors. Of the 123 samples, 94 had 2 replicates and 29 had no replicates.
+- **LPS**:  12,784 expressed genes across 245 samples from 188 unique lines of 182 donors. Of the 199 samples, 161 had 2 replicates, 36 had 3 replicates, and 2 didn’t have replicates.
+- **untreated**:  13,090 expressed genes across 255 samples from 183 unique lines of 177 donors. Of the 211 samples, 174 had 2 replicates, 31 had 3 replicates, and 6 had no replicates.
+
+Similar to phagocytosis and migration DGE, the fitted model was:
+
+Gene_expr  ~ `proliferation_mean_scaled_log_fraction` + `Sex` + `proliferation_mean_min_prop` + `genotype_PC1` + `genotype_PC2` + `(1|pool)`
+
+
+Proliferation effects on gene expression and DEGs were compared across treatments. CCA and variance parition analyses were run to explore covariate correlations and contributions to gene expression variance within each treatment.
+
+
+### 7.2 DGE analysis on permuted cell line proliferation phenotypes
+Script [`02_permuted_proliferation_DGE.R`](02_permuted_proliferation_DGE.R). 
+
+DGE was run for a 100 permuted proliferation phenotypes under the same model, expressed genes, and samples, and for each treatment. 
+
+The array of 100 jobs (one per permutation) was submitted in [`submit_array.sh`](submit_array.sh), which calls the script [`run_DGE_Rscript_per_job.sh`](run_DGE_Rscript_per_job.sh), which in turn runs the R script `02_permuted_proliferation_DGE.R` to execute DGE per permutation.
+
+
+### 7.3 Compute empirical *p*-values per treatment and gene   
+Script [`03_compute_empirical_pvals.R`](03_compute_empirical_pvals.R). 
+
+Empirical *p*-values were computed for each treatment and each gene assessed in DGE, based on the 100 permutations results, per treatment. Gene empirical *p*-values were compared against their actual *p*-values for proliferation DGE.
+
+
+### 7.4 Exploration of overlapping DEGs across treatments and phenotypes
+Script [`04_DEGs_overlaps_explorations.R`](04_DEGs_overlaps_explorations.R). 
+
+DEGs for microglia phagocytosis, migration, and proliferation were contrasted across treatments and between phenotypes. 
+
+
+### 7.5 Functional enrichment analysis for proliferation DEGs
+Script [`05_Functional_enrichment.R`](05_Functional_enrichment.R). 
+
+Overrepresentation analyses were run to assess enrichment of AD/PD candidate genes, DepMap essential genes, and macrophage survival genes among proliferation DEGs (in IFN/LPS only). Gene Set Enrichment Analyses were also run on all expressed genes per treatment ranked by *t*-stats with the same functional gene sets.
+
