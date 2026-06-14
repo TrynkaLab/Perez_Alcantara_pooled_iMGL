@@ -32,7 +32,7 @@ write.table(w_estimates,paste0(output_dir,"/w_estimates.txt"),
             row.names = FALSE,quote = FALSE)
 # read in proportion error estimates
 error_estimates = read.table("../../../OTAR2065_phenotypic_QTLs/data/w/error_approximations_generic_pool.txt", header = TRUE) %>%
-  dplyr::filter(coverage ==5 & genotype =="old")
+  dplyr::filter(coverage ==1 & genotype =="old")
 
 # Perform the inner join based on the closest proportion values
 w_estimates =  w_estimates %>%
@@ -146,7 +146,7 @@ hist(line_prop_changes_premac_iPSC$scaled_log_fraction) # normal
 # and for scRNAseq (type) to facilitate the comparisons
 expanded_premacs_untreated = w_estimates_adjusted %>%
   dplyr::filter(stage %in% c("preMac")) %>%
-  dplyr::mutate(treatment = "IFNg",type = "scRNA-seq")
+  dplyr::mutate(treatment = "untreated",type = "scRNA-seq")
 
 expanded_premacs_IFN = w_estimates_adjusted %>%
   dplyr::filter(stage %in% c("preMac")) %>%
