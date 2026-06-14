@@ -5,31 +5,33 @@ import anndata as ad
 import scanpy as sc
 import pandas as pd
 
-file_path = "../../data/for_saigeQTL/untreated.h5"
+for treatment in ["IFN", "LPS", "untreated"]:
 
-with h5py.File(file_path, "r") as f:
-    def print_structure(name, obj):
-        print(name, type(obj))
-    f.visititems(print_structure)
+    file_path = f"../../data/for_saigeQTL/{treatment}.h5"
+    # Inspect HDF5 structure
+    with h5py.File(file_path, "r") as f:
+        def print_structure(name, obj):
+            print(name, type(obj))
+        f.visititems(print_structure)
+    # Read AnnData
+    adata = sc.read_10x_h5(file_path)
+    # Load metadata
+    meta = pd.read_csv(
+        f"../../data/for_saigeQTL/{treatment}_metadata.csv",
+        index_col=0
+    )
+    # Check that cell numbers match
+    print(meta.shape)
+    print(adata.n_obs)
+    # Reorder metadata to match adata
+    meta = meta.loc[adata.obs_names]
+    # Add metadata
+    adata.obs = meta
+    # Save
+    adata.write_h5ad(
+        f"../../data/for_saigeQTL/{treatment}.h5ad"
+    )
 
-
-adata = sc.read_10x_h5(file_path)
-
-## add metadata
-meta = pd.read_csv("../../data/for_saigeQTL/untreated_metadata.csv", index_col=0)
-
-# Check that cell names match
-print(meta.shape)
-print(adata.n_obs)
-
-# Reorder metadata to match adata
-meta = meta.loc[adata.obs_names]
-
-# Add to AnnData
-adata.obs = meta
-
-adata.write_h5ad("../../data/for_saigeQTL/untreated.h5ad")
-    
     
 ### save subsets for comparison with tensorQTL
 
