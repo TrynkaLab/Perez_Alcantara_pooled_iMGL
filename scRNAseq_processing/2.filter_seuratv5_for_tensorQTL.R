@@ -12,7 +12,7 @@ options(future.globals.maxSize = 40000 * 1024^2) # 40Gb
 options(seurat.object.assay.version = "v5")
 
 output_dir = "../../../OTAR2065_sc_eQTL/data/for_tensorQTL/"
-dir.create(output_dir)
+dir.create(output_dir,recursive = TRUE)
 #biomartCacheClear()
 # Load the seurat object
 
@@ -27,7 +27,7 @@ if (length(args)<2) {
 }
 
 # # to test
-# treatment="IFN"
+# treatment="untreated"
 # donor_blacklist="letw_5,lizq_3,zaie_1,romx_2,seru_7,qonc_2,iukl_1,curn_3,boqx_2,garx_2,sojd_3,yoch_6"
 
 donor_blacklist = stringr::str_split(donor_blacklist,pattern = ",")[[1]]
@@ -49,35 +49,35 @@ gene_info = read_csv("../../../resources/biomart/Homo_sapiens.GRCh38.111.genes.c
   dplyr::filter(gene_biotype == "protein_coding")
 
 ########
-p1 =  SCpubr::do_BarPlot(input_seurat,
-                         group.by = "Phase",
-                         split.by = "cluster_full",
-                         plot.title = "Proportion of cells per phase in each cluster",
-                         position = "fill")
-
-pdf(paste0(output_dir,"/",treatment,"_clusters_barplot_cycle_phase.pdf"),
-    width = 9, height = 14)
-
-plot(p1)
-dev.off()
+# p1 =  SCpubr::do_BarPlot(input_seurat,
+#                          group.by = "Phase",
+#                          split.by = "cluster_full",
+#                          plot.title = "Proportion of cells per phase in each cluster",
+#                          position = "fill")
+# 
+# pdf(paste0(output_dir,"/",treatment,"_clusters_barplot_cycle_phase.pdf"),
+#     width = 9, height = 14)
+# 
+# plot(p1)
+# dev.off()
 
 
 message("Naming proliferation categories")
-
-input_seurat@meta.data$proliferation_status = "Not_proliferating"
-if(treatment == "untreated"){
-  input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(3,4) , "proliferation_status"] =  "Proliferating"
-  
-}
-if(treatment == "LPS"){
-  input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(4,5,7) , "proliferation_status"] =  "Proliferating"
-  
-}
-if(treatment == "IFN"){  # much smaller proliferating clusters on IFN treated cells
-  input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(4) , "proliferation_status"] =  "Proliferating"
-  
-}
-message("Aggregating expression: subset to avoid memory issues")
+# 
+# input_seurat@meta.data$proliferation_status = "Not_proliferating"
+# if(treatment == "untreated"){
+#   input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(3,4) , "proliferation_status"] =  "Proliferating"
+#   
+# }
+# if(treatment == "LPS"){
+#   input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(4,5,7) , "proliferation_status"] =  "Proliferating"
+#   
+# }
+# if(treatment == "IFN"){  # much smaller proliferating clusters on IFN treated cells
+#   input_seurat@meta.data[input_seurat@meta.data$cluster_full %in%  c(4) , "proliferation_status"] =  "Proliferating"
+#   
+# }
+# message("Aggregating expression: subset to avoid memory issues")
 
 
 pseudobulk = list()
@@ -96,8 +96,8 @@ for(prolif in c("Not_proliferating","Proliferating")){
     tibble::rownames_to_column(var = "gene") %>%
     dplyr::filter(gene %in% gene_info$gene) %>%
     tibble::column_to_rownames(var = "gene")
-    
-    
+  
+  
   message("Adding metadata")
   
   metadata[[prolif]]  = subset_seurat@meta.data %>%
@@ -111,7 +111,7 @@ for(prolif in c("Not_proliferating","Proliferating")){
     dplyr::arrange(tolower(cols_names)) %>% # pseudobulk count columns are in alphabetical order (case insensitive)
     as.data.frame()
   
-  colnames(pseudobulk[[prolif]] ) =metadata[[prolif]] $cols_names
+  colnames(pseudobulk[[prolif]] ) =metadata[[prolif]]$cols_names
   rm(subset_seurat)
   gc()
 }
@@ -258,7 +258,7 @@ gc()
 message("Annotating Ensembl IDs for tensorQTL")
 # ensembl v 111, GRCh38.p14 Downloaded from https://ftp.ensembl.org/pub/release-111/gtf/homo_sapiens/Homo_sapiens.GRCh38.111.gtf.gz
 # and filtered to genes
-ensembl = read_csv("../../../resources/ENSEMBL_human_v111_2023/Homo_sapiens.GRCh38.111.genes.csv") %>%
+ensembl = read_csv("../../../resources/biomart/Homo_sapiens.GRCh38.111.genes.csv") %>%
   dplyr::select(seqname,start,end,gene_id,gene_name)
 
 for(condition in names(log_sum_counts_list)){
@@ -289,8 +289,8 @@ message("Scaling expression and saving")
 for(condition in names(log_sum_counts_list)){
   fixed_cols = log_sum_counts_list[[condition]] %>%
     dplyr::select("#chr","start","end","gene_id") %>%
-     dplyr::mutate(end = start + 1) # fixing end for tensorQTL to be start + 1
-          
+    dplyr::mutate(end = start + 1) # fixing end for tensorQTL to be start + 1
+  
   numeric_df = log_sum_counts_list[[condition]] %>%
     dplyr::select(!c(`#chr`,start,end,gene_id, gene_name)) %>%
     t() %>%
@@ -300,7 +300,7 @@ for(condition in names(log_sum_counts_list)){
     t() %>%
     as.data.frame() %>%
     mutate_all(as.numeric) 
-    
+  
   scaled = cbind(fixed_cols,scaled)
   colnames(scaled) = c("#chr","start","end","gene_id",metadata_list[[condition]]$donor_id)    
   write.table(scaled,paste0(output_dir,"/expr_sum_sizefactorsNorm_log2_scaled_centered_",treatment, "_", condition,".bed"),

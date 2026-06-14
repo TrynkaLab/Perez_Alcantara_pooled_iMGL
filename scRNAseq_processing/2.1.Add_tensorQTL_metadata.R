@@ -6,7 +6,7 @@ library(stringr)
 
 output_dir = "../../data/for_tensorQTL/"
 dir.create(output_dir)
-dir.create(paste0(output_dir,"/",pcnumber))
+
 args = commandArgs(trailingOnly=TRUE)
 message(length(args)," arguments provided")
 if (length(args)<2) {
@@ -18,7 +18,8 @@ if (length(args)<2) {
 }
 
 # pcnumber=90
-# treatment = "IFN"
+# treatment = "untreated"
+
 #### load genotype PCs and subset to donors present in each condition
 message("Adding genotype PCs")
 
@@ -35,7 +36,7 @@ if(treatment !="IFN"){
 metadata = list()
 scaled = list()
 for(condition in c("Not_proliferating","Proliferating")){
-  metadata[[condition]] = read.table(paste0(output_dir,"/metadata_noPCs_",
+  metadata[[condition]] = read.table(paste0(output_dir,"metadata_noPCs_",
                                             treatment, "_", condition,".txt"),
                                      header = TRUE,sep = "\t") %>%
     dplyr::mutate(one_over_ncells = 1/count)
@@ -47,7 +48,7 @@ for(condition in c("Not_proliferating","Proliferating")){
 # reading expression
 
   scaled[[condition]] = read.table(paste0(output_dir,"/expr_sum_sizefactorsNorm_log2_scaled_centered_",
-                                          treatment, "_", condition,".bed"))
+                                          treatment, "_", condition,".bed.gz"))
   colnames(scaled[[condition]]) = c("chr","start","end","gene_id",metadata[[condition]]$donor_id)
   
 
@@ -119,7 +120,7 @@ message("Saving metadata")
     # reading expression
     
     scaled[[condition]] = read.table(paste0(output_dir,"/expr_sum_sizefactorsNorm_log2_scaled_centered_",
-                                            treatment, "_", condition,".bed"))
+                                            treatment, "_", condition,".bed.gz"))
     colnames(scaled[[condition]]) = c("chr","start","end","gene_id",metadata[[condition]]$donor_id)
     
     
@@ -175,8 +176,7 @@ message("Saving metadata")
   }
 }
 
-## Of note: they don't seem to explicitly account for pool in the covariate matrix, 
-# but this variability should be
+## Of note: they don't seem to explicitly account for pool in the covariate matrix, but this variability should be
 # accounted for by including the PCs (as explained on the paper)
 
 

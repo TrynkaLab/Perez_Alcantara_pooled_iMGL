@@ -7,6 +7,8 @@
 library(tidyverse)
 library(mashr)
 library(UpSetR)
+library(patchwork)
+
 source("./functions.R")
 
 set.seed(123)
@@ -17,6 +19,33 @@ dir.create(outdir,recursive = TRUE)
 #mashr needs a strong subset of eQTLs (i.e. significant). Reasonable size would be 16k tests for 44 conditions (the top eQTL per gene for all conditions)
 # and a random subset ~ 20k randomly-selected tests for the 16k strong results from above.
 eqtl = readr::read_csv("../../data/results/4.Inspect_eQTL_results/tensorQTL_variant_gene.csv")
+
+
+genes_by_condition <- lapply(c("untreated","IFN","LPS"), function(ct) {
+  eqtl %>%
+    filter(cluster == "Not_proliferating") %>%
+    filter(str_detect(group, ct)) %>%
+    pull(gene_id) %>%
+    unique()
+})
+
+names(genes_by_condition) <- c("untreated","IFN","LPS")
+
+# pairwise overlaps
+sapply(genes_by_condition, length)
+# untreated       IFN       LPS 
+# 10903     10556     10608 
+# Jaccard similarity
+outer(genes_by_condition, genes_by_condition, Vectorize(function(x,y){
+  length(intersect(x,y))/length(union(x,y))
+}))
+# untreated       IFN       LPS
+# untreated 1.0000000 0.9390079 0.9335730
+# IFN       0.9390079 1.0000000 0.9393384
+# LPS       0.9335730 0.9393384 1.0000000
+# Gene-level overlap across conditions was very high (Jaccard index ~0.93-0.94), 
+# indicating that essentially the same set of genes was tested in all conditions
+
 # extract significant results
 signif = eqtl %>%
   dplyr::filter(cluster %in% "Not_proliferating") %>%
@@ -28,21 +57,175 @@ strong = eqtl %>%
   dplyr::filter(gene_variant_pair %in% unique(signif$gene_variant_pair)) %>%
   dplyr::mutate(ensembl_id_var = paste(gene_id,variant_id,sep = "-"))
 # extract matrices of observed estimates (slope x condition) and their standard errors (s.e.of slope x condition)
-eqtl_nominal = list()
 # Not loading Prolif subsets
-for(condition in c(paste0(c(63,73,84),"/sum_sizefactorsNorm_log2_scaled_centered_",c("untreated","IFN","LPS"),"_Not_proliferating"))){
-  eqtl_nominal[[condition]] = readr::read_delim(paste0("../../data/results/tensorqtl/",
-                                                       condition,"_common_500kb_window_tensorQTL_nominal.txt")) %>%
-    dplyr::mutate(group = paste(str_split_i(condition, pattern = "/",1),str_split_i(condition, pattern = "_",6),"Not_proliferating",sep="_"),
-                  ensembl_id_var = paste(phenotype_id,variant_id,sep = "-")) %>%
-    dplyr::filter(ensembl_id_var %in% strong$ensembl_id_var) %>% # extracting same gene-variant pair for all
-    
-    dplyr::select(slope,slope_se,group,ensembl_id_var)
+#for(condition in c(paste0(c(63,73,84),"/sum_sizefactorsNorm_log2_scaled_centered_",c("untreated","IFN","LPS"),"_Not_proliferating"))){
+eqtl_nominal <- list()
+
+treatments <- c("untreated", "IFN", "LPS")
+
+for (treatment in treatments) {
   
+  file_prefix <- paste0(
+    "sum_sizefactorsNorm_log2_scaled_centered_",
+    treatment,
+    "_Not_proliferating"
+  )
   
+  eqtl_nominal[[treatment]] <- readr::read_delim(
+    paste0(
+      "../../data/results/tensorqtl/",
+      file_prefix,
+      "_common_500kb_window_tensorQTL_nominal.txt"
+    )
+  ) %>%
+    dplyr::mutate(
+      group = paste(
+        str_split_i(file_prefix, pattern = "_", 1),
+        treatment,
+        "Not_proliferating",
+        sep = "_"
+      ),
+      cluster = "Not_proliferating",
+      treatment = treatment,
+      ensembl_id_var = paste(phenotype_id, variant_id, sep = "-")
+    ) %>%
+    #dplyr::filter(ensembl_id_var %in% strong$ensembl_id_var) %>%
+    dplyr::select(slope, slope_se, group, ensembl_id_var)
 }
 
 eqtl_nominal = do.call("rbind",eqtl_nominal)
+
+variants_by_condition <- lapply(c("untreated","IFN","LPS"), function(ct) {
+  eqtl_nominal %>%
+    filter(str_detect(group, ct)) %>%
+    pull(ensembl_id_var) %>%
+    unique()
+})
+
+names(variants_by_condition) <- c("untreated","IFN","LPS")
+
+# pairwise overlaps
+sapply(variants_by_condition, length)
+# untreated       IFN       LPS 
+# 12044074  11664422  11730468 
+# Jaccard similarity
+outer(variants_by_condition, variants_by_condition, Vectorize(function(x,y){
+  length(intersect(x,y))/length(union(x,y))
+}))
+
+# untreated       IFN       LPS
+# untreated 1.0000000 0.9373464 0.9328517
+# IFN       0.9373464 1.0000000 0.9367963
+# LPS       0.9328517 0.9367963 1.0000000
+
+
+# Jaccard matrix (genes)
+
+make_triangular_df <- function(mat) {
+  df <- as.data.frame(mat) %>%
+    tibble::rownames_to_column("condition1") %>%
+    tidyr::pivot_longer(-condition1, names_to = "condition2", values_to = "jaccard") %>%
+    
+    # remove diagonal (same condition)
+    filter(condition1 != condition2) %>%
+    
+    # keep only upper triangle (avoid duplicate pairs)
+    filter(condition1 < condition2)
+  
+  return(df)
+}
+
+jac_genes <- outer(
+  genes_by_condition,
+  genes_by_condition,
+  Vectorize(function(x, y) length(intersect(x, y)) / length(union(x, y)))
+)
+
+gene_df <- make_triangular_df(jac_genes)
+
+gene_sizes <- tibble(
+  condition = names(genes_by_condition),
+  n = sapply(genes_by_condition, length)
+)
+
+p_genes <- ggplot(gene_df, aes(x = condition1, y = condition2, fill = jaccard)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", jaccard)), size = 4) +
+  
+  scale_fill_gradient(low = "white", high = "#aaaaaa", limits = c(0, 1)) +
+  
+  scale_x_discrete(
+    labels = function(x) paste0(x, "\n(n=", gene_sizes$n[match(x, gene_sizes$condition)], ")")
+  ) +
+  scale_y_discrete(
+    labels = function(x) paste0(x, "\n(n=", gene_sizes$n[match(x, gene_sizes$condition)], ")")
+  ) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  ) +
+  labs(
+    title = "Gene-level Jaccard similarity",
+    x = NULL, y = NULL, fill = "Jaccard"
+  )
+
+p_genes
+
+jac_variants <- outer(
+  variants_by_condition,
+  variants_by_condition,
+  Vectorize(function(x, y) length(intersect(x, y)) / length(union(x, y)))
+)
+
+variant_df <- make_triangular_df(jac_variants)
+
+variant_sizes <- tibble(
+  condition = names(variants_by_condition),
+  n = sapply(variants_by_condition, length)
+)
+
+p_variants <- ggplot(variant_df, aes(condition1, condition2, fill = jaccard)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", jaccard)), size = 4) +
+  
+  scale_fill_gradient(low = "white", high = "#aaaaaa", limits = c(0, 1)) +
+  
+  scale_x_discrete(
+    labels = function(x) paste0(x, "\n(n=", variant_sizes$n[match(x, variant_sizes$condition)], ")")
+  ) +
+  scale_y_discrete(
+    labels = function(x) paste0(x, "\n(n=", variant_sizes$n[match(x, variant_sizes$condition)], ")")
+  ) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Gene-variant Jaccard similarity",
+    x = NULL, y = NULL, fill = "Jaccard"
+  )
+
+p_variants
+
+
+pdf("../../data/results/8.4.Shared_eqtls_mashr/Jaccard.pdf",
+    width = 4, height = 5)
+(p_genes / p_variants )
+dev.off()
+
+png("../../data/results/8.4.Shared_eqtls_mashr/Jaccard.png",
+    width = 4, height = 5,units = "in", res = 600)
+(p_genes / p_variants )
+dev.off()
+
+
+#### reviewed up to here
+
+
 
 strong = strong %>%
   dplyr::select(slope,slope_se,group,ensembl_id_var) %>%

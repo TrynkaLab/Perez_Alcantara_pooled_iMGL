@@ -44,6 +44,13 @@ write_csv(res_additive$IFNvsUntreated,"../../data/results/5.1.Diff_expr_limma/IF
 write_csv(res_additive$LPSvsUntreated,"../../data/results/5.1.Diff_expr_limma/LPSvsUntreated_poslogFC_higher_LPS.csv")
 write_csv(res_additive$IFNvsLPS,"../../data/results/5.1.Diff_expr_limma/IFNvsLPS_poslogFC_higher_IFN.csv")
 
+#
+res_additive = list()
+res_additive[["IFNvsUntreated"]] = read_csv("../../data/results/5.1.Diff_expr_limma/Suppl_table_3_DEG_IFN_vs_Untreated.csv")
+res_additive[["LPSvsUntreated"]] = read_csv("../../data/results/5.1.Diff_expr_limma/Suppl_table_3_DEG_LPS_vs_Untreated.csv")
+res_additive[["IFNvsLPS"]] = read_csv("../../data/results/5.1.Diff_expr_limma/Suppl_table_3_DEG_IFN_vs_LPS.csv")
+
+
 ### volcano plots
 p1 = res_additive$IFNvsUntreated  %>%
   dplyr::filter(diffexp == "NO") %>%   # Filter the rows that meet the conditions
@@ -136,10 +143,13 @@ dev.off()
 
 ## jeremy genes
 jeremy_ad_candidates = read_table("../../../resources/Jeremy_medrXiv_AD_candidate_genes.txt")
-jeremy_set1_ad_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/Set1_Jeremy_candidates.csv")
-jeremy_set3_pd_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/Set3_manually_curated.csv") %>%
-  dplyr::filter(str_detect(disease,"PD")) %>%
-  pull(gene_name)
+# jeremy_set1_ad_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/Set1_Jeremy_candidates.csv")
+# jeremy_set3_pd_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/Set3_manually_curated.csv") %>%
+#   dplyr::filter(str_detect(disease,"PD")) %>%
+#   pull(gene_name)
+
+jeremy_set1_ad_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/AD_candidates.csv",col_names = "gene")
+jeremy_set3_pd_candidates = read_csv("../../../resources/AD_PD_gene_sets_Andrew/PD_candidates.csv",col_names = "gene") 
 # lead phagocytosis sam
 sam_crispr = read_tsv("../../../CRISPR/OTAR2065_phagocytosis_CRISPR/data/2024_07_sam_screen_results.tsv") %>%
   dplyr::arrange(FDR) %>%
@@ -159,6 +169,17 @@ kampmann_crispr_immune = read_csv("../../../resources/CRISPRbrain_Kampmanm/kampm
   dplyr::arrange(`P Value`) %>%
   slice_head(n = 30) %>%
   pull(Gene)
+
+
+pathways = list()
+pathways[["jeremy_ad_candidates"]] = jeremy_ad_candidates$symbol
+# pathways[["set1_jeremy_ad_candidates"]] = jeremy_set1_ad_candidates$gene_sym # larger
+pathways[["set1_jeremy_ad_candidates"]] = jeremy_set1_ad_candidates$gene 
+# pathways[["set3_jeremy_pd_candidates"]] = jeremy_set3_pd_candidates
+pathways[["set3_jeremy_pd_candidates"]] = jeremy_set3_pd_candidates$gene
+pathways[["lead_phagocytosis_sam"]] = sam_crispr 
+pathways[["lead_phagocytosis_kampmann"]] = kampmann_crispr_phago
+pathways[["lead_immune_kampmann"]] = kampmann_crispr_immune 
 
 # signal significant differentially expressed genes
 
@@ -191,71 +212,166 @@ IFN_LPS_sorted = sort(IFN_LPS_sorted,decreasing = TRUE)
 IFN_LPS_sorted = IFN_LPS_sorted[!is.na(names(IFN_LPS_sorted))]
 res_additive$IFNvsLPS$entrez = symbol_to_entrez(res_additive$IFNvsLPS$symbol)
 
-pathways = list()
-pathways[["jeremy_ad_candidates"]] = jeremy_ad_candidates$symbol
-pathways[["set1_jeremy_ad_candidates"]] = jeremy_set1_ad_candidates$gene_sym # larger
-pathways[["set3_jeremy_pd_candidates"]] = jeremy_set3_pd_candidates
-pathways[["lead_phagocytosis_sam"]] = sam_crispr 
-pathways[["lead_phagocytosis_kampmann"]] = kampmann_crispr_phago
-pathways[["lead_immune_kampmann"]] = kampmann_crispr_immune 
+########## start of reviewed code
 
-### GSEA
+### Open Targets L2G files
+AD = read.table(
+  "../../../resources/open_targets/per_disease/AD_fullset_OT-MONDO_0004975-associated-targets-20_05_2026-v26_03.tsv",
+  sep = "\t",
+  header = TRUE
+)
 
-ifn_res = list()
-lps_res = list()
-ifn_lps_res = list()
+PD = read.table(
+"../../../resources/open_targets/per_disease/PD_fullset_OT-MONDO_0005180-associated-targets-20_05_2026-v26_03.tsv",
+  sep = "\t",
+  header = TRUE
+)
 
-ifn_res[["custom_genesets"]] = fgsea::fgsea(pathways=pathways, 
-                                                      stats=ifn_sorted,
-                                                      scoreType="pos",
-                                                      eps=0) %>%
-  tidyr::as_tibble() %>%
-  dplyr::arrange(desc(NES))
+ALS = read.table(
+  "../../../resources/open_targets/per_disease/ALS_fullset_OT-MONDO_0004976-associated-targets-20_05_2026-v26_03.tsv",
+  sep = "\t",
+  header = TRUE
+)
 
-lps_res[["custom_genesets"]] = fgsea::fgsea(pathways=pathways, 
-                                                      stats=lps_sorted,
-                                                      scoreType="pos",
-                                                      eps=0) %>%
-  tidyr::as_tibble() %>%
-  dplyr::arrange(desc(NES))
-
-ifn_lps_res[["custom_genesets"]] = fgsea::fgsea(pathways=pathways, 
-                                                      stats=IFN_LPS_sorted,
-                                                      scoreType="pos",
-                                                      eps=0) %>%
-  tidyr::as_tibble() %>%
-  dplyr::arrange(desc(NES))
-
-ifn_res[["custom_genesets"]]  = ifn_res[["custom_genesets"]] %>%
-  dplyr::mutate(contrast = "IFN vs untreated")
-lps_res[["custom_genesets"]]  = lps_res[["custom_genesets"]] %>%
-  dplyr::mutate(contrast = "LPS vs untreated")
-lps_res$custom_genesets$leadingEdge
-ifn_lps_res[["custom_genesets"]] = ifn_lps_res[["custom_genesets"]] %>%
-  dplyr::mutate(contrast = "IFN vs LPS")
-plotEnrichment(pathways$set1_jeremy_ad_candidates, lps_sorted)
-
-res_df = rbind(ifn_res[["custom_genesets"]] , lps_res[["custom_genesets"]],ifn_lps_res[["custom_genesets"]]  )
+MS = read.table(
+  "../../../resources/open_targets/per_disease/MS_fullset_OT-MONDO_0005301-associated-targets-20_05_2026-v26_03.tsv",
+  sep = "\t",
+  header = TRUE
+)
 
 
+### -------------------------
+### Build disease pathways
+### -------------------------
+
+make_pathway <- function(df, threshold = 0.5) {
+  
+  df %>%
+    dplyr::filter(globalScore >= threshold) %>%
+    dplyr::filter(!is.na(symbol)) %>%
+    dplyr::pull(symbol) %>%
+    unique()
+  
+}
+
+pathways = list(
+  AD    = make_pathway(AD, threshold = 0.05),
+  PD         = make_pathway(PD, threshold = 0.05),
+  ALS  = make_pathway(ALS, threshold = 0.05),
+  MS   = make_pathway(MS, threshold = 0.05)
+)
+
+### -------------------------
+### Build ranked limma stats
+### -------------------------
+
+rank_limma <- function(df) {
+  # df = df %>%
+  #   filter(diffexp !="NO")
+  stats = abs(df$t)
+  names(stats) = df$symbol
+  
+  stats = stats[!is.na(names(stats))]
+  stats = stats[!duplicated(names(stats))]
+  
+  sort(stats, decreasing = TRUE)
+}
+
+ranked_stats = lapply(res_additive, rank_limma)
+
+### -------------------------
+### Run fgsea
+### -------------------------
+
+gsea_results = lapply(names(ranked_stats), function(contrast_name) {
+  
+  fgsea::fgsea(
+    pathways = pathways,
+    stats = ranked_stats[[contrast_name]],
+    scoreType = "pos",
+    eps = 0
+  ) %>%
+    tidyr::as_tibble() %>%
+    dplyr::mutate(
+      contrast = contrast_name
+    )
+  
+})
+
+res_df = dplyr::bind_rows(gsea_results)
+
+### -------------------------
+### Global FDR correction
+### -------------------------
+
+res_df = res_df %>%
+  dplyr::mutate(
+    padj_bonf = p.adjust(pval, method = "bonferroni")
+  ) %>%
+  dplyr::arrange(padj_bonf)
+
+res_df
+
+
+
+
+
+# 
+# p = res_df %>%
+#   dplyr::filter(pathway != "jeremy_ad_candidates") %>%
+#   dplyr::mutate(contrast = factor(contrast,levels = c("IFN vs untreated","LPS vs untreated","IFN vs LPS")),
+#                 pathway = case_when(pathway == "set3_jeremy_pd_candidates" ~ "PD candidates",
+#                                     pathway == "set1_jeremy_ad_candidates" ~ "AD candidates"),
+#                 
+#                 minus_log10_pval = -log10(padj),
+#                 p_val_sig_plot =  c("***", "**", "*", "")[findInterval(padj, c(0.001, 0.01, 0.05)) + 1]) %>%
+#   dplyr::mutate(pathway = factor(pathway,levels = c( "AD candidates", "PD candidates",
+#                                                      "Lead phagocytosis CRISPR", "Lead phagocytosis CRISPR (Kampmann)","Lead immune CRISPR (Kampmann)"))) %>%
+#   ggplot( aes(y=pathway, x=contrast, fill = minus_log10_pval)) + 
+#   geom_raster() + 
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), # lables vertical
+#         strip.text.y = element_blank()) +  #remove facet bar on y 
+#   scale_fill_gradient(low = "white", high = "#74121D",name = bquote(-log10(P^{GSEA}))) +
+#   geom_text(aes(label = p_val_sig_plot), col = "white", size = 5) + 
+#   ggtitle("GSEA enrichment in candidate gene sets") +
+#   theme_minimal() + 
+#   theme(axis.title.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.ticks = element_blank(),
+#         panel.grid = element_blank(),
+#         axis.text = element_text(size = 12)) +
+#   # facet_grid(cols = vars(`gene list` )) +
+#   theme(legend.position="right")
+# 
+# 
+# png(paste0(outdir,"/GSEA_candidate_genes_tileplot.png"), 
+#     height = 4.5,width =10,units = "in", res = 500)
+# plot(p)
+# dev.off()
+
+##### review
+
+# plott color with NES instead of -log10pval
+# rank by. l2g instead of by DEG
+# if that fails, all top L2G per disease from open targets with directionality
 p = res_df %>%
-  dplyr::filter(pathway != "jeremy_ad_candidates") %>%
-  dplyr::mutate(contrast = factor(contrast,levels = c("IFN vs untreated","LPS vs untreated","IFN vs LPS")),
-                pathway = case_when(pathway == "set3_jeremy_pd_candidates" ~ "PD candidates",
-                                    pathway == "set1_jeremy_ad_candidates" ~ "AD candidates",
-                                    pathway == "lead_phagocytosis_sam" ~ "Lead phagocytosis CRISPR",
-                                    pathway == "lead_phagocytosis_kampmann" ~ "Lead phagocytosis CRISPR (Kampmann)",
-                                    pathway == "lead_immune_kampmann" ~ "Lead immune CRISPR (Kampmann)"),
-                minus_log10_pval = -log10(padj),
-                p_val_sig_plot =  c("***", "**", "*", "")[findInterval(padj, c(0.001, 0.01, 0.05)) + 1]) %>%
-  dplyr::mutate(pathway = factor(pathway,levels = c( "AD candidates", "PD candidates",
-                                                     "Lead phagocytosis CRISPR", "Lead phagocytosis CRISPR (Kampmann)","Lead immune CRISPR (Kampmann)"))) %>%
-ggplot( aes(y=pathway, x=contrast, fill = minus_log10_pval)) + 
-  geom_raster() + 
+  dplyr::filter(pathway %in% c("AD","ALS","MS","PD")) %>%
+  dplyr::mutate(contrast = factor(contrast,levels = c("IFNvsUntreated","LPSvsUntreated","IFNvsLPS")),
+                minus_log10_pval = -log10(padj_bonf),
+                p_val_sig_plot =  c("***", "**", "*", "")[findInterval(padj_bonf, c(0.001, 0.01, 0.05)) + 1]) %>%
+  dplyr::mutate(pathway = factor(pathway,levels = rev(c("AD","ALS","MS","PD")))) %>%
+  ggplot( aes(y=pathway, x=contrast, fill = NES)) + 
+  geom_tile() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), # lables vertical
         strip.text.y = element_blank()) +  #remove facet bar on y 
-  scale_fill_gradient(low = "white", high = "#74121D",name = bquote(-log10(P^{GSEA}))) +
-  geom_text(aes(label = p_val_sig_plot), col = "white", size = 5) + 
+  scale_fill_gradientn(
+    colours = c("white", "#F4A6A6", "#74121D"),
+    limits = c(1, 1.3),
+    breaks = c(1, 1.15,1.3),
+    oob = scales::squish,
+    name = "NES"
+  ) +
+  geom_text(aes(label = p_val_sig_plot), col = "black", size = 5) + 
   ggtitle("GSEA enrichment in candidate gene sets") +
   theme_minimal() + 
   theme(axis.title.x=element_blank(),
@@ -266,11 +382,21 @@ ggplot( aes(y=pathway, x=contrast, fill = minus_log10_pval)) +
   # facet_grid(cols = vars(`gene list` )) +
   theme(legend.position="right")
 
-
 png(paste0(outdir,"/GSEA_candidate_genes_tileplot.png"), 
-    height = 4.5,width =10,units = "in", res = 500)
+    height = 4.5,width =5,units = "in", res = 600)
 plot(p)
 dev.off()
+
+cairo_pdf(paste0(outdir,"/GSEA_candidate_genes_tileplot.pdf"), 
+    height = 4.5,width =5 )
+plot(p)
+dev.off()
+
+##### end of reviewed code
+
+
+
+######
 
 # with directionality
 
